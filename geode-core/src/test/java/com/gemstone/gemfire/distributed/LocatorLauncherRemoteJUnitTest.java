@@ -213,6 +213,8 @@ public class LocatorLauncherRemoteJUnitTest extends AbstractLocatorLauncherJUnit
 
   @Test
   public void testStartUsesCustomLoggingConfiguration() throws Throwable {
+    // TODO: create working dir, copy custom xml to that dir and point log4j at it
+
     // build and start the locator
     final List<String> jvmArguments = getJvmArguments();
 
@@ -221,7 +223,8 @@ public class LocatorLauncherRemoteJUnitTest extends AbstractLocatorLauncherJUnit
     for (String jvmArgument : jvmArguments) {
       command.add(jvmArgument);
     }
-    command.add("-D" + ConfigurationFactory.CONFIGURATION_FILE_PROPERTY + "=/Users/klund/dev/gemfire/open/geode-core/src/test/resources/com/gemstone/gemfire/internal/logging/log4j/custom/log4j2.xml");
+    command.add("-Dlog4j.configurationFile=/Users/klund/dev/gemfire/open/geode-core/src/test/resources/com/gemstone/gemfire/internal/logging/log4j/custom/log4j2.xml");
+    //command.add("-D" + ConfigurationFactory.CONFIGURATION_FILE_PROPERTY + "=/Users/klund/dev/doesnotexist.xml");
     command.add("-cp");
     command.add(System.getProperty("java.class.path"));
     command.add(LocatorLauncher.class.getName());
@@ -231,7 +234,7 @@ public class LocatorLauncherRemoteJUnitTest extends AbstractLocatorLauncherJUnit
     command.add("--redirect-output");
 
     for (String line : command) {
-      System.out.println("KIRK: " + line);
+      System.out.println("KIRK:testStartUsesCustomLoggingConfiguration:stdout: " + line);
     }
 
     this.process = new ProcessBuilder(command).directory(this.temporaryFolder.getRoot()).start();

@@ -96,6 +96,10 @@ public class Custom_log4j2_xml_MinimalistWithLocatorLauncherIntegrationTest {
 
   @Test
   public void foo() throws Exception {
+    System.out.println("KIRK:foo: customConfigFile=" + this.customConfigFile.getAbsolutePath());
+    System.setProperty("log4j.configurationFile", this.customConfigFile.getAbsolutePath());
+    System.out.println("KIRK:foo: log4j.configurationFile=" + System.getProperty("log4j.configurationFile"));
+
     LocatorLauncher launcher = new LocatorLauncher.Builder()
             .setCommand(LocatorLauncher.Command.START)
             .setMemberName("membername")

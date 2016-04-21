@@ -513,7 +513,11 @@ public final class LocatorLauncher extends AbstractLauncher<String> {
         case START:
           info(start());
           // KIRK:
-          LogService.getLogger().info("KIRK: isUsingGemFireDefaultConfig=" + LogService.isUsingGemFireDefaultConfig());
+          System.out.println("KIRK:LocatorLauncher:stdout: log4j.configurationFile=" + System.getProperty("log4j.configurationFile"));
+          System.out.println("KIRK:LocatorLauncher:stdout: isUsingGemFireDefaultConfig=" + LogService.isUsingGemFireDefaultConfig());
+
+          LogService.getLogger().info("KIRK:LocatorLauncher:log: log4j.configurationFile=" + System.getProperty("log4j.configurationFile"));
+          LogService.getLogger().info("KIRK:LocatorLauncher:log: isUsingGemFireDefaultConfig=" + LogService.isUsingGemFireDefaultConfig());
 //          if (LogService.isUsingGemFireDefaultConfig()) {
 //            throw new AssertionError("isUsingGemFireDefaultConfig");
 //          }
