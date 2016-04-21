@@ -50,6 +50,7 @@ import com.gemstone.gemfire.internal.i18n.LocalizedStrings;
 import com.gemstone.gemfire.internal.lang.ObjectUtils;
 import com.gemstone.gemfire.internal.lang.StringUtils;
 import com.gemstone.gemfire.internal.lang.SystemUtils;
+import com.gemstone.gemfire.internal.logging.LogService;
 import com.gemstone.gemfire.internal.process.ConnectionFailedException;
 import com.gemstone.gemfire.internal.process.ControlNotificationHandler;
 import com.gemstone.gemfire.internal.process.ControllableProcess;
@@ -511,6 +512,11 @@ public final class LocatorLauncher extends AbstractLauncher<String> {
       switch (getCommand()) {
         case START:
           info(start());
+          // KIRK:
+          LogService.getLogger().info("KIRK: isUsingGemFireDefaultConfig=" + LogService.isUsingGemFireDefaultConfig());
+//          if (LogService.isUsingGemFireDefaultConfig()) {
+//            throw new AssertionError("isUsingGemFireDefaultConfig");
+//          }
           waitOnLocator();
           break;
         case STATUS:

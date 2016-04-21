@@ -98,10 +98,10 @@ public class Custom_log4j2_xml_MinimalistWithLocatorLauncherIntegrationTest {
   public void foo() throws Exception {
     LocatorLauncher launcher = new LocatorLauncher.Builder()
             .setCommand(LocatorLauncher.Command.START)
-            .set(DistributionConfig.LOCATORS_NAME, "")
-            .set(DistributionConfig.MCAST_PORT_NAME, "0")
             .setMemberName("membername")
-            .setPort(AvailablePort.getRandomAvailablePort(AvailablePort.MULTICAST))
+            //.set(DistributionConfig.LOCATORS_NAME, "")
+            .setPort(AvailablePort.getRandomAvailablePort(AvailablePort.SOCKET))
+            .setRedirectOutput(true)
             .build();
 
     launcher.start();

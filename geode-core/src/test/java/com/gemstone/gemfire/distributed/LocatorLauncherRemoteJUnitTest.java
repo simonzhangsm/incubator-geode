@@ -221,7 +221,7 @@ public class LocatorLauncherRemoteJUnitTest extends AbstractLocatorLauncherJUnit
     for (String jvmArgument : jvmArguments) {
       command.add(jvmArgument);
     }
-    command.add("-D" + ConfigurationFactory.CONFIGURATION_FILE_PROPERTY + "/Users/klund/dev/gemfire/open/geode-core/src/test/resources/com/gemstone/gemfire/internal/logging/log4j/custom/log4j2.xml");
+    command.add("-D" + ConfigurationFactory.CONFIGURATION_FILE_PROPERTY + "=/Users/klund/dev/gemfire/open/geode-core/src/test/resources/com/gemstone/gemfire/internal/logging/log4j/custom/log4j2.xml");
     command.add("-cp");
     command.add(System.getProperty("java.class.path"));
     command.add(LocatorLauncher.class.getName());
