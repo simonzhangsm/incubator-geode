@@ -278,6 +278,72 @@ public class LocatorLauncherRemoteJUnitTest extends AbstractLocatorLauncherJUnit
   }
 
   @Test
+  public void testStartUsesCustomLoggingConfigurationWithLauncherLifecycleCommands() throws Throwable {
+    // TODO: create working dir, copy custom xml to that dir and point log4j at it
+
+    // build and start the locator
+    final List<String> jvmArguments = getJvmArguments();
+
+    final List<String> command = new ArrayList<String>();
+    command.add(new File(new File(System.getProperty("java.home"), "bin"), "java").getCanonicalPath());
+    for (String jvmArgument : jvmArguments) {
+      command.add(jvmArgument);
+    }
+    command.add("-Dlog4j.configurationFile=/Users/klund/dev/gemfire/open/geode-core/src/test/resources/com/gemstone/gemfire/internal/logging/log4j/custom/log4j2.xml");
+    //command.add("-D" + ConfigurationFactory.CONFIGURATION_FILE_PROPERTY + "=/Users/klund/dev/doesnotexist.xml");
+    command.add("-cp");
+    command.add(System.getProperty("java.class.path"));
+    command.add(LocatorLauncher.class.getName());
+    command.add(LocatorLauncher.Command.START.getName());
+    command.add(getUniqueName());
+    command.add("--port=" + this.locatorPort);
+    command.add("--redirect-output");
+
+    for (String line : command) {
+      System.out.println("KIRK:testStartUsesCustomLoggingConfiguration:stdout: " + line);
+    }
+
+    this.process = new ProcessBuilder(command).directory(this.temporaryFolder.getRoot()).start();
+    this.processOutReader = new ProcessStreamReader.Builder(this.process).inputStream(this.process.getInputStream()).inputListener(new ToSystemOut()).build().start();
+    this.processErrReader = new ProcessStreamReader.Builder(this.process).inputStream(this.process.getErrorStream()).inputListener(new ToSystemOut()).build().start();
+
+    int pid = 0;
+    String workingDirectory = this.temporaryFolder.getRoot().getCanonicalPath();
+    System.out.println("KIRK: workingDirectory=" + workingDirectory);
+    this.launcher = new LocatorLauncher.Builder()
+            .setWorkingDirectory(workingDirectory)
+            .build();
+    try {
+      waitForLocatorToStart(this.launcher);
+
+      // validate the pid file and its contents
+      this.pidFile = new File(this.temporaryFolder.getRoot(), ProcessType.LOCATOR.getPidFileName());
+      assertTrue(this.pidFile.exists());
+      pid = readPid(this.pidFile);
+      assertTrue(pid > 0);
+      assertTrue(ProcessUtils.isProcessAlive(pid));
+
+      final String logFileName = getUniqueName()+".log";
+      assertTrue("Log file should exist: " + logFileName, new File(this.temporaryFolder.getRoot(), logFileName).exists());
+
+      // check the status
+      final LocatorState locatorState = this.launcher.status();
+      assertNotNull(locatorState);
+      assertEquals(Status.ONLINE, locatorState.getStatus());
+    } catch (Throwable e) {
+      this.errorCollector.addError(e);
+    }
+
+    // stop the locator
+    try {
+      assertEquals(Status.STOPPED, this.launcher.stop().getStatus());
+      waitForPidToStop(pid);
+    } catch (Throwable e) {
+      this.errorCollector.addError(e);
+    }
+  }
+
+  @Test
   public void testStartDeletesStaleControlFiles() throws Throwable {
     // create existing control files
     this.stopRequestFile = new File(this.temporaryFolder.getRoot(), ProcessType.LOCATOR.getStopRequestFileName());
