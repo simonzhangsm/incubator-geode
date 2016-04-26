@@ -19,7 +19,6 @@ package com.gemstone.gemfire.internal.cache.wan.parallel;
 import static org.junit.Assert.*;
 import static org.mockito.Mockito.*;
 
-import java.io.IOException;
 import java.util.Collections;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
 
@@ -30,8 +29,6 @@ import org.junit.experimental.categories.Category;
 import com.gemstone.gemfire.CancelCriterion;
 import com.gemstone.gemfire.cache.DataPolicy;
 import com.gemstone.gemfire.cache.PartitionAttributesFactory;
-import com.gemstone.gemfire.cache.RegionExistsException;
-import com.gemstone.gemfire.cache.TimeoutException;
 import com.gemstone.gemfire.internal.cache.GemFireCacheImpl;
 import com.gemstone.gemfire.internal.cache.PartitionedRegion;
 import com.gemstone.gemfire.internal.cache.PartitionedRegionDataStore;
