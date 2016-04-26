@@ -31,6 +31,7 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.contrib.java.lang.system.RestoreSystemProperties;
 import org.junit.experimental.categories.Category;
+import org.junit.rules.TemporaryFolder;
 import org.junit.rules.TestName;
 
 import com.gemstone.gemfire.CancelCriterion;
@@ -57,6 +58,9 @@ public class StatSamplerJUnitTest {
   public RestoreSystemProperties restoreSystemProperties = new RestoreSystemProperties();
 
   @Rule
+  public TemporaryFolder temporaryFolder = new TemporaryFolder();
+
+  @Rule
   public TestName testName = new TestName();
 
   @Before
@@ -72,15 +76,22 @@ public class StatSamplerJUnitTest {
     StatisticsTypeFactoryImpl.clear();
     StatArchiveWriter.clearTraceFilter();
   }
+
+  private String getName() {
+    return getClass().getSimpleName() + "_" + testName.getMethodName();
+  }
   
   @Test
   public void testStatSampler() throws Exception {
     StatArchiveWriter.setTraceFilter("st1_1", "ST1");
-    
+
+    File folder = temporaryFolder.newFolder();
+    String archiveFileName = folder.getAbsolutePath() + File.separator + getName() + ".gfs";
+
     System.setProperty("stats.log-level", "config");
     System.setProperty("stats.disable", "false");
-    System.setProperty("stats.name", getClass().getSimpleName() + "_" + testName.getMethodName());
-    System.setProperty("stats.archive-file", getClass().getSimpleName() + "_" + testName.getMethodName() + ".gfs");
+    System.setProperty("stats.name", getName());
+    System.setProperty("stats.archive-file", archiveFileName);
     System.setProperty("stats.file-size-limit", "0");
     System.setProperty("stats.disk-space-limit", "0");
     System.setProperty("stats.sample-rate", "100");
