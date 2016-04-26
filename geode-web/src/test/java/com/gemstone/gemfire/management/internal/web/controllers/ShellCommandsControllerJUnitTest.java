@@ -25,13 +25,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-
-import com.gemstone.gemfire.management.cli.CliMetaData;
-import com.gemstone.gemfire.management.internal.cli.util.ClasspathScanLoadHelper;
-import com.gemstone.gemfire.management.internal.web.domain.Link;
-import com.gemstone.gemfire.management.internal.web.domain.LinkIndex;
-import com.gemstone.gemfire.management.internal.web.util.UriUtils;
-import com.gemstone.gemfire.test.junit.categories.UnitTest;
+import javax.servlet.http.HttpServletRequest;
 
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
@@ -45,7 +39,12 @@ import org.springframework.web.context.request.RequestAttributes;
 import org.springframework.web.context.request.RequestContextHolder;
 import org.springframework.web.context.request.ServletRequestAttributes;
 
-import javax.servlet.http.HttpServletRequest;
+import com.gemstone.gemfire.management.cli.CliMetaData;
+import com.gemstone.gemfire.management.internal.cli.util.ClasspathScanLoadHelper;
+import com.gemstone.gemfire.management.internal.web.domain.Link;
+import com.gemstone.gemfire.management.internal.web.domain.LinkIndex;
+import com.gemstone.gemfire.management.internal.web.util.UriUtils;
+import com.gemstone.gemfire.test.junit.categories.UnitTest;
 
 /**
  * The ShellCommandsControllerJUnitTest class is a test suite of test cases testing the contract and functionality of the

@@ -28,24 +28,21 @@ import org.springframework.shell.core.annotation.CliCommand;
 import org.springframework.shell.core.annotation.CliOption;
 import org.springframework.shell.event.ParseResult;
 
+import com.gemstone.gemfire.management.cli.CliMetaData;
+import com.gemstone.gemfire.management.cli.ConverterHint;
 import com.gemstone.gemfire.management.cli.Result;
 import com.gemstone.gemfire.management.internal.cli.CommandManager;
 import com.gemstone.gemfire.management.internal.cli.GfshParser;
 import com.gemstone.gemfire.management.internal.cli.annotation.CliArgument;
-import com.gemstone.gemfire.management.cli.CliMetaData;
-import com.gemstone.gemfire.management.cli.ConverterHint;
 import com.gemstone.gemfire.management.internal.cli.result.ResultBuilder;
-import com.gemstone.gemfire.management.internal.cli.shell.Gfsh;
-import com.gemstone.gemfire.management.internal.cli.shell.GfshConfig;
-import com.gemstone.gemfire.management.internal.cli.shell.GfshExecutionStrategy;
 import com.gemstone.gemfire.test.junit.categories.UnitTest;
 
 /**
  * GfshExecutionStrategyTest - Includes tests to for GfshExecutionStrategyTest
- * 
  */
 @Category(UnitTest.class)
 public class GfshExecutionStrategyJUnitTest {
+
   private static final String COMMAND1_NAME = "command1";
   private static final String COMMAND1_NAME_ALIAS = "command1_alias";
   private static final String COMMAND2_NAME = "command2";
@@ -65,8 +62,7 @@ public class GfshExecutionStrategyJUnitTest {
     assertNotNull("CommandManager should not be null.", commandManager);      
     commandManager.add(Commands.class.newInstance());
     GfshParser parser = new GfshParser(commandManager);
-    String[] command1Names = ((CliCommand) Commands.class.getMethod(
-        COMMAND1_NAME).getAnnotation(CliCommand.class)).value();
+    String[] command1Names = ((CliCommand) Commands.class.getMethod(COMMAND1_NAME).getAnnotation(CliCommand.class)).value();
     String input =command1Names[0];
     ParseResult parseResult = null;   
     parseResult = parser.parse(input);  
@@ -86,8 +82,7 @@ public class GfshExecutionStrategyJUnitTest {
     CommandManager commandManager = CommandManager.getInstance();
     assertNotNull("CommandManager should not be null.", commandManager);
     commandManager.add(Commands.class.newInstance());      
-    String[] command1Names = ((CliCommand) Commands.class.getMethod(
-        COMMAND1_NAME).getAnnotation(CliCommand.class)).value();       
+    String[] command1Names = ((CliCommand) Commands.class.getMethod(COMMAND1_NAME).getAnnotation(CliCommand.class)).value();
     String[] args = new String[] {command1Names[0]  };
     Gfsh gfsh = Gfsh.getInstance(false, args, new GfshConfig());      
     GfshExecutionStrategy gfshExecutionStrategy = new GfshExecutionStrategy(gfsh);

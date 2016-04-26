@@ -38,6 +38,7 @@ import com.gemstone.gemfire.test.junit.categories.UnitTest;
 
 @Category(UnitTest.class)
 public class FreeListManagerTest {
+
   static {
     ClassLoader.getSystemClassLoader().setDefaultAssertionStatus(true);
   }

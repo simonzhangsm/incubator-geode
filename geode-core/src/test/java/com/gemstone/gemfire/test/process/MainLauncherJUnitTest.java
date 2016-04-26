@@ -37,7 +37,6 @@ import com.gemstone.gemfire.test.junit.categories.UnitTest;
 
 /**
  * Quick sanity tests to make sure MainLauncher is functional.
- * 
  */
 @Category(UnitTest.class)
 public class MainLauncherJUnitTest {

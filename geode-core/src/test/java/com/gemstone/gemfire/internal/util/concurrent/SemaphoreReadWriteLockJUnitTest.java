@@ -16,24 +16,23 @@
  */
 package com.gemstone.gemfire.internal.util.concurrent;
 
+import static org.junit.Assert.*;
+
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.locks.Lock;
 
+import org.junit.Test;
 import org.junit.experimental.categories.Category;
 
 import com.gemstone.gemfire.test.junit.categories.UnitTest;
 
-import junit.framework.TestCase;
-
-/**
- * 
- */
 @Category(UnitTest.class)
-public class SemaphoreReadWriteLockJUnitTest extends TestCase {
+public class SemaphoreReadWriteLockJUnitTest {
 
-  public void testReaderWaitsForWriter() throws InterruptedException {
+  @Test
+  public void testReaderWaitsForWriter() throws Exception {
     SemaphoreReadWriteLock rwl = new SemaphoreReadWriteLock();
     final Lock rl = rwl.readLock();
     final Lock wl = rwl.writeLock();
@@ -56,7 +55,8 @@ public class SemaphoreReadWriteLockJUnitTest extends TestCase {
     assertTrue(latch.await(10, TimeUnit.SECONDS));
   }
 
-  public void testWriterWaitsForReader() throws InterruptedException {
+  @Test
+  public void testWriterWaitsForReader() throws Exception {
     SemaphoreReadWriteLock rwl = new SemaphoreReadWriteLock();
     final Lock rl = rwl.readLock();
     final Lock wl = rwl.writeLock();
@@ -79,7 +79,8 @@ public class SemaphoreReadWriteLockJUnitTest extends TestCase {
     assertTrue(latch.await(10, TimeUnit.SECONDS));
   }
 
-  public void testReadersNotBlockedByReaders() throws InterruptedException {
+  @Test
+  public void testReadersNotBlockedByReaders() throws Exception {
     SemaphoreReadWriteLock rwl = new SemaphoreReadWriteLock();
     final Lock rl = rwl.readLock();
     final Lock wl = rwl.writeLock();
@@ -99,7 +100,8 @@ public class SemaphoreReadWriteLockJUnitTest extends TestCase {
     assertTrue(latch.await(10, TimeUnit.SECONDS));
   }
 
-  public void testWritersBlockedByWriters() throws InterruptedException {
+  @Test
+  public void testWritersBlockedByWriters() throws Exception {
     SemaphoreReadWriteLock rwl = new SemaphoreReadWriteLock();
     final Lock rl = rwl.readLock();
     final Lock wl = rwl.writeLock();
@@ -122,7 +124,8 @@ public class SemaphoreReadWriteLockJUnitTest extends TestCase {
     assertTrue(latch.await(10, TimeUnit.SECONDS));
   }
 
-  public void testTrylock() throws InterruptedException {
+  @Test
+  public void testTrylock() throws Exception {
     SemaphoreReadWriteLock rwl = new SemaphoreReadWriteLock();
     final Lock rl = rwl.readLock();
     final Lock wl = rwl.writeLock();
@@ -146,7 +149,8 @@ public class SemaphoreReadWriteLockJUnitTest extends TestCase {
     assertFalse(failed.get());
   }
 
-  public void testLockAndReleasebyDifferentThreads() throws InterruptedException {
+  @Test
+  public void testLockAndReleasebyDifferentThreads() throws Exception {
     SemaphoreReadWriteLock rwl = new SemaphoreReadWriteLock();
     final Lock rl = rwl.readLock();
     final Lock wl = rwl.writeLock();

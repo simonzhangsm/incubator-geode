@@ -16,7 +16,6 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-
 package com.gemstone.gemfire.cache.lucene.internal.distributed;
 
 import static org.junit.Assert.assertEquals;
@@ -38,6 +37,7 @@ import com.gemstone.gemfire.test.junit.categories.UnitTest;
 
 @Category(UnitTest.class)
 public class LuceneFunctionContextJUnitTest {
+
   @Test
   public void testLuceneFunctionArgsDefaults() {
     LuceneFunctionContext<IndexResultCollector> context = new LuceneFunctionContext<>();

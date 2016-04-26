@@ -50,10 +50,10 @@ import com.gemstone.gemfire.test.junit.categories.UnitTest;
 
 /**
  * CommandManagerTest - Includes tests to check the CommandManager functions
- * 
  */
 @Category(UnitTest.class)
 public class CommandManagerJUnitTest {
+
   private static final String COMMAND1_NAME = "command1";
   private static final String COMMAND1_NAME_ALIAS = "command1_alias";
   private static final String COMMAND2_NAME = "c2";
@@ -223,9 +223,9 @@ public class CommandManagerJUnitTest {
     assertTrue("Should not find unlisted plugin.", !commandManager.getCommands().containsKey("mock plugin command unlisted"));
   }
 
-
   // class that represents dummy commands
-  static public class Commands implements CommandMarker {
+  public static class Commands implements CommandMarker {
+
     @CliCommand(value = { COMMAND1_NAME, COMMAND1_NAME_ALIAS }, help = COMMAND1_HELP)
     @CliMetaData(shellOnly = true, relatedTopic = { "relatedTopicOfCommand1" })
     public static String command1(
@@ -273,11 +273,12 @@ public class CommandManagerJUnitTest {
     @CliAvailabilityIndicator({ COMMAND1_NAME })
     public boolean isAvailable() {
       return true; // always available on server
-
     }
-
   }
 
+  /**
+   * Used by testCommandManagerLoadPluginCommands
+   */
   static class SimpleConverter implements Converter<String> {
 
     public boolean supports(Class<?> type, String optionContext) {

@@ -36,12 +36,14 @@ import com.gemstone.gemfire.test.junit.categories.UnitTest;
 
 @Category(UnitTest.class)
 public class MemoryAllocatorJUnitTest {
+
   @Rule
   public final RestoreSystemProperties restoreSystemProperties = new RestoreSystemProperties();
 
   private static int round(int multiple, int v) {
     return ((v+multiple-1)/multiple)*multiple;
   }
+
   @Test
   public void testNullGetAllocator() {
     try {
@@ -50,6 +52,7 @@ public class MemoryAllocatorJUnitTest {
     } catch (CacheClosedException expected) {
     }
   }
+
   @Test
   public void testConstructor() {
     try {
@@ -58,6 +61,7 @@ public class MemoryAllocatorJUnitTest {
     } catch (IllegalArgumentException expected) {
     }
   }
+
   @Test
   public void testCreate() {
     System.setProperty(MemoryAllocatorImpl.FREE_OFF_HEAP_MEMORY_PROPERTY, "false");
@@ -149,6 +153,7 @@ public class MemoryAllocatorJUnitTest {
       assertTrue(stats.isClosed());
     }
   }
+
   @Test
   public void testBasics() {
     int BATCH_SIZE = 1;
@@ -254,6 +259,7 @@ public class MemoryAllocatorJUnitTest {
     MemoryAllocatorImpl.debugLog("test debug log", false);
     MemoryAllocatorImpl.debugLog("test debug log", true);
   }
+
   @Test
   public void testGetLostChunks() {
     SlabImpl slab = new SlabImpl(1024*1024);
@@ -264,6 +270,7 @@ public class MemoryAllocatorJUnitTest {
       MemoryAllocatorImpl.freeOffHeapMemory();
     }
   }
+
   @Test
   public void testFindSlab() {
     final int SLAB_SIZE = 1024*1024;
@@ -286,6 +293,7 @@ public class MemoryAllocatorJUnitTest {
       MemoryAllocatorImpl.freeOffHeapMemory();
     }
   }
+
   @Test
   public void testValidateAddressAndSize() {
     final int SLAB_SIZE = 1024*1024;
@@ -323,6 +331,7 @@ public class MemoryAllocatorJUnitTest {
       MemoryAllocatorImpl.freeOffHeapMemory();
     }
   }
+
   @Test
   public void testMemoryInspection() {
     final int SLAB_SIZE = 1024*1024;
@@ -504,6 +513,7 @@ public class MemoryAllocatorJUnitTest {
   
   long expectedMemoryUsage;
   boolean memoryUsageEventReceived;
+
   @Test
   public void testUsageEventListener() {
     final int perObjectOverhead = OffHeapStoredObject.HEADER_SIZE;
@@ -551,6 +561,7 @@ public class MemoryAllocatorJUnitTest {
       MemoryAllocatorImpl.freeOffHeapMemory();
     }
   }
+
   private void checkMcs(ArrayList<StoredObject> mcs) {
     for (StoredObject mc: mcs) {
       assertEquals(8+8, mc.getSize());

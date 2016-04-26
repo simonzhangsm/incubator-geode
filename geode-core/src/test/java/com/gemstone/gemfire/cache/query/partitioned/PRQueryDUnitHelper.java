@@ -1132,7 +1132,7 @@ public class PRQueryDUnitHelper extends PartitionedRegionDUnitTestCase
                 if(srr.size() > l*l) {
                   fail("The resultset size exceeds limit size. Limit size="+ l*l+", result size ="+ srr.asList().size());
                 }
-                //assertEquals("The resultset size is not same as limit size.", l*l, srr.asList().size());
+                //assertIndexDetailsEquals("The resultset size is not same as limit size.", l*l, srr.asList().size());
 
 //                getCache().getLogger().info("Finished executing PR query: " + qStr);
               }
@@ -1361,7 +1361,7 @@ public class PRQueryDUnitHelper extends PartitionedRegionDUnitTestCase
                 fail ("Index usage is not as expected, expected it to be either " + 
                     expectedUse + " or " + (expectedUse + indexUsageWithSizeEstimation) + 
                     " it is: " + indexUse);
-                //assertEquals(6 + indexUsageWithSizeEstimation, bukInd.getStatistics().getTotalUses());
+                //assertIndexDetailsEquals(6 + indexUsageWithSizeEstimation, bukInd.getStatistics().getTotalUses());
               }
               k++;
             }*/
@@ -2087,7 +2087,7 @@ public class PRQueryDUnitHelper extends PartitionedRegionDUnitTestCase
                   + ((PartitionedIndex)parIndex).getNumRemoteBucketsIndexed());
           }
           /*
-           * assertEquals("Max num of buckets in the partiotion regions and
+           * assertIndexDetailsEquals("Max num of buckets in the partiotion regions and
            * the " + "buckets indexed should be equal",
            * ((PartitionedRegion)region).getTotalNumberOfBuckets(),
            * (((PartionedIndex)parIndex).getNumberOfIndexedBucket()+((PartionedIndex)parIndex).getNumRemtoeBucketsIndexed()));

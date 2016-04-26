@@ -16,19 +16,15 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-
 package com.gemstone.gemfire.cache.lucene.internal.repository.serializer;
 
 import static org.junit.Assert.assertEquals;
 
 import org.apache.lucene.document.Document;
-import org.apache.lucene.index.Term;
-import org.junit.Assert;
 import org.junit.Test;
 import org.junit.experimental.categories.Category;
 import org.mockito.Mockito;
 
-import com.gemstone.gemfire.cache.lucene.internal.repository.serializer.HeterogenousLuceneSerializer;
 import com.gemstone.gemfire.pdx.PdxInstance;
 import com.gemstone.gemfire.test.junit.categories.UnitTest;
 
@@ -36,16 +32,16 @@ import com.gemstone.gemfire.test.junit.categories.UnitTest;
  * Unit test of the ObjectToDocumentMapper. 
  */
 @Category(UnitTest.class)
-public class HeterogenousLuceneSerializerJUnitTest {
+public class HeterogeneousLuceneSerializerJUnitTest {
 
   /**
    * Test that the mapper can handle a mix of different
    * object types.
    */
   @Test
-  public void testHetrogenousObjects() {
+  public void testHeterogeneousObjects() {
     String[] fields = new String[] {"s", "i", "l", "d", "f", "s2", "missing"};
-    HeterogenousLuceneSerializer mapper = new HeterogenousLuceneSerializer(fields);
+    HeterogeneousLuceneSerializer mapper = new HeterogeneousLuceneSerializer(fields);
     
     Type1 t1 = new Type1("a", 1, 2L, 3.0, 4.0f);
     

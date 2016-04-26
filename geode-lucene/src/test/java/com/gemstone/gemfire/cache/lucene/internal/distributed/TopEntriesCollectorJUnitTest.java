@@ -16,7 +16,6 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-
 package com.gemstone.gemfire.cache.lucene.internal.distributed;
 
 import static org.junit.Assert.assertEquals;
@@ -36,6 +35,7 @@ import com.gemstone.gemfire.test.junit.categories.UnitTest;
 
 @Category(UnitTest.class)
 public class TopEntriesCollectorJUnitTest {
+
   EntryScore r1_1 = new EntryScore("1-1", .9f);
   EntryScore r1_2 = new EntryScore("1-2", .7f);
   EntryScore r1_3 = new EntryScore("1-3", .5f);

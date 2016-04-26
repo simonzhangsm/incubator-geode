@@ -24,15 +24,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
 
-import com.gemstone.gemfire.internal.lang.StringUtils;
-import com.gemstone.gemfire.management.internal.cli.CommandRequest;
-import com.gemstone.gemfire.management.internal.web.AbstractWebTestCase;
-import com.gemstone.gemfire.management.internal.web.domain.Link;
-import com.gemstone.gemfire.management.internal.web.domain.LinkIndex;
-import com.gemstone.gemfire.management.internal.web.http.ClientHttpRequest;
-import com.gemstone.gemfire.management.internal.web.http.HttpMethod;
-import com.gemstone.gemfire.test.junit.categories.UnitTest;
-
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -41,6 +32,15 @@ import org.springframework.core.io.Resource;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.client.ResourceAccessException;
+
+import com.gemstone.gemfire.internal.lang.StringUtils;
+import com.gemstone.gemfire.management.internal.cli.CommandRequest;
+import com.gemstone.gemfire.management.internal.web.AbstractWebTestCase;
+import com.gemstone.gemfire.management.internal.web.domain.Link;
+import com.gemstone.gemfire.management.internal.web.domain.LinkIndex;
+import com.gemstone.gemfire.management.internal.web.http.ClientHttpRequest;
+import com.gemstone.gemfire.management.internal.web.http.HttpMethod;
+import com.gemstone.gemfire.test.junit.categories.UnitTest;
 
 /**
  * The RestHttpOperationInvokerJUnitTest class is a test suite of test cases testing the contract and functionality of the

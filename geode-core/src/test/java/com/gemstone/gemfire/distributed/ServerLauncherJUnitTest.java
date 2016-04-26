@@ -18,14 +18,25 @@ package com.gemstone.gemfire.distributed;
 
 import static org.junit.Assert.*;
 
-import java.io.File;
-import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
 import java.util.Collections;
-import java.util.Properties;
 import java.util.concurrent.atomic.AtomicBoolean;
+
+import edu.umd.cs.mtc.MultithreadedTestCase;
+import edu.umd.cs.mtc.TestFramework;
+import org.jmock.Expectations;
+import org.jmock.Mockery;
+import org.jmock.lib.concurrent.Synchroniser;
+import org.jmock.lib.legacy.ClassImposteriser;
+import org.junit.After;
+import org.junit.Before;
+import org.junit.Rule;
+import org.junit.Test;
+import org.junit.contrib.java.lang.system.RestoreSystemProperties;
+import org.junit.experimental.categories.Category;
+import org.junit.rules.TestName;
 
 import com.gemstone.gemfire.cache.Cache;
 import com.gemstone.gemfire.cache.server.CacheServer;
@@ -35,22 +46,6 @@ import com.gemstone.gemfire.distributed.internal.DistributionConfig;
 import com.gemstone.gemfire.distributed.support.DistributedSystemAdapter;
 import com.gemstone.gemfire.internal.i18n.LocalizedStrings;
 import com.gemstone.gemfire.test.junit.categories.UnitTest;
-
-import edu.umd.cs.mtc.MultithreadedTestCase;
-import edu.umd.cs.mtc.TestFramework;
-
-import org.jmock.Expectations;
-import org.jmock.Mockery;
-import org.jmock.lib.concurrent.Synchroniser;
-import org.jmock.lib.legacy.ClassImposteriser;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Ignore;
-import org.junit.Rule;
-import org.junit.Test;
-import org.junit.contrib.java.lang.system.RestoreSystemProperties;
-import org.junit.experimental.categories.Category;
-import org.junit.rules.TestName;
 
 /**
  * The ServerLauncherJUnitTest class is a test suite of unit tests testing the contract, functionality and invariants
@@ -744,6 +739,7 @@ public class ServerLauncherJUnitTest {
     assertFalse(serverLauncher.isDisableDefaultServer());
     assertFalse(serverLauncher.isDefaultServerEnabled(mockCache));
   }
+
   @Test
   public void testIsDefaultServerEnabledWhenNoCacheServersExistAndDefaultServerDisabled() {
     final Cache mockCache = mockContext.mock(Cache.class, "Cache");
@@ -826,12 +822,6 @@ public class ServerLauncherJUnitTest {
     serverLauncher.startCacheServer(mockCache);
   }
   
-  public static void main(final String... args) {
-    System.err.printf("Thread (%1$s) is daemon (%2$s)%n", Thread.currentThread().getName(),
-      Thread.currentThread().isDaemon());
-    new Builder(args).setCommand(Command.START).build().run();
-  }
-
   private final class ServerWaitMultiThreadedTestCase extends MultithreadedTestCase {
 
     private final AtomicBoolean connectionStateHolder = new AtomicBoolean(true);
@@ -845,7 +835,8 @@ public class ServerLauncherJUnitTest {
       final Cache mockCache = mockContext.mock(Cache.class, "Cache");
 
       final DistributedSystem mockDistributedSystem = new DistributedSystemAdapter() {
-        @Override public boolean isConnected() {
+        @Override
+        public boolean isConnected() {
           return connectionStateHolder.get();
         }
       };

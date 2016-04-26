@@ -16,8 +16,25 @@
  */
 package com.vmware.gemfire.tools.pulse.controllers;
 
+import static org.hamcrest.Matchers.contains;
+import static org.hamcrest.Matchers.*;
+import static org.junit.Assert.*;
+import static org.mockito.Matchers.anyInt;
+import static org.mockito.Matchers.anyString;
+import static org.mockito.Mockito.doReturn;
+import static org.powermock.api.mockito.PowerMockito.spy;
+import static org.powermock.api.mockito.PowerMockito.when;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
+
+import java.io.File;
+import java.security.Principal;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.UUID;
+import javax.servlet.ServletContextListener;
+
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.gemstone.gemfire.test.junit.categories.UnitTest;
 import com.vmware.gemfire.tools.pulse.internal.PulseAppListener;
 import com.vmware.gemfire.tools.pulse.internal.controllers.PulseController;
 import com.vmware.gemfire.tools.pulse.internal.data.Cluster;
@@ -45,29 +62,9 @@ import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import org.springframework.web.context.WebApplicationContext;
 
-import javax.servlet.ServletContextListener;
-import java.io.File;
-import java.security.Principal;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.UUID;
+import com.gemstone.gemfire.test.junit.categories.IntegrationTest;
 
-import static org.hamcrest.Matchers.contains;
-import static org.hamcrest.Matchers.containsInAnyOrder;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
-import static org.mockito.Matchers.anyInt;
-import static org.mockito.Matchers.anyString;
-import static org.mockito.Mockito.doReturn;
-import static org.powermock.api.mockito.PowerMockito.spy;
-import static org.powermock.api.mockito.PowerMockito.when;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
-
-/**
- */
-@Category(UnitTest.class)
+@Category(IntegrationTest.class)
 @PrepareForTest(Repository.class)
 @RunWith(PowerMockRunner.class)
 @PowerMockRunnerDelegate(SpringJUnit4ClassRunner.class)
@@ -75,16 +72,6 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @ContextConfiguration("classpath*:mvc-dispatcher-servlet.xml")
 @PowerMockIgnore("*.UnitTest")
 public class PulseControllerJUnitTest {
-
-  @Autowired
-  private WebApplicationContext wac;
-
-  private MockMvc mockMvc;
-
-  private Cluster cluster;
-
-  @Rule
-  public TemporaryFolder tempFolder = new TemporaryFolder();
 
   private static final String PRINCIPAL_USER = "test-user";
 
@@ -106,6 +93,16 @@ public class PulseControllerJUnitTest {
   }
 
   private final ObjectMapper mapper = new ObjectMapper();
+
+  @Autowired
+  private WebApplicationContext wac;
+
+  private MockMvc mockMvc;
+
+  private Cluster cluster;
+
+  @Rule
+  public TemporaryFolder tempFolder = new TemporaryFolder();
 
   @Before
   public void setup() throws Exception {

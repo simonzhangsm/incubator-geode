@@ -432,7 +432,7 @@ public class PRBasicIndexCreationDUnitTest extends
                   + " and remote buckets indexed : "
                   + ((PartitionedIndex)parIndex).getNumRemoteBucketsIndexed());
           /*
-           * assertEquals("Max num of buckets in the partiotion regions and
+           * assertIndexDetailsEquals("Max num of buckets in the partiotion regions and
            * the " + "buckets indexed should be equal",
            * ((PartitionedRegion)region).getTotalNumberOfBuckets(),
            * (((PartionedIndex)parIndex).getNumberOfIndexedBucket()+((PartionedIndex)parIndex).getNumRemtoeBucketsIndexed()));

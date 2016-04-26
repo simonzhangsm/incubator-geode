@@ -27,14 +27,12 @@ import java.util.List;
 import static org.junit.Assert.*;
 import static org.mockito.Mockito.*;
 
-
-/**
- * Created by sbawaskar on 1/15/16.
- */
 @Category(UnitTest.class)
 public class MemoryInspectorImplJUnitTest {
+
   private FreeListManager freeList;
   private MemoryInspector inspector;
+
   @Before
   public void setUp() {
     this.freeList = mock(FreeListManager.class);
@@ -55,6 +53,7 @@ public class MemoryInspectorImplJUnitTest {
   public void getAllocatedBlocksBeforeCreateSnapshotReturnsEmptyList() {
     assertTrue(inspector.getAllocatedBlocks().isEmpty());
   }
+
   @Test
   public void getFirstBlockBeforeCreateSnapshotReturnsNull() {
     assertNull(inspector.getFirstBlock());

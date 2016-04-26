@@ -16,7 +16,6 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-
 package com.gemstone.gemfire.cache.lucene.internal;
 
 import static org.junit.Assert.assertEquals;
@@ -36,7 +35,6 @@ import com.gemstone.gemfire.test.junit.categories.UnitTest;
 
 @Category(UnitTest.class)
 public class StringQueryProviderJUnitTest {
-  static final String INDEXED_REGION = "indexedRegion";
 
   LuceneIndex mockIndex;
 

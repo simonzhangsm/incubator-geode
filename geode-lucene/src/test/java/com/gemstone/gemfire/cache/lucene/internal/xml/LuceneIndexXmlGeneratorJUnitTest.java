@@ -16,7 +16,6 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-
 package com.gemstone.gemfire.cache.lucene.internal.xml;
 
 import static org.junit.Assert.*;
@@ -43,7 +42,6 @@ public class LuceneIndexXmlGeneratorJUnitTest {
   
   /**
    * Test of generating and reading cache configuration back in.
-   * @throws SAXException 
    */
   @Test
   public void generateWithFields() throws SAXException {

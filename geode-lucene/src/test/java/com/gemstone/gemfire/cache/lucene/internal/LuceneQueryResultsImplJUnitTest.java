@@ -16,7 +16,6 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-
 package com.gemstone.gemfire.cache.lucene.internal;
 
 import static org.junit.Assert.*;
@@ -76,7 +75,6 @@ public class LuceneQueryResultsImplJUnitTest {
   
   @Test
   public void testMaxStore() {
-
     hits.set(5, new EntryScore("key_5", 502));
     
     LuceneQueryResultsImpl<String, String> results = new LuceneQueryResultsImpl<String, String>(hits, null, 5);

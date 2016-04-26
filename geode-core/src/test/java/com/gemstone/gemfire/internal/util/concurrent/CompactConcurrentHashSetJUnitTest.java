@@ -16,8 +16,7 @@
  */
 package com.gemstone.gemfire.internal.util.concurrent;
 
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
+import static org.junit.Assert.*;
 
 import java.util.HashSet;
 import java.util.Iterator;
@@ -32,9 +31,10 @@ import com.gemstone.gemfire.test.junit.categories.UnitTest;
 
 @Category(UnitTest.class)
 public class CompactConcurrentHashSetJUnitTest {
-  static int RANGE = 100000;
-  static int SET_SIZE = 1000;
-  Random ran = new Random();
+
+  private static final int RANGE = 100000;
+
+  private Random random = new Random();
   
   @Test
   public void testEquals() {
@@ -42,7 +42,7 @@ public class CompactConcurrentHashSetJUnitTest {
     s1 = new CompactConcurrentHashSet2();
     s2 = new HashSet();
     for (int i=0; i<10000; i++) {
-      int nexti = ran.nextInt(RANGE);
+      int nexti = random.nextInt(RANGE);
       s1.add(nexti);
       s2.add(nexti);
       assertTrue("expected s1 and s2 to be equal", s1.equals(s2));
@@ -60,7 +60,7 @@ public class CompactConcurrentHashSetJUnitTest {
     Set<Integer> s1;
     s1 = new CompactConcurrentHashSet2<Integer>();
     for (int i=0; i<10000; i++) {
-      int nexti = ran.nextInt(RANGE);
+      int nexti = random.nextInt(RANGE);
       s1.add(nexti);
     }
     for (Iterator<Integer> it=s1.iterator(); it.hasNext(); ) {
@@ -80,7 +80,7 @@ public class CompactConcurrentHashSetJUnitTest {
     s1 = new CompactConcurrentHashSet2<Integer>();
     s2 = new HashSet<Integer>();
     for (int i=0; i<10000; i++) {
-      int nexti = ran.nextInt(RANGE);
+      int nexti = random.nextInt(RANGE);
       s1.add(nexti);
       s2.add(nexti);
     }

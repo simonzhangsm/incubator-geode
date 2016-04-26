@@ -16,7 +16,6 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-
 package com.gemstone.gemfire.cache.lucene.internal.distributed;
 
 import static org.junit.Assert.assertEquals;
@@ -57,6 +56,7 @@ import com.gemstone.gemfire.test.junit.categories.UnitTest;
 
 @Category(UnitTest.class)
 public class LuceneFunctionJUnitTest {
+
   Mockery mocker;
 
   String regionPath = "/region";

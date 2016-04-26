@@ -59,7 +59,8 @@ public class MemoryBlockNodeJUnitTest {
     ClassLoader.getSystemClassLoader().setDefaultAssertionStatus(true);
   }
   
-  @Rule public final ProvideSystemProperty myPropertyHasMyValue = new ProvideSystemProperty("gemfire.OFF_HEAP_DO_EXPENSIVE_VALIDATION", "true");
+  @Rule
+  public final ProvideSystemProperty myPropertyHasMyValue = new ProvideSystemProperty("gemfire.OFF_HEAP_DO_EXPENSIVE_VALIDATION", "true");
 
   @Rule
   public final RestoreSystemProperties restoreSystemProperties = new RestoreSystemProperties();

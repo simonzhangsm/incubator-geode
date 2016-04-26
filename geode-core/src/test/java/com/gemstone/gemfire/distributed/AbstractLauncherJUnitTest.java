@@ -42,7 +42,7 @@ import org.junit.experimental.categories.Category;
 @Category(UnitTest.class)
 public class AbstractLauncherJUnitTest {
 
-  protected AbstractLauncher<?> createAbstractLauncher(final String memberName, final String memberId) {
+  private AbstractLauncher<?> createAbstractLauncher(final String memberName, final String memberId) {
     return new FakeServiceLauncher(memberName, memberId);
   }
 
@@ -249,7 +249,7 @@ public class AbstractLauncherJUnitTest {
       TimeUnit.DAYS.toMillis(2) + TimeUnit.HOURS.toMillis(1) + TimeUnit.MINUTES.toMillis(30) + TimeUnit.SECONDS.toMillis(1)));
   }
 
-  protected static final class FakeServiceLauncher extends AbstractLauncher<String> {
+  private static final class FakeServiceLauncher extends AbstractLauncher<String> {
 
     private final String memberId;
     private final String memberName;

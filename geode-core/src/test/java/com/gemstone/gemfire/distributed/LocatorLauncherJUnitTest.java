@@ -21,19 +21,18 @@ import static org.junit.Assert.*;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
 
-import com.gemstone.gemfire.distributed.LocatorLauncher.Builder;
-import com.gemstone.gemfire.distributed.LocatorLauncher.Command;
-import com.gemstone.gemfire.distributed.internal.DistributionConfig;
-import com.gemstone.gemfire.internal.i18n.LocalizedStrings;
-import com.gemstone.gemfire.test.junit.categories.UnitTest;
-
 import joptsimple.OptionException;
-
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.contrib.java.lang.system.RestoreSystemProperties;
 import org.junit.experimental.categories.Category;
 import org.junit.rules.TestName;
+
+import com.gemstone.gemfire.distributed.LocatorLauncher.Builder;
+import com.gemstone.gemfire.distributed.LocatorLauncher.Command;
+import com.gemstone.gemfire.distributed.internal.DistributionConfig;
+import com.gemstone.gemfire.internal.i18n.LocalizedStrings;
+import com.gemstone.gemfire.test.junit.categories.UnitTest;
 
 /**
  * The LocatorLauncherJUnitTest class is a test suite of test cases for testing the contract and functionality of

@@ -44,8 +44,7 @@ import com.gemstone.gemfire.test.junit.categories.UnitTest;
 
 /**
  * Test cases for {@link CacheElement}.
- * 
- * 
+ *
  * @see CacheElement
  *
  * @since 8.1

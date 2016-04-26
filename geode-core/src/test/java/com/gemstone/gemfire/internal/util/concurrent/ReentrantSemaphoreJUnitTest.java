@@ -16,22 +16,21 @@
  */
 package com.gemstone.gemfire.internal.util.concurrent;
 
+import static org.junit.Assert.*;
+
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicReference;
 
+import org.junit.Test;
 import org.junit.experimental.categories.Category;
 
 import com.gemstone.gemfire.test.junit.categories.UnitTest;
 
-import junit.framework.TestCase;
-
-/**
- *
- */
 @Category(UnitTest.class)
-public class ReentrantSemaphoreJUnitTest extends TestCase {
-  
+public class ReentrantSemaphoreJUnitTest {
+
+  @Test
   public void test() throws Throwable {
     final ReentrantSemaphore sem = new ReentrantSemaphore(2);
     

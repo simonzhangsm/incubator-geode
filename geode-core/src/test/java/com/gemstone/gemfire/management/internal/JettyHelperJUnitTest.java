@@ -20,10 +20,6 @@ import static org.junit.Assert.*;
 
 import org.eclipse.jetty.server.Server;
 import org.eclipse.jetty.server.ServerConnector;
-import org.jmock.Mockery;
-import org.jmock.lib.legacy.ClassImposteriser;
-import org.junit.After;
-import org.junit.Before;
 import org.junit.Test;
 import org.junit.experimental.categories.Category;
 
@@ -33,7 +29,8 @@ import com.gemstone.gemfire.test.junit.categories.UnitTest;
  * The JettyHelperJUnitTest class is a test suite of test cases testing the
  * contract and functionality of the JettyHelper
  * class.
- * <p/>
+ * <p>
+ *
  * @see com.gemstone.gemfire.management.internal.JettyHelper
  * @see org.jmock.Mockery
  * @see org.junit.Assert
@@ -42,20 +39,6 @@ import com.gemstone.gemfire.test.junit.categories.UnitTest;
 @Category(UnitTest.class)
 public class JettyHelperJUnitTest {
 
-  private Mockery mockContext;
-
-  @Before
-  public void setUp() {
-    mockContext = new Mockery();
-    mockContext.setImposteriser(ClassImposteriser.INSTANCE);
-  }
-
-  @After
-  public void tearDown() {
-    mockContext.assertIsSatisfied();
-    mockContext = null;
-  }
-
   @Test
   public void testSetPortNoBindAddress() throws Exception {
 
@@ -63,7 +46,7 @@ public class JettyHelperJUnitTest {
 
     assertNotNull(jetty);
     assertNotNull(jetty.getConnectors()[0]);
-    assertEquals(8090, ((ServerConnector)jetty.getConnectors()[0]).getPort());
+    assertEquals(8090, ((ServerConnector) jetty.getConnectors()[0]).getPort());
   }
 
   @Test
@@ -73,7 +56,7 @@ public class JettyHelperJUnitTest {
 
     assertNotNull(jetty);
     assertNotNull(jetty.getConnectors()[0]);
-    assertEquals(10480, ((ServerConnector)jetty.getConnectors()[0]).getPort());
+    assertEquals(10480, ((ServerConnector) jetty.getConnectors()[0]).getPort());
   }
 
 }

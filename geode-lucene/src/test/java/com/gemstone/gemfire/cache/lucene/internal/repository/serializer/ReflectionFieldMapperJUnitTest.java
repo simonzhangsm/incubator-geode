@@ -16,7 +16,6 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-
 package com.gemstone.gemfire.cache.lucene.internal.repository.serializer;
 
 import static org.junit.Assert.assertEquals;
@@ -25,7 +24,6 @@ import org.apache.lucene.document.Document;
 import org.junit.Test;
 import org.junit.experimental.categories.Category;
 
-import com.gemstone.gemfire.cache.lucene.internal.repository.serializer.ReflectionLuceneSerializer;
 import com.gemstone.gemfire.test.junit.categories.UnitTest;
 
 /**

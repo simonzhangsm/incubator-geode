@@ -16,9 +16,7 @@
  */
 package com.gemstone.gemfire.management.internal.cli;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.fail;
+import static org.junit.Assert.*;
 
 import java.lang.reflect.Method;
 import java.util.ArrayList;
@@ -53,7 +51,6 @@ import com.gemstone.gemfire.test.junit.categories.UnitTest;
 /**
  * GfshParserJUnitTest - Includes tests to check the parsing and auto-completion
  * capabilities of {@link GfshParser}
- *
  */
 @Category(UnitTest.class)
 public class GfshParserJUnitTest {
@@ -446,7 +443,6 @@ public class GfshParserJUnitTest {
 
   private void assertSimpleCompletionValues(List<String> expected,
       List<String> actual) {
-    // TODO Auto-generated method stub
     assertEquals("Check size", expected.size(), actual.size());
     for (int i = 0; i < expected.size(); i++) {
       assertEquals("Check completion value no." + i +". Expected("+expected.get(i)+") & Actual("+actual.get(i)+").", expected.get(i),
@@ -756,7 +752,6 @@ public class GfshParserJUnitTest {
 
   private void assertAdvancedCompletionValues(List<Completion> expected,
       List<Completion> actual) {
-    // TODO Auto-generated method stub
     assertEquals("Check size", expected.size(), actual.size());
     for (int i = 0; i < expected.size(); i++) {
       assertEquals("Check completion value no." + i+". Expected("+expected.get(i)+") & Actual("+actual.get(i)+").",
@@ -995,10 +990,12 @@ public class GfshParserJUnitTest {
     assertEquals(arguments[1], "this is a second argument");
   }
 
+  @Test
   public void testDefaultAvailabilityMessage() throws Exception {
     checkAvailabilityMessage(new AvailabilityCommands(), AvailabilityCommands.C2_NAME, AvailabilityCommands.C2_MSG_UNAVAILABLE, AvailabilityCommands.C2_PROP);
   }
 
+  @Test
   public void testCustomAvailabilityMessage() throws Exception {
     checkAvailabilityMessage(new AvailabilityCommands(), AvailabilityCommands.C1_NAME, AvailabilityCommands.C1_MSG_UNAVAILABLE, AvailabilityCommands.C1_PROP);
   }
@@ -1024,9 +1021,6 @@ public class GfshParserJUnitTest {
       System.setProperty(availabiltyBooleanProp, "true");
       parseResult = parser.parse(commandString);
       assertNotNull("ParseResult should not be null for available command.", parseResult);
-    } catch (CommandProcessingException e) {
-      fail("Command \""+commandString+"\" is expected to be available");
-      e.printStackTrace();
     } finally {
       System.clearProperty(availabiltyBooleanProp);
     }
@@ -1083,24 +1077,24 @@ public class GfshParserJUnitTest {
 
   static class SimpleConverter implements Converter<String> {
 
+    @Override
     public boolean supports(Class<?> type, String optionContext) {
-      // TODO Auto-generated method stub
       if (type.isAssignableFrom(String.class)) {
         return true;
       }
       return false;
     }
 
+    @Override
     public String convertFromText(String value, Class<?> targetType,
         String optionContext) {
-      // TODO Auto-generated method stub
       return value;
     }
 
+    @Override
     public boolean getAllPossibleValues(List<Completion> completions,
         Class<?> targetType, String existingData, String context,
         MethodTarget target) {
-      // TODO Auto-generated method stub
       if (context.equals(ARGUMENT1_CONTEXT)) {
         for (Completion completion : ARGUMENT1_COMPLETIONS) {
           completions.add(completion);

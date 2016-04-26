@@ -16,7 +16,6 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-
 package com.gemstone.gemfire.cache.lucene.internal.directory;
 
 import java.io.IOException;
@@ -42,6 +41,7 @@ import com.gemstone.gemfire.test.junit.categories.UnitTest;
  */
 @Category(UnitTest.class)
 public class RegionDirectoryJUnitTest extends BaseDirectoryTestCase {
+
   @Rule
   public SystemPropertiesRestoreRule restoreProps = new SystemPropertiesRestoreRule();
   

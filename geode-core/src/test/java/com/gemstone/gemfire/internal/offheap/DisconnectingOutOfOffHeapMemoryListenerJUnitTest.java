@@ -32,6 +32,7 @@ import com.gemstone.gemfire.test.junit.categories.UnitTest;
 
 @Category(UnitTest.class)
 public class DisconnectingOutOfOffHeapMemoryListenerJUnitTest {
+
   @Rule
   public final RestoreSystemProperties restoreSystemProperties = new RestoreSystemProperties();
   
@@ -81,6 +82,7 @@ public class DisconnectingOutOfOffHeapMemoryListenerJUnitTest {
     listener.outOfOffHeapMemory(ex);
     verify(dm).setRootCause(ex);
   }
+
   @Test
   public void setRootCauseNotCalledWhenGetRootCauseReturnsNonNull() {
     DisconnectingOutOfOffHeapMemoryListener listener = new DisconnectingOutOfOffHeapMemoryListener(ids);

@@ -27,28 +27,18 @@ import org.junit.Before;
 import org.junit.Test;
 import org.junit.experimental.categories.Category;
 
-import com.gemstone.gemfire.i18n.LogWriterI18n;
 import com.gemstone.gemfire.internal.NanoTimer;
-import com.gemstone.gemfire.internal.logging.LogWriterImpl;
-import com.gemstone.gemfire.internal.logging.PureLogWriter;
 import com.gemstone.gemfire.internal.statistics.StatMonitorHandler.StatMonitorNotifier;
 import com.gemstone.gemfire.internal.util.StopWatch;
 import com.gemstone.gemfire.test.junit.categories.UnitTest;
 
 /**
- * Unit test for the StatMonitorHandler and its inner classes.
+ * Unit tests for the StatMonitorHandler and its inner classes.
  *   
  * @since 7.0
  */
 @Category(UnitTest.class)
 public class StatMonitorHandlerJUnitTest {
-
-  private LogWriterI18n log = null;
-
-  @Before
-  public void setUp() throws Exception {
-    this.log = new PureLogWriter(LogWriterImpl.levelNameToCode("config"));
-  }
 
   @Test
   public void testAddNewMonitor() throws Exception {

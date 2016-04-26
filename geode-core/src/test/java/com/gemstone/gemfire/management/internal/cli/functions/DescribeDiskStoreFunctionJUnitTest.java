@@ -26,6 +26,15 @@ import java.util.List;
 import java.util.Set;
 import java.util.UUID;
 
+import org.apache.logging.log4j.Logger;
+import org.jmock.Expectations;
+import org.jmock.Mockery;
+import org.jmock.lib.legacy.ClassImposteriser;
+import org.junit.After;
+import org.junit.Before;
+import org.junit.Test;
+import org.junit.experimental.categories.Category;
+
 import com.gemstone.gemfire.cache.Cache;
 import com.gemstone.gemfire.cache.DataPolicy;
 import com.gemstone.gemfire.cache.DiskStore;
@@ -48,16 +57,6 @@ import com.gemstone.gemfire.internal.util.CollectionUtils;
 import com.gemstone.gemfire.management.internal.cli.domain.DiskStoreDetails;
 import com.gemstone.gemfire.management.internal.cli.util.DiskStoreNotFoundException;
 import com.gemstone.gemfire.test.junit.categories.UnitTest;
-
-import org.apache.logging.log4j.Logger;
-import org.jmock.Expectations;
-import org.jmock.Mockery;
-import org.jmock.lib.legacy.ClassImposteriser;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.Ignore;
-import org.junit.experimental.categories.Category;
 
 /**
  * The DescribeDiskStoreFunctionJUnitTest test suite class tests the contract and functionality of the
@@ -444,7 +443,6 @@ public class DescribeDiskStoreFunctionJUnitTest {
   }
 
   @Test
-  @Ignore("Removing the old WAN broke this method. Unignore when merged")
   public void testExecute() throws Throwable {
     final UUID diskStoreId = UUID.randomUUID();
 

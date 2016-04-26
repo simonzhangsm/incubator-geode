@@ -38,7 +38,6 @@ import junitparams.Parameters;
 
 /**
  * Unit tests for LogService
- * 
  */
 @Category(UnitTest.class)
 @RunWith(JUnitParamsRunner.class)

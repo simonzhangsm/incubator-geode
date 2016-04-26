@@ -35,10 +35,10 @@ import com.gemstone.gemfire.test.junit.categories.UnitTest;
 
 /**
  * Tests LifecycleListener
- * 
  */
 @Category(UnitTest.class)
 public class LifecycleListenerJUnitTest {
+
   @Rule
   public final RestoreSystemProperties restoreSystemProperties = new RestoreSystemProperties();
 

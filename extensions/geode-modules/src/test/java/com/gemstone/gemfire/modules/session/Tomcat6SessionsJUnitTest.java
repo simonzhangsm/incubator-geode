@@ -17,13 +17,11 @@
 package com.gemstone.gemfire.modules.session;
 
 import com.gemstone.gemfire.modules.session.catalina.Tomcat6DeltaSessionManager;
-import com.gemstone.gemfire.test.junit.categories.UnitTest;
+import com.gemstone.gemfire.test.junit.categories.IntegrationTest;
 import org.junit.BeforeClass;
 import org.junit.experimental.categories.Category;
 
-/**
- */
-@Category(UnitTest.class)
+@Category(IntegrationTest.class)
 public class Tomcat6SessionsJUnitTest extends TestSessionsBase {
 
   // Set up the session manager we need

@@ -16,7 +16,6 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-
 package com.gemstone.gemfire.cache.lucene.internal.distributed;
 
 import org.junit.Assert;
@@ -29,6 +28,7 @@ import com.gemstone.gemfire.test.junit.categories.UnitTest;
 
 @Category(UnitTest.class)
 public class EntryScoreJUnitTest {
+
   @Test
   public void testSerialization() {
     LuceneServiceImpl.registerDataSerializables();

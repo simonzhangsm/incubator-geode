@@ -16,7 +16,6 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-
 package com.gemstone.gemfire.cache.lucene.internal.filesystem;
 
 import static org.junit.Assert.assertArrayEquals;
@@ -51,6 +50,7 @@ public class FileSystemJUnitTest {
 
   private static final int SMALL_CHUNK = 523;
   private static final int LARGE_CHUNK = 1024 * 1024 * 5 + 33;
+
   private FileSystem system;
   private Random rand = new Random();
   private ConcurrentHashMap<String, File> fileRegion;
@@ -466,7 +466,7 @@ public class FileSystemJUnitTest {
       //File was deleted, but shouldn't have any dangling chunks at this point
       assertEquals(Collections.EMPTY_SET, fileRegion.keySet());
       //TODO - need to purge chunks of deleted files somehow.
-//      assertEquals(Collections.EMPTY_SET, chunkRegion.keySet());
+//      assertIndexDetailsEquals(Collections.EMPTY_SET, chunkRegion.keySet());
     } else {
       file2 = system.getFile(name2);
       assertContents(expected.toByteArray(), file2);

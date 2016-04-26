@@ -137,7 +137,7 @@ public class ServerLauncherRemoteJUnitTest extends AbstractServerLauncherJUnitTe
 //      @Override
 //      public void run() {
 //        try {
-//          assertEquals(0, process.waitFor());
+//          assertIndexDetailsEquals(0, process.waitFor());
 //        } catch (InterruptedException e) {
 //          logger.error("Interrupted while waiting for process", e);
 //        }
@@ -958,7 +958,7 @@ public class ServerLauncherRemoteJUnitTest extends AbstractServerLauncherJUnitTe
       // check the status
       final ServerState serverState = dirLauncher.status();
       assertNotNull(serverState);
-      assertEquals(Status.NOT_RESPONDING, serverState.getStatus());
+      assertIndexDetailsEquals(Status.NOT_RESPONDING, serverState.getStatus());
       
       final String logFileName = getUniqueName()+".log";
       assertFalse("Log file should not exist: " + logFileName, new File(this.temporaryFolder.getRoot(), logFileName).exists());
