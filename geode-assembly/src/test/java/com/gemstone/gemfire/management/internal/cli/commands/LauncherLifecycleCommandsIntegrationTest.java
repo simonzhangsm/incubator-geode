@@ -32,8 +32,11 @@ import java.util.jar.Manifest;
 
 import org.junit.After;
 import org.junit.Before;
+import org.junit.Rule;
 import org.junit.Test;
 import org.junit.experimental.categories.Category;
+import org.junit.rules.TemporaryFolder;
+import org.junit.rules.TestName;
 
 import com.gemstone.gemfire.internal.util.IOUtils;
 import com.gemstone.gemfire.test.junit.categories.IntegrationTest;
@@ -51,6 +54,12 @@ import com.gemstone.gemfire.test.junit.categories.IntegrationTest;
 public class LauncherLifecycleCommandsIntegrationTest {
 
   private LauncherLifecycleCommands launcherCommands;
+
+  @Rule
+  public TemporaryFolder temporaryFolder = new TemporaryFolder();
+
+  @Rule
+  public TestName testName = new TestName();
 
   @Before
   public void setup() {
@@ -83,7 +92,8 @@ public class LauncherLifecycleCommandsIntegrationTest {
   public void testReadPid() throws IOException {
     final int expectedPid = 12345;
 
-    File pidFile = new File(getClass().getSimpleName().concat("_testReadPid.pid"));
+    File folder = temporaryFolder.newFolder();
+    File pidFile = new File(folder, getClass().getSimpleName() + "_" + testName.getMethodName() + ".pid");
 
     assertTrue(pidFile.createNewFile());
 
