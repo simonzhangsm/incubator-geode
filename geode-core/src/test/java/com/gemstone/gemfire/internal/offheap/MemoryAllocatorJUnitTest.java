@@ -31,11 +31,13 @@ import org.junit.experimental.categories.Category;
 
 import com.gemstone.gemfire.OutOfOffHeapMemoryException;
 import com.gemstone.gemfire.cache.CacheClosedException;
-import com.gemstone.gemfire.internal.logging.NullLogWriter;
 import com.gemstone.gemfire.test.junit.categories.UnitTest;
 
 @Category(UnitTest.class)
 public class MemoryAllocatorJUnitTest {
+
+  private long expectedMemoryUsage;
+  private boolean memoryUsageEventReceived;
 
   @Rule
   public final RestoreSystemProperties restoreSystemProperties = new RestoreSystemProperties();
@@ -511,9 +513,6 @@ public class MemoryAllocatorJUnitTest {
     }
   }
   
-  long expectedMemoryUsage;
-  boolean memoryUsageEventReceived;
-
   @Test
   public void testUsageEventListener() {
     final int perObjectOverhead = OffHeapStoredObject.HEADER_SIZE;

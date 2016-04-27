@@ -16,20 +16,17 @@
  */
 package com.gemstone.gemfire.internal.cache.xmlcache;
 
-import com.gemstone.gemfire.internal.ClassPathLoader;
+import static org.junit.Assert.*;
+
+import java.util.ServiceLoader;
+
 import org.junit.Test;
 import org.xml.sax.EntityResolver;
 import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
 import org.xml.sax.ext.EntityResolver2;
 
-import java.io.IOException;
-import java.util.ServiceLoader;
-
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertTrue;
+import com.gemstone.gemfire.internal.ClassPathLoader;
 
 /**
  * Unit test for {@link PivotalEntityResolver} and
@@ -37,9 +34,9 @@ import static org.junit.Assert.assertTrue;
  */
 public abstract class AbstractEntityResolverTest {
 
-  public abstract EntityResolver getEntityResolver();
+  protected abstract EntityResolver getEntityResolver();
 
-  public abstract String getSystemId();
+  protected abstract String getSystemId();
 
   /**
    * Assert that {@link PivotalEntityResolver} extends

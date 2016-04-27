@@ -31,7 +31,7 @@ import com.gemstone.gemfire.internal.NanoTimer;
 import com.gemstone.gemfire.test.junit.categories.UnitTest;
 
 /**
- * Unit tests for the StatisticsMonitor class.
+ * Unit tests for the StatisticsMonitor class. No disk IO.
  *   
  * @since 7.0
  */

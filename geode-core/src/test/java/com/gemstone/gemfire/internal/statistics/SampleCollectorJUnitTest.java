@@ -24,10 +24,8 @@ import java.util.List;
 
 import org.junit.After;
 import org.junit.Before;
-import org.junit.Rule;
 import org.junit.Test;
 import org.junit.experimental.categories.Category;
-import org.junit.rules.TemporaryFolder;
 
 import com.gemstone.gemfire.StatisticDescriptor;
 import com.gemstone.gemfire.Statistics;
@@ -40,7 +38,7 @@ import com.gemstone.gemfire.internal.statistics.TestSampleHandler.SampledInfo;
 import com.gemstone.gemfire.test.junit.categories.UnitTest;
 
 /**
- * Unit tests for the SampleCollector class.
+ * Unit tests for the SampleCollector class. No disk IO.
  *   
  * @since 7.0
  */

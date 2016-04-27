@@ -42,32 +42,29 @@ import com.gemstone.gemfire.test.junit.categories.UnitTest;
 @Category(UnitTest.class)
 public class ContextJUnitTest {
   
-  private Context initialCtx;
-  
-  private Context gfCtx;
-  
-  private Context envCtx;
-  
-  private Context datasourceCtx;
+  private Context initialContext;
+  private Context gemfireContext;
+  private Context envContext;
+  private Context dataSourceContext;
 
   @Before
   public void setUp() throws Exception {
     Hashtable table = new Hashtable();
     table.put(Context.INITIAL_CONTEXT_FACTORY, "com.gemstone.gemfire.internal.jndi.InitialContextFactoryImpl");
-    initialCtx = new InitialContext(table);
-    initialCtx.bind("java:gf/env/datasource/oracle", "a");
-    gfCtx = (Context) initialCtx.lookup("java:gf");
-    envCtx = (Context) gfCtx.lookup("env");
-    datasourceCtx = (Context) envCtx.lookup("datasource");
+    initialContext = new InitialContext(table);
+    initialContext.bind("java:gf/env/datasource/oracle", "a");
+    gemfireContext = (Context) initialContext.lookup("java:gf");
+    envContext = (Context) gemfireContext.lookup("env");
+    dataSourceContext = (Context) envContext.lookup("datasource");
   }
 
   @After
   public void tearDown() throws Exception {
-    clearContext(initialCtx);
-    datasourceCtx = null;
-    envCtx = null;
-    gfCtx = null;
-    initialCtx = null;
+    clearContext(initialContext);
+    dataSourceContext = null;
+    envContext = null;
+    gemfireContext = null;
+    initialContext = null;
   }
   
   /**
@@ -92,17 +89,17 @@ public class ContextJUnitTest {
   public void testSubcontextCreationOfDuplicates() throws NamingException {
     // Try to create duplicate subcontext
     try {
-      initialCtx.createSubcontext("java:gf");
+      initialContext.createSubcontext("java:gf");
       fail();
     }
-    catch (NameAlreadyBoundException ex) {
+    catch (NameAlreadyBoundException expected) {
     }
     // Try to create duplicate subcontext using multi-component name
     try {
-      gfCtx.createSubcontext("env/datasource");
+      gemfireContext.createSubcontext("env/datasource");
       fail();
     }
-    catch (NameAlreadyBoundException ex) {
+    catch (NameAlreadyBoundException expected) {
     }
   }
   
@@ -112,26 +109,26 @@ public class ContextJUnitTest {
   @Test
   public void testSubcontextNonEmptyDestruction() throws Exception {
     // Bind some object in ejb subcontext
-    datasourceCtx.bind("Test", "Object");
+    dataSourceContext.bind("Test", "Object");
     // Attempt to destroy any subcontext
     try {
-      initialCtx.destroySubcontext("java:gf");
+      initialContext.destroySubcontext("java:gf");
       fail();
     }
-    catch (ContextNotEmptyException ex) {
+    catch (ContextNotEmptyException expected) {
     }
     try {
-      initialCtx
+      initialContext
       .destroySubcontext("java:gf/env/datasource");
       fail();
     }
-    catch (ContextNotEmptyException ex) {
+    catch (ContextNotEmptyException expected) {
     }
     try {
-      envCtx.destroySubcontext("datasource");
+      envContext.destroySubcontext("datasource");
       fail();
     }
-    catch (ContextNotEmptyException ex) {
+    catch (ContextNotEmptyException expected) {
     }
   }
   
@@ -141,32 +138,31 @@ public class ContextJUnitTest {
   @Test
   public void testSubcontextDestruction() throws Exception {
     // Create three new subcontexts
-    datasourceCtx.createSubcontext("sub1");
-    datasourceCtx.createSubcontext("sub2");
-    envCtx.createSubcontext("sub3");
+    dataSourceContext.createSubcontext("sub1");
+    dataSourceContext.createSubcontext("sub2");
+    envContext.createSubcontext("sub3");
     // Destroy
-    initialCtx
-    .destroySubcontext("java:gf/env/datasource/sub1");
-    datasourceCtx.destroySubcontext("sub2");
-    envCtx.destroySubcontext("sub3");
+    initialContext.destroySubcontext("java:gf/env/datasource/sub1");
+    dataSourceContext.destroySubcontext("sub2");
+    envContext.destroySubcontext("sub3");
     // Perform lookup
     try {
-      datasourceCtx.lookup("sub1");
+      dataSourceContext.lookup("sub1");
       fail();
     }
-    catch (NameNotFoundException ex) {
+    catch (NameNotFoundException expected) {
     }
     try {
-      envCtx.lookup("datasource/sub2");
+      envContext.lookup("datasource/sub2");
       fail();
     }
-    catch (NameNotFoundException ex) {
+    catch (NameNotFoundException expected) {
     }
     try {
-      initialCtx.lookup("java:gf/sub3");
+      initialContext.lookup("java:gf/sub3");
       fail();
     }
-    catch (NameNotFoundException ex) {
+    catch (NameNotFoundException expected) {
     }
   }
   
@@ -176,58 +172,57 @@ public class ContextJUnitTest {
   @Test
   public void testSubcontextInvokingMethodsOnDestroyedContext() throws Exception {
     //Create subcontext and destroy it.
-    Context sub = datasourceCtx.createSubcontext("sub4");
-    initialCtx
-    .destroySubcontext("java:gf/env/datasource/sub4");
+    Context sub = dataSourceContext.createSubcontext("sub4");
+    initialContext.destroySubcontext("java:gf/env/datasource/sub4");
     
     try {
       sub.bind("name", "object");
       fail();
     }
-    catch (NoPermissionException ex) {
+    catch (NoPermissionException expected) {
     }
     try {
       sub.unbind("name");
       fail();
     }
-    catch (NoPermissionException ex) {
+    catch (NoPermissionException expected) {
     }
     try {
       sub.createSubcontext("sub5");
       fail();
     }
-    catch (NoPermissionException ex) {
+    catch (NoPermissionException expected) {
     }
     try {
       sub.destroySubcontext("sub6");
       fail();
     }
-    catch (NoPermissionException ex) {
+    catch (NoPermissionException expected) {
     }
     try {
       sub.list("");
       fail();
     }
-    catch (NoPermissionException ex) {
+    catch (NoPermissionException expected) {
     }
     try {
       sub.lookup("name");
       fail();
     }
-    catch (NoPermissionException ex) {
+    catch (NoPermissionException expected) {
     }
     try {
       sub.composeName("name", "prefix");
       fail();
     }
-    catch (NoPermissionException ex) {
+    catch (NoPermissionException expected) {
     }
     try {
       NameParserImpl parser = new NameParserImpl();
       sub.composeName(parser.parse("a"), parser.parse("b"));
       fail();
     }
-    catch (NoPermissionException ex) {
+    catch (NoPermissionException expected) {
     }
   }
   
@@ -239,19 +234,19 @@ public class ContextJUnitTest {
     Object obj1 = new String("Object1");
     Object obj2 = new String("Object2");
     Object obj3 = new String("Object3");
-    datasourceCtx.bind("sub21", null);
-    datasourceCtx.bind("sub22", obj1);
-    initialCtx.bind("java:gf/env/sub23", null);
-    initialCtx.bind("java:gf/env/sub24", obj2);
+    dataSourceContext.bind("sub21", null);
+    dataSourceContext.bind("sub22", obj1);
+    initialContext.bind("java:gf/env/sub23", null);
+    initialContext.bind("java:gf/env/sub24", obj2);
     // Bind to subcontexts that do not exist
-    initialCtx.bind("java:gf/env/datasource/sub25/sub26", obj3);
+    initialContext.bind("java:gf/env/datasource/sub25/sub26", obj3);
     
     // Try to lookup
-    assertNull(datasourceCtx.lookup("sub21"));
-    assertSame(datasourceCtx.lookup("sub22"), obj1);
-    assertNull(gfCtx.lookup("env/sub23"));
-    assertSame(initialCtx.lookup("java:gf/env/sub24"), obj2);
-    assertSame(datasourceCtx.lookup("sub25/sub26"), obj3);
+    assertNull(dataSourceContext.lookup("sub21"));
+    assertSame(dataSourceContext.lookup("sub22"), obj1);
+    assertNull(gemfireContext.lookup("env/sub23"));
+    assertSame(initialContext.lookup("java:gf/env/sub24"), obj2);
+    assertSame(dataSourceContext.lookup("sub25/sub26"), obj3);
   }
   
   /**
@@ -259,36 +254,31 @@ public class ContextJUnitTest {
    */
   @Test
   public void testUnbind() throws Exception {
-    envCtx.bind("sub31", null);
-    gfCtx.bind("env/ejb/sub32", new String("UnbindObject"));
+    envContext.bind("sub31", null);
+    gemfireContext.bind("env/ejb/sub32", new String("UnbindObject"));
     // Unbind
-    initialCtx.unbind("java:gf/env/sub31");
-    datasourceCtx.unbind("sub32");
+    initialContext.unbind("java:gf/env/sub31");
+    dataSourceContext.unbind("sub32");
     try {
-      envCtx.lookup("sub31");
+      envContext.lookup("sub31");
       fail();
     }
-    catch (NameNotFoundException ex) {
+    catch (NameNotFoundException expected) {
     }
     try {
-      initialCtx.lookup("java:gf/env/sub32");
+      initialContext.lookup("java:gf/env/sub32");
       fail();
     }
-    catch (NameNotFoundException ex) {
+    catch (NameNotFoundException expected) {
     }
     // Unbind non-existing name
-    try {
-      datasourceCtx.unbind("doesNotExist");
-    }
-    catch (Exception ex) {
-      fail();
-    }
+    dataSourceContext.unbind("doesNotExist");
     // Unbind non-existing name, when subcontext does not exists
     try {
-      gfCtx.unbind("env/x/y");
+      gemfireContext.unbind("env/x/y");
       fail();
     }
-    catch (NameNotFoundException ex) {
+    catch (NameNotFoundException expected) {
     }
   }
   
@@ -298,14 +288,14 @@ public class ContextJUnitTest {
    */
   @Test
   public void testListBindings() throws Exception {
-    gfCtx.bind("env/datasource/sub41", "ListBindings1");
-    envCtx.bind("sub42", "ListBindings2");
-    datasourceCtx.bind("sub43", null);
+    gemfireContext.bind("env/datasource/sub41", "ListBindings1");
+    envContext.bind("sub42", "ListBindings2");
+    dataSourceContext.bind("sub43", null);
     
     // Verify bindings for context specified by reference
-    verifyListBindings(envCtx, "", "ListBindings1", "ListBindings2");
+    verifyListBindings(envContext, "", "ListBindings1", "ListBindings2");
     // Verify bindings for context specified by name
-    verifyListBindings(initialCtx, "java:gf/env", "ListBindings1", "ListBindings2");
+    verifyListBindings(initialContext, "java:gf/env", "ListBindings1", "ListBindings2");
   }
   
   private void verifyListBindings(Context c, String name, Object obj1, Object obj2) throws NamingException {
@@ -318,7 +308,7 @@ public class ContextJUnitTest {
     for (NamingEnumeration en = c.listBindings(name); en.hasMore();) {
       Binding b = (Binding) en.next();
       if (b.getName().equals("datasource")) {
-        assertEquals(b.getObject(), datasourceCtx);
+        assertEquals(b.getObject(), dataSourceContext);
         datasourceFoundFlg = true;
         
         Context nextCon = (Context) b.getObject();

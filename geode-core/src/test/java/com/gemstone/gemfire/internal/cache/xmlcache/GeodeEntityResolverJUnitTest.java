@@ -39,12 +39,12 @@ public class GeodeEntityResolverJUnitTest extends AbstractEntityResolverTest {
   }
 
   @Override
-  public EntityResolver getEntityResolver() {
+  protected EntityResolver getEntityResolver() {
     return entityResolver;
   }
 
   @Override
-  public String getSystemId() {
+  protected String getSystemId() {
     return systemId;
   }
 
