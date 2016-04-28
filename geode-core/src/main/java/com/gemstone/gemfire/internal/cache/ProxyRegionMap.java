@@ -44,6 +44,7 @@ import com.gemstone.gemfire.internal.cache.versions.VersionSource;
 import com.gemstone.gemfire.internal.cache.versions.VersionStamp;
 import com.gemstone.gemfire.internal.cache.versions.VersionTag;
 import com.gemstone.gemfire.internal.i18n.LocalizedStrings;
+import com.gemstone.gemfire.internal.offheap.annotations.Released;
 
 /**
  * Internal implementation of {@link RegionMap}for regions whose DataPolicy is
@@ -279,7 +280,7 @@ final class ProxyRegionMap implements RegionMap {
       if (AbstractRegionMap.shouldCreateCBEvent(this.owner,
                                                 !inTokenMode)) {
         // fix for bug 39526
-        EntryEventImpl e = AbstractRegionMap.createCBEvent(this.owner, op,
+        @Released EntryEventImpl e = AbstractRegionMap.createCBEvent(this.owner, op,
             key, null, txId, txEvent, eventId, aCallbackArgument,filterRoutingInfo,bridgeContext, txEntryState, versionTag, tailKey);
         boolean cbEventInPending = false;
         try {
@@ -310,7 +311,7 @@ final class ProxyRegionMap implements RegionMap {
                                                 this.owner.isInitialized())) {
         // fix for bug 39526
         boolean cbEventInPending = false;
-        EntryEventImpl e = AbstractRegionMap.createCBEvent(this.owner, 
+        @Released EntryEventImpl e = AbstractRegionMap.createCBEvent(this.owner, 
             localOp ? Operation.LOCAL_INVALIDATE : Operation.INVALIDATE,
             key, newValue, txId, txEvent, eventId, aCallbackArgument,filterRoutingInfo,bridgeContext, txEntryState, versionTag, tailKey);
         try {
@@ -344,7 +345,7 @@ final class ProxyRegionMap implements RegionMap {
                                                 this.owner.isInitialized())) {
         // fix for bug 39526
         boolean cbEventInPending = false;
-        EntryEventImpl e = AbstractRegionMap.createCBEvent(this.owner, putOp, key, 
+        @Released EntryEventImpl e = AbstractRegionMap.createCBEvent(this.owner, putOp, key, 
             newValue, txId, txEvent, eventId, aCallbackArgument,filterRoutingInfo,bridgeContext, txEntryState, versionTag, tailKey);
         try {
         AbstractRegionMap.switchEventOwnerAndOriginRemote(e, txEntryState == null);
@@ -622,27 +623,6 @@ final class ProxyRegionMap implements RegionMap {
     @Override
     public void setUpdateInProgress(boolean underUpdate) {
       throw new UnsupportedOperationException(LocalizedStrings.ProxyRegionMap_NO_ENTRY_SUPPORT_ON_REGIONS_WITH_DATAPOLICY_0.toLocalizedString(DataPolicy.EMPTY));
-    }
-
-    @Override
-    public boolean isMarkedForEviction() {
-      throw new UnsupportedOperationException(LocalizedStrings
-          .ProxyRegionMap_NO_ENTRY_SUPPORT_ON_REGIONS_WITH_DATAPOLICY_0
-              .toLocalizedString(DataPolicy.EMPTY));
-    }
-
-    @Override
-    public void setMarkedForEviction() {
-      throw new UnsupportedOperationException(LocalizedStrings
-          .ProxyRegionMap_NO_ENTRY_SUPPORT_ON_REGIONS_WITH_DATAPOLICY_0
-              .toLocalizedString(DataPolicy.EMPTY));
-    }
-
-    @Override
-    public void clearMarkedForEviction() {
-      throw new UnsupportedOperationException(LocalizedStrings
-          .ProxyRegionMap_NO_ENTRY_SUPPORT_ON_REGIONS_WITH_DATAPOLICY_0
-              .toLocalizedString(DataPolicy.EMPTY));
     }
 
     @Override

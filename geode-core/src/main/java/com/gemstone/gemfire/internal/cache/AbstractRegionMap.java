@@ -18,7 +18,6 @@
 package com.gemstone.gemfire.internal.cache;
 
 
-import java.io.IOException;
 import java.lang.reflect.Method;
 import java.util.Collection;
 import java.util.HashSet;
@@ -36,7 +35,6 @@ import com.gemstone.gemfire.InvalidDeltaException;
 import com.gemstone.gemfire.cache.CacheRuntimeException;
 import com.gemstone.gemfire.cache.CacheWriter;
 import com.gemstone.gemfire.cache.CacheWriterException;
-import com.gemstone.gemfire.cache.CustomEvictionAttributes;
 import com.gemstone.gemfire.cache.DiskAccessException;
 import com.gemstone.gemfire.cache.EntryExistsException;
 import com.gemstone.gemfire.cache.EntryNotFoundException;
@@ -83,9 +81,6 @@ import com.gemstone.gemfire.internal.offheap.annotations.Retained;
 import com.gemstone.gemfire.internal.offheap.annotations.Unretained;
 import com.gemstone.gemfire.internal.sequencelog.EntryLogger;
 import com.gemstone.gemfire.internal.util.concurrent.CustomEntryConcurrentHashMap;
-import com.gemstone.gemfire.pdx.PdxInstance;
-import com.gemstone.gemfire.pdx.PdxSerializationException;
-import com.gemstone.gemfire.pdx.internal.ConvertableToBytes;
 
 /**
  * Abstract implementation of {@link RegionMap}that has all the common
@@ -303,10 +298,6 @@ public abstract class AbstractRegionMap implements RegionMap {
 
   public RegionEntry getEntry(Object key) {
     RegionEntry re = (RegionEntry)_getMap().get(key);
-    if (re != null && re.isMarkedForEviction()) {
-      // entry has been faulted in from HDFS
-      return null;
-    }
     return re;
   }
 
@@ -337,16 +328,12 @@ public abstract class AbstractRegionMap implements RegionMap {
   @Override
   public final RegionEntry getOperationalEntryInVM(Object key) {
     RegionEntry re = (RegionEntry)_getMap().get(key);
-    if (re != null && re.isMarkedForEviction()) {
-      // entry has been faulted in from HDFS
-      return null;
-    }
     return re;
   }
  
 
   public final void removeEntry(Object key, RegionEntry re, boolean updateStat) {
-    if (re.isTombstone() && _getMap().get(key) == re && !re.isMarkedForEviction()){
+    if (re.isTombstone() && _getMap().get(key) == re){
       logger.fatal(LocalizedMessage.create(LocalizedStrings.AbstractRegionMap_ATTEMPT_TO_REMOVE_TOMBSTONE), new Exception("stack trace"));
       return; // can't remove tombstones except from the tombstone sweeper
     }
@@ -362,7 +349,7 @@ public abstract class AbstractRegionMap implements RegionMap {
       EntryEventImpl event, final LocalRegion owner,
       final IndexUpdater indexUpdater) {
     boolean success = false;
-    if (re.isTombstone()&& _getMap().get(key) == re && !re.isMarkedForEviction()) {
+    if (re.isTombstone()&& _getMap().get(key) == re) {
       logger.fatal(LocalizedMessage.create(LocalizedStrings.AbstractRegionMap_ATTEMPT_TO_REMOVE_TOMBSTONE), new Exception("stack trace"));
       return; // can't remove tombstones except from the tombstone sweeper
     }
@@ -371,18 +358,6 @@ public abstract class AbstractRegionMap implements RegionMap {
         indexUpdater.onEvent(owner, event, re);
       }
 
-      //This is messy, but custom eviction calls removeEntry
-      //rather than re.destroy I think to avoid firing callbacks, etc.
-      //However, the value still needs to be set to removePhase1
-      //in order to remove the entry from disk.
-      if(event.isCustomEviction() && !re.isRemoved()) {
-        try {
-          re.removePhase1(owner, false);
-        } catch (RegionClearedException e) {
-          //that's ok, we were just trying to do evict incoming eviction
-        }
-      }
-      
       if (_getMap().remove(key, re)) {
         re.removePhase2();
         success = true;
@@ -1169,7 +1144,7 @@ public abstract class AbstractRegionMap implements RegionMap {
                         // transaction conflict (caused by eviction) when the entry
                         // is being added to transaction state.
                         if (isEviction) {
-                          if (!confirmEvictionDestroy(oldRe) || (owner.getEvictionCriteria() != null && !owner.getEvictionCriteria().doEvict(event))) {
+                          if (!confirmEvictionDestroy(oldRe)) {
                             opCompleted = false;
                             return opCompleted;
                           }
@@ -1424,7 +1399,7 @@ public abstract class AbstractRegionMap implements RegionMap {
                   // See comment above about eviction checks
                   if (isEviction) {
                     assert expectedOldValue == null;
-                    if (!confirmEvictionDestroy(re) || (owner.getEvictionCriteria() != null && !owner.getEvictionCriteria().doEvict(event))) {
+                    if (!confirmEvictionDestroy(re)) {
                       opCompleted = false;
                       return opCompleted;
                     }
@@ -1506,12 +1481,6 @@ public abstract class AbstractRegionMap implements RegionMap {
                   }
                 } // !isRemoved
                 else { // already removed
-                  if (owner.isHDFSReadWriteRegion() && re.isRemovedPhase2()) {
-                    // For HDFS region there may be a race with eviction
-                    // so retry the operation. fixes bug 49150
-                    retry = true;
-                    continue;
-                  }
                   if (re.isTombstone() && event.getVersionTag() != null) {
                     // if we're dealing with a tombstone and this is a remote event
                     // (e.g., from cache client update thread) we need to update
@@ -1626,7 +1595,7 @@ public abstract class AbstractRegionMap implements RegionMap {
               // a receipt of a TXCommitMessage AND there are callbacks installed
               // for this region
               boolean invokeCallbacks = shouldCreateCBEvent(owner, isRegionReady || inRI);
-              EntryEventImpl cbEvent = createCBEvent(owner, op,
+              @Released EntryEventImpl cbEvent = createCBEvent(owner, op,
                   key, null, txId, txEvent, eventId, aCallbackArgument, filterRoutingInfo, bridgeContext, txEntryState, versionTag, tailKey);
               try {
               
@@ -1858,7 +1827,7 @@ public abstract class AbstractRegionMap implements RegionMap {
         // the destroy is already applied on the Initial image provider, thus 
         // causing region entry to be absent. 
         // Notify clients with client events.
-        EntryEventImpl cbEvent = createCBEvent(owner, op,
+        @Released EntryEventImpl cbEvent = createCBEvent(owner, op,
             key, null, txId, txEvent, eventId, aCallbackArgument, 
             filterRoutingInfo, bridgeContext, txEntryState, versionTag, tailKey);
         try {
@@ -2397,7 +2366,7 @@ public abstract class AbstractRegionMap implements RegionMap {
     final LocalRegion owner = _getOwner();
     owner.checkBeforeEntrySync(txEvent);
     
-    EntryEventImpl cbEvent = null;
+    @Released EntryEventImpl cbEvent = null;
     boolean forceNewEntry = !owner.isInitialized() && owner.isAllEvents();
 
     final boolean hasRemoteOrigin = !((TXId)txId).getMemberId().equals(owner.getMyId());
@@ -2685,11 +2654,7 @@ public abstract class AbstractRegionMap implements RegionMap {
       boolean onlyExisting, boolean returnTombstone) {
     Object key = event.getKey();
     RegionEntry retVal = null;
-    if (event.isFetchFromHDFS()) {
-      retVal = getEntry(event);
-    } else {
-      retVal = getEntryInVM(key);
-    }
+    retVal = getEntry(event);
     if (onlyExisting) {
       if (!returnTombstone && (retVal != null && retVal.isTombstone())) {
         return null;
@@ -2988,47 +2953,6 @@ public abstract class AbstractRegionMap implements RegionMap {
                   else if (re != null && owner.isUsedForPartitionedRegionBucket()) {
                   BucketRegion br = (BucketRegion)owner;
                   CachePerfStats stats = br.getPartitionedRegion().getCachePerfStats();
-                  long startTime= stats.startCustomEviction();
-                  CustomEvictionAttributes csAttr = br.getCustomEvictionAttributes();
-                  // No need to update indexes if entry was faulted in but operation did not succeed. 
-                  if (csAttr != null && (csAttr.isEvictIncoming() || re.isMarkedForEviction())) {
-                    
-                    if (csAttr.getCriteria().doEvict(event)) {
-                      stats.incEvictionsInProgress();
-                      // set the flag on event saying the entry should be evicted 
-                      // and not indexed
-                      EntryEventImpl destroyEvent = EntryEventImpl.create (owner, Operation.DESTROY, event.getKey(),
-                          null/* newValue */, null, false, owner.getMyId());
-                      try {
-
-                      destroyEvent.setOldValueFromRegion();
-                      destroyEvent.setCustomEviction(true);
-                      destroyEvent.setPossibleDuplicate(event.isPossibleDuplicate());
-                      if(logger.isDebugEnabled()) {
-                        logger.debug("Evicting the entry " + destroyEvent);
-                      }
-                      if(result != null) {
-                        removeEntry(event.getKey(),re, true, destroyEvent,owner, indexUpdater);
-                      }
-                      else{
-                        removeEntry(event.getKey(),re, true, destroyEvent,owner, null);
-                      }
-                      //mark the region entry for this event as evicted 
-                      event.setEvicted();
-                      stats.incEvictions();
-                      if(logger.isDebugEnabled()) {
-                        logger.debug("Evicted the entry " + destroyEvent);
-                      }
-                      //removeEntry(event.getKey(), re);
-                      } finally {
-                        destroyEvent.release();
-                        stats.decEvictionsInProgress();
-                      }
-                    } else {
-                      re.clearMarkedForEviction();
-                    }
-                  }
-                  stats.endCustomEviction(startTime);
                 }
               } // try
             }
@@ -3340,8 +3264,8 @@ public abstract class AbstractRegionMap implements RegionMap {
     final boolean isTXHost = txEntryState != null;
     final boolean isClientTXOriginator = owner.cache.isClient() && !hasRemoteOrigin;
     final boolean isRegionReady = owner.isInitialized();
-    EntryEventImpl cbEvent = null;
-    EntryEventImpl sqlfEvent = null;
+    @Released EntryEventImpl cbEvent = null;
+    @Released EntryEventImpl sqlfEvent = null;
     boolean invokeCallbacks = shouldCreateCBEvent(owner, isRegionReady);
     boolean cbEventInPending = false;
     cbEvent = createCBEvent(owner, putOp, key, newValue, txId, 
@@ -3785,6 +3709,7 @@ public abstract class AbstractRegionMap implements RegionMap {
   }
 
   /** create a callback event for applying a transactional change to the local cache */
+  @Retained
   public static final EntryEventImpl createCBEvent(final LocalRegion re,
       Operation op, Object key, Object newValue, TransactionId txId, 
       TXRmtEvent txEvent,EventID eventId, Object aCallbackArgument,FilterRoutingInfo filterRoutingInfo,ClientProxyMembershipID bridgeContext, TXEntryState txEntryState, VersionTag versionTag, long tailKey)
@@ -3799,7 +3724,7 @@ public abstract class AbstractRegionMap implements RegionMap {
       eventRegion = re.getPartitionedRegion();
     }
     
-    EntryEventImpl retVal = EntryEventImpl.create(
+    @Retained EntryEventImpl retVal = EntryEventImpl.create(
         re, op, key, newValue,
         aCallbackArgument,
         txEntryState == null, originator);

@@ -19,6 +19,8 @@ package com.gemstone.gemfire.internal.cache.wan.serial;
 import java.io.IOException;
 import java.util.Map;
 
+import org.junit.experimental.categories.Category;
+
 import com.gemstone.gemfire.cache.CacheException;
 import com.gemstone.gemfire.cache.EntryExistsException;
 import com.gemstone.gemfire.cache.client.ServerOperationException;
@@ -30,6 +32,7 @@ import com.gemstone.gemfire.test.dunit.IgnoredException;
 import com.gemstone.gemfire.test.dunit.LogWriterUtils;
 import com.gemstone.gemfire.test.dunit.SerializableRunnableIF;
 import com.gemstone.gemfire.test.dunit.Wait;
+import com.gemstone.gemfire.test.junit.categories.FlakyTest;
 
 public class SerialWANPropogationDUnitTest extends WANTestBase {
 
@@ -97,7 +100,7 @@ public class SerialWANPropogationDUnitTest extends WANTestBase {
         getTestMethodName() + "_RR", "ln", isOffHeap()   );
   }
 
-  
+  @Category(FlakyTest.class) // GEODE-935 AND GEODE-1062: time sensitive, random ports, thread sleeps
   public void testReplicatedSerialPropagation_withoutRemoteSite() throws Exception {
     Integer lnPort = (Integer)vm0.invoke(() -> WANTestBase.createFirstLocatorWithDSId( 1 ));
 
@@ -133,8 +136,6 @@ public class SerialWANPropogationDUnitTest extends WANTestBase {
 
     vm2.invoke(() -> WANTestBase.createReceiver());
     vm3.invoke(() -> WANTestBase.createReceiver());
-
-    Thread.sleep(5000);
 
     vm4.invoke(() -> WANTestBase.validateRegionSize(
         getTestMethodName() + "_RR", 1000 ));
@@ -381,8 +382,6 @@ public class SerialWANPropogationDUnitTest extends WANTestBase {
       e.printStackTrace();
       fail();
     }
-    //sleep for some time to let all the events propagate to remote site
-    Thread.sleep(20);
     //vm4.invoke(() -> WANTestBase.verifyQueueSize( "ln", 0 ));
     vm2.invoke(() -> WANTestBase.validateRegionSize(
         getTestMethodName() + "_RR_1", 1000 ));
@@ -955,8 +954,8 @@ public class SerialWANPropogationDUnitTest extends WANTestBase {
     vm6.invoke(() -> WANTestBase.checkMinimumGatewayReceiverStats( 1, 1 ));
   }
 
-  public void testReplicatedSerialPropagationWithRemoteReceiverRestartedOnOtherNode()
-      throws Exception {
+  @Category(FlakyTest.class) // GEODE-975 AND GEODE-1032: random ports, waitForCriterion, short timeouts, async actions
+  public void testReplicatedSerialPropagationWithRemoteReceiverRestartedOnOtherNode() throws Exception {
     Integer lnPort = (Integer) vm0.invoke(() -> WANTestBase.createFirstLocatorWithDSId( 1 ));
     Integer nyPort = (Integer) vm1.invoke(() -> WANTestBase.createFirstRemoteLocator( 2, lnPort ));
 
