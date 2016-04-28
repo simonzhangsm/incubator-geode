@@ -32,18 +32,12 @@ import com.gemstone.gemfire.test.junit.categories.UnitTest;
 public class StatsRateJUnitTest  {
 
   private Long SINGLE_STATS_LONG_COUNTER = null;
-
   private Integer SINGLE_STATS_INT_COUNTER = null;
-
   private Long MULTI_STATS_LONG_COUNTER_1 = null;
-
   private Long MULTI_STATS_LONG_COUNTER_2 = null;
-
   private Integer MULTI_STATS_INT_COUNTER_1 = null;
-
   private Integer MULTI_STATS_INT_COUNTER_2 = null;
-  
-  private TestMBeanStatsMonitor statsMonitor = new TestMBeanStatsMonitor("TestStatsMonitor"); 
+  private TestMBeanStatsMonitor statsMonitor;
 
   @Before
   public void setUp() throws Exception {
@@ -53,6 +47,7 @@ public class StatsRateJUnitTest  {
     MULTI_STATS_LONG_COUNTER_2 = 0L;
     MULTI_STATS_INT_COUNTER_1 = 0;
     MULTI_STATS_INT_COUNTER_2 = 0;
+    statsMonitor = new TestMBeanStatsMonitor("TestStatsMonitor");
   }
 
   @Test

@@ -55,7 +55,9 @@ public class GfshExecutionStrategyJUnitTest {
     CommandManager.clearInstance();
   }
   
-  //tests execute method by executing dummy method command1
+  /**
+   * tests execute method by executing dummy method command1
+   */
   @Test
   public void testGfshExecutionStartegyExecute() throws Exception {
     CommandManager commandManager = CommandManager.getInstance();
@@ -74,9 +76,11 @@ public class GfshExecutionStrategyJUnitTest {
     assertTrue(str.trim().equals(COMMAND1_SUCESS));      
   }
   
-  //tests isReadyForCommnads method by executing dummy method command1.
-  //TODO: this method is hard coded in source which may change in future. So this 
-  //test should also be accordingly changed
+  /**
+   * tests isReadyForCommnads method by executing dummy method command1.
+   * TODO: this method is hard coded in source which may change in future. So this
+   * test should also be accordingly changed
+   */
   @Test
   public void testGfshExecutionStartegyIsReadyForCommands() throws Exception {
     CommandManager commandManager = CommandManager.getInstance();
@@ -90,7 +94,9 @@ public class GfshExecutionStrategyJUnitTest {
     assertTrue(ready);      
   }
 
-  //represents class for dummy methods
+  /**
+   * represents class for dummy methods
+   */
   public static class Commands implements CommandMarker {
 
     @CliCommand(value = { COMMAND1_NAME, COMMAND1_NAME_ALIAS }, help = COMMAND1_HELP)

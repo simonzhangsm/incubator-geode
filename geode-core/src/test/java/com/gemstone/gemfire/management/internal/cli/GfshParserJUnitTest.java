@@ -54,60 +54,25 @@ import com.gemstone.gemfire.test.junit.categories.UnitTest;
  */
 @Category(UnitTest.class)
 public class GfshParserJUnitTest {
-  
-  /**
-   * @since 8.1
-   */
-  private static final Method METHOD_command1;
-  static {
-    try {
-      METHOD_command1 = Commands.class.getMethod("command1", String.class, String.class, String.class, String.class, String.class);
-    } catch (Exception e) {
-      throw new IllegalStateException(e);
-    }
-  }
-
-  /**
-   * @since 8.1
-   */
-  private static final Method METHOD_testParamConcat;
-  static {
-    try {
-      METHOD_testParamConcat = Commands.class.getMethod("testParamConcat", String.class, String[].class, List.class, Integer.class, String[].class);
-    } catch (Exception e) {
-      throw new IllegalStateException(e);
-    }
-  }
-  
-  /**
-   * @since 8.1
-   */
-  private static final Method METHOD_testMultiWordArg;
-  static {
-    try {
-      METHOD_testMultiWordArg = Commands.class.getMethod("testMultiWordArg", String.class, String.class);
-    } catch (Exception e) {
-      throw new IllegalStateException(e);
-    }
-  }
 
   private static final String COMMAND1_NAME = "command1";
   private static final String COMMAND1_NAME_ALIAS = "command1_alias";
   private static final String COMMAND2_NAME = "c2";
 
   private static final String COMMAND1_HELP = "help for " + COMMAND1_NAME;
+
   // ARGUMENTS
   private static final String ARGUMENT1_NAME = "argument1";
   private static final String ARGUMENT1_HELP = "help for argument1";
   private static final String ARGUMENT1_CONTEXT = "context for argument 1";
   private static final Completion[] ARGUMENT1_COMPLETIONS = {
-      new Completion("arg1"), new Completion("arg1alt") };
-  private static final String ARGUEMNT2_NAME = "argument2";
+          new Completion("arg1"), new Completion("arg1alt") };
+  private static final String ARGUMENT2_NAME = "argument2";
   private static final String ARGUMENT2_CONTEXT = "context for argument 2";
   private static final String ARGUMENT2_HELP = "help for argument2";
   private static final String ARGUMENT2_UNSPECIFIED_DEFAULT_VALUE = "{unspecified default value for argument2}";
   private static final Completion[] ARGUMENT2_COMPLETIONS = {
-      new Completion("arg2"), new Completion("arg2alt") };
+          new Completion("arg2"), new Completion("arg2alt") };
 
   // OPTIONS
   private static final String OPTION1_NAME = "option1";
@@ -115,27 +80,34 @@ public class GfshParserJUnitTest {
   private static final String OPTION1_HELP = "help for option1";
   private static final String OPTION1_CONTEXT = "context for option1";
   private static final Completion[] OPTION1_COMPLETIONS = {
-      new Completion("option1"), new Completion("option1Alternate") };
+          new Completion("option1"), new Completion("option1Alternate") };
   private static final String OPTION2_NAME = "option2";
   private static final String OPTION2_HELP = "help for option2";
   private static final String OPTION2_CONTEXT = "context for option2";
   private static final String OPTION2_SPECIFIED_DEFAULT_VALUE = "{specified default value for option2}";
   private static final Completion[] OPTION2_COMPLETIONS = {
-      new Completion("option2"), new Completion("option2Alternate") };
+          new Completion("option2"), new Completion("option2Alternate") };
   private static final String OPTION3_NAME = "option3";
   private static final String OPTION3_SYNONYM = "opt3";
   private static final String OPTION3_HELP = "help for option3";
   private static final String OPTION3_CONTEXT = "context for option3";
   private static final String OPTION3_UNSPECIFIED_DEFAULT_VALUE = "{unspecified default value for option3}";
   private static final Completion[] OPTION3_COMPLETIONS = {
-      new Completion("option3"), new Completion("option3Alternate") };
+          new Completion("option3"), new Completion("option3Alternate") };
+
+  private Method methodCommand1;
+  private Method methodTestParamConcat;
+  private Method methodTestMultiWordArg;
 
   private CommandManager commandManager;
-
   private GfshParser parser;
 
   @Before
   public void setUp() throws Exception {
+    methodCommand1 = Commands.class.getMethod("command1", String.class, String.class, String.class, String.class, String.class);
+    methodTestParamConcat = Commands.class.getMethod("testParamConcat", String.class, String[].class, List.class, Integer.class, String[].class);
+    methodTestMultiWordArg = Commands.class.getMethod("testMultiWordArg", String.class, String.class);
+
     // Make sure no prior tests leave the CommandManager in a funky state
     CommandManager.clearInstance();
 
@@ -144,6 +116,7 @@ public class GfshParserJUnitTest {
     commandManager.add(SimpleConverter.class.newInstance());
     commandManager.add(StringArrayConverter.class.newInstance());
     commandManager.add(StringListConverter.class.newInstance());
+
     // Set up the parser
     parser = new GfshParser(commandManager);
 
@@ -158,16 +131,11 @@ public class GfshParserJUnitTest {
   /**
    * Tests the auto-completion capability of {@link GfshParser} with the method
    * {@link GfshParser#complete(String, int, List)}
-   *
-   * @throws IllegalAccessException
-   * @throws InstantiationException
-   * @throws NoSuchMethodException
-   * @throws SecurityException
    */
   @Test
   public void testComplete() throws Exception {
     // Get the names of the command
-    String[] command1Names = ((CliCommand) METHOD_command1
+    String[] command1Names = ((CliCommand) methodCommand1
         .getAnnotation(CliCommand.class)).value();
 
     // Input contains an entirely different string
@@ -453,16 +421,11 @@ public class GfshParserJUnitTest {
   /**
    * Tests the auto-completion capability of {@link GfshParser} with the method
    * {@link GfshParser#completeAdvanced(String, int, List)}
-   *
-   * @throws IllegalAccessException
-   * @throws InstantiationException
-   * @throws NoSuchMethodException
-   * @throws SecurityException
    */
   @Test
   public void testCompleteAdvanced() throws Exception {
     // Get the names of the command
-    String[] command1Names = ((CliCommand) METHOD_command1
+    String[] command1Names = ((CliCommand) methodCommand1
         .getAnnotation(CliCommand.class)).value();
 
     // Input contains an entirely different string
@@ -741,7 +704,6 @@ public class GfshParserJUnitTest {
           null, 0));
     }
     assertAdvancedCompletionValues(completionValues, completionCandidates);
-
   }
 
   private void clearAndAdvancedComplete(List<Completion> completionCandidates,List<Completion> completionValues,String input,Parser parser){
@@ -769,16 +731,11 @@ public class GfshParserJUnitTest {
    *
    * Does not include testing for multiple values as this change is still
    * pending in spring-shell
-   *
-   * @throws InstantiationException
-   * @throws IllegalAccessException
-   * @throws NoSuchMethodException
-   * @throws SecurityException
    */
   @Test
   public void testParse() throws Exception {
     // Get the names of the command
-    String[] command1Names = ((CliCommand) METHOD_command1
+    String[] command1Names = ((CliCommand) methodCommand1
         .getAnnotation(CliCommand.class)).value();
 
     // Input contains an entirely different string
@@ -787,8 +744,8 @@ public class GfshParserJUnitTest {
     CommandProcessingException expectedException = null;
     try {
       parse = parser.parse(input);
-    } catch (CommandProcessingException e) {
-      expectedException = e;
+    } catch (CommandProcessingException expected) {
+      expectedException = expected;
     } finally {
       assertNotNull("Expecting a "+CommandProcessingException.class+" for an invalid command name: "+input, expectedException);
       assertEquals("CommandProcessingException type doesn't match. "
@@ -822,8 +779,8 @@ public class GfshParserJUnitTest {
     expectedException = null;
     try {
       parse = parser.parse(input);
-    } catch (CommandProcessingException e) {
-      expectedException = e;
+    } catch (CommandProcessingException expected) {
+      expectedException = expected;
     } finally {
       //FIXME - Nikhil/Abhishek prefix shouldn't work
       assertNotNull("Expecting a "+CommandProcessingException.class+" for an invalid/incomplete command name: "+input, expectedException);
@@ -839,8 +796,8 @@ public class GfshParserJUnitTest {
     expectedException = null;
     try {
       parse = parser.parse(input);
-    } catch (CommandProcessingException e) {
-      expectedException = e;
+    } catch (CommandProcessingException expected) {
+      expectedException = expected;
     } finally {
       assertNotNull("Expecting a "+CommandProcessingException.class+" for an invalid/incomplete command name: "+input, expectedException);
       assertEquals("CommandProcessingException type doesn't match. Actual("
@@ -856,7 +813,7 @@ public class GfshParserJUnitTest {
         + SyntaxConstants.OPTION_VALUE_SPECIFIER + "somevalue";
     parse = parser.parse(input);
     assertNotNull(parse);
-    assertEquals("Check ParseResult method", parse.getMethod(), METHOD_command1);
+    assertEquals("Check ParseResult method", parse.getMethod(), methodCommand1);
     assertEquals("Check no. of method arguments", 5,
         parse.getArguments().length);
     assertEquals("Check argument1", "ARGUMENT1_VALUE", parse.getArguments()[0]);
@@ -873,8 +830,8 @@ public class GfshParserJUnitTest {
         + " ARGUMENT1_VALUE?      ARGUMENT2_VALUE -- ----------";
     try {
       parse = parser.parse(input);
-    } catch (CommandProcessingException e) {
-      expectedException = e;
+    } catch (CommandProcessingException expected) {
+      expectedException = expected;
     } finally {
       assertNotNull("Expecting a "+CommandProcessingException.class+" for an invalid/incomplete command name: "+input, expectedException);
       assertEquals("CommandProcessingException type doesn't match. Actual("
@@ -894,7 +851,7 @@ public class GfshParserJUnitTest {
         + SyntaxConstants.LONG_OPTION_SPECIFIER + OPTION2_NAME;
     parse = parser.parse(input);
     assertNotNull(parse);
-    assertEquals("Check ParseResult method", parse.getMethod(), METHOD_command1);
+    assertEquals("Check ParseResult method", parse.getMethod(), methodCommand1);
     assertEquals("Check no. of method arguments", 5,
         parse.getArguments().length);
     assertEquals("Check argument1", "ARGUMENT1_VALUE", parse.getArguments()[0]);
@@ -917,7 +874,7 @@ public class GfshParserJUnitTest {
         + SyntaxConstants.OPTION_VALUE_SPECIFIER + "option3value";
     parse = parser.parse(input);
     assertNotNull(parse);
-    assertEquals("Check ParseResult method", parse.getMethod(), METHOD_command1);
+    assertEquals("Check ParseResult method", parse.getMethod(), methodCommand1);
     assertEquals("Check no. of method arguments", 5,
         parse.getArguments().length);
     assertEquals("Check argument1", "ARGUMENT1_VALUE", parse.getArguments()[0]);
@@ -930,7 +887,7 @@ public class GfshParserJUnitTest {
     String command = "testParamConcat --string=string1 --stringArray=1,2 --stringArray=3,4 --stringList=11,12,13 --integer=10 --stringArray=5 --stringList=14,15";
     ParseResult parseResult = parser.parse(command);
     assertNotNull(parseResult);
-    assertEquals("Check ParseResult method", parseResult.getMethod(), METHOD_testParamConcat);
+    assertEquals("Check ParseResult method", parseResult.getMethod(), methodTestParamConcat);
     assertEquals("Check no. of method arguments", 5, parseResult.getArguments().length);
     Object[] arguments = parseResult.getArguments();
     assertEquals(arguments[0], "string1");
@@ -950,7 +907,7 @@ public class GfshParserJUnitTest {
     command = "testParamConcat --stringArray=1,2 --stringArray=\'3,4\'";
     parseResult = parser.parse(command);
     assertNotNull(parseResult);
-    assertEquals("Check ParseResult method", parseResult.getMethod(), METHOD_testParamConcat);
+    assertEquals("Check ParseResult method", parseResult.getMethod(), methodTestParamConcat);
     assertEquals("Check no. of method arguments", 5, parseResult.getArguments().length);
     arguments = parseResult.getArguments();
     assertEquals(((String[]) arguments[1])[0], "1");
@@ -960,7 +917,7 @@ public class GfshParserJUnitTest {
     command = "testParamConcat --string=\"1\" --colonArray=2:3:4 --stringArray=5,\"6,7\",8 --stringList=\"9,10,11,12\"";
     parseResult = parser.parse(command);
     assertNotNull(parseResult);
-    assertEquals("Check ParseResult method", parseResult.getMethod(), METHOD_testParamConcat);
+    assertEquals("Check ParseResult method", parseResult.getMethod(), methodTestParamConcat);
     assertEquals("Check no. of method arguments", 5, parseResult.getArguments().length);
     arguments = parseResult.getArguments();
     assertEquals(arguments[0], "1");
@@ -983,7 +940,7 @@ public class GfshParserJUnitTest {
     command = "testMultiWordArg this is just one argument?this is a second argument";
     parseResult = parser.parse(command);
     assertNotNull(parseResult);
-    assertEquals("Check ParseResult method", parseResult.getMethod(), METHOD_testMultiWordArg);
+    assertEquals("Check ParseResult method", parseResult.getMethod(), methodTestMultiWordArg);
     assertEquals("Check no. of method arguments", 2, parseResult.getArguments().length);
     arguments = parseResult.getArguments();
     assertEquals(arguments[0], "this is just one argument");
@@ -1013,7 +970,7 @@ public class GfshParserJUnitTest {
     } catch (CommandProcessingException e) {
       String actualMessage = e.getMessage();
       String expectedMessage = CliStrings.format(CliStrings.GFSHPARSER__MSG__0_IS_NOT_AVAILABLE_REASON_1, new Object[] {commandString, unavailableMessage});
-      assertEquals("1. Unavailabilty message ["+actualMessage+"] is not as expected["+expectedMessage+"].", actualMessage, expectedMessage);
+      assertEquals("1. Unavailability message ["+actualMessage+"] is not as expected["+expectedMessage+"].", actualMessage, expectedMessage);
     }
 
     // Case 2: Command is 'made' available
@@ -1041,7 +998,7 @@ public class GfshParserJUnitTest {
     public static String command1(
         @CliArgument(name = ARGUMENT1_NAME, argumentContext = ARGUMENT1_CONTEXT, help = ARGUMENT1_HELP, mandatory = true)
         String argument1,
-        @CliArgument(name = ARGUEMNT2_NAME, argumentContext = ARGUMENT2_CONTEXT, help = ARGUMENT2_HELP, mandatory = false, unspecifiedDefaultValue = ARGUMENT2_UNSPECIFIED_DEFAULT_VALUE, systemProvided = false)
+        @CliArgument(name = ARGUMENT2_NAME, argumentContext = ARGUMENT2_CONTEXT, help = ARGUMENT2_HELP, mandatory = false, unspecifiedDefaultValue = ARGUMENT2_UNSPECIFIED_DEFAULT_VALUE, systemProvided = false)
         String argument2,
         @CliOption(key = { OPTION1_NAME, OPTION1_SYNONYM }, help = OPTION1_HELP, mandatory = true, optionContext = OPTION1_CONTEXT)
         String option1,

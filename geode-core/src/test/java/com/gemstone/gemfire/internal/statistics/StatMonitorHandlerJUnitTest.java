@@ -90,7 +90,7 @@ public class StatMonitorHandlerJUnitTest {
   }
   
   @Test
-  public void testNotificationSampleFrequencyDefault() {
+  public void testNotificationSampleFrequencyDefault() throws Exception {
     final int sampleFrequency = 1;
     StatMonitorHandler handler = new StatMonitorHandler();
     TestStatisticsMonitor monitor = new TestStatisticsMonitor();
@@ -104,7 +104,7 @@ public class StatMonitorHandlerJUnitTest {
   }
   
   @Test
-  public void testNotificationSampleTimeMillis() {
+  public void testNotificationSampleTimeMillis() throws Exception {
     final long currentTime = System.currentTimeMillis();
     StatMonitorHandler handler = new StatMonitorHandler();
     TestStatisticsMonitor monitor = new TestStatisticsMonitor();
@@ -117,7 +117,7 @@ public class StatMonitorHandlerJUnitTest {
   }
   
   @Test
-  public void testNotificationResourceInstances() {
+  public void testNotificationResourceInstances() throws Exception {
     final int resourceInstanceCount = 100;
     final List<ResourceInstance> resourceInstances = new ArrayList<ResourceInstance>();
     for (int i = 0; i < resourceInstanceCount; i++) {
@@ -184,26 +184,18 @@ public class StatMonitorHandlerJUnitTest {
     waitUntilWaiting(notifier);
   }
 
-  private static void waitUntilWaiting(StatMonitorNotifier notifier) {
+  private static void waitUntilWaiting(StatMonitorNotifier notifier) throws InterruptedException {
     boolean done = false;
-    try {
-      for (StopWatch time = new StopWatch(true); !done && time.elapsedTimeMillis() < 2000; done = (notifier.isWaiting())) {
-        Thread.sleep(10);
-      }
-    } catch (InterruptedException e) {
-      Thread.currentThread().interrupt();
+    for (StopWatch time = new StopWatch(true); !done && time.elapsedTimeMillis() < 2000; done = (notifier.isWaiting())) {
+      Thread.sleep(10);
     }
-    assertTrue("waiting for notifier to be waiting", done);  
+    assertTrue("waiting for notifier to be waiting", done);
   }
   
-  private static void waitForNotificationCount(final TestStatisticsMonitor monitor, final int expected, long ms, long interval, boolean throwOnTimeout) {
+  private static void waitForNotificationCount(final TestStatisticsMonitor monitor, final int expected, long ms, long interval, boolean throwOnTimeout) throws InterruptedException {
     boolean done = false;
-    try {
-      for (StopWatch time = new StopWatch(true); !done && time.elapsedTimeMillis() < ms; done = (monitor.getNotificationCount() >= expected)) {
-        Thread.sleep(interval);
-      }
-    } catch (InterruptedException e) {
-      Thread.currentThread().interrupt();
+    for (StopWatch time = new StopWatch(true); !done && time.elapsedTimeMillis() < ms; done = (monitor.getNotificationCount() >= expected)) {
+      Thread.sleep(interval);
     }
     if (throwOnTimeout) {
       assertTrue("waiting for notification count to be " + expected, done);
@@ -213,7 +205,7 @@ public class StatMonitorHandlerJUnitTest {
   /**
    * @since 7.0
    */
-  static class TestStatisticsMonitor extends StatisticsMonitor {
+  private static class TestStatisticsMonitor extends StatisticsMonitor {
     private volatile long timeStamp;
     private volatile List<ResourceInstance> resourceInstances;
     private volatile int notificationCount;

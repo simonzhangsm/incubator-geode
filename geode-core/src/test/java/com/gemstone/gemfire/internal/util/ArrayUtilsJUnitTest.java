@@ -24,7 +24,7 @@ import org.junit.experimental.categories.Category;
 import com.gemstone.gemfire.test.junit.categories.UnitTest;
 
 /**
- * The ArrayUtilsJUnitTest class... </p>
+ * Unit tests for {@link ArrayUtils}.
  *
  * @since 7.x
  */

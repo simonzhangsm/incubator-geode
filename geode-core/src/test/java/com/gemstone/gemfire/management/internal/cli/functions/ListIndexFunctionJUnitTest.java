@@ -379,7 +379,7 @@ public class ListIndexFunctionJUnitTest {
     }
   }
 
-  protected static class TestListIndexFunction extends ListIndexFunction {
+  private static class TestListIndexFunction extends ListIndexFunction {
 
     private final Cache cache;
 
@@ -394,7 +394,7 @@ public class ListIndexFunctionJUnitTest {
     }
   }
 
-  protected static class TestResultSender implements ResultSender {
+  private static class TestResultSender implements ResultSender {
 
     private final List<Object> results = new LinkedList<Object>();
 

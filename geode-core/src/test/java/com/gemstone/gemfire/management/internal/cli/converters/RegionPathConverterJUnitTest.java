@@ -49,8 +49,8 @@ public class RegionPathConverterJUnitTest {
     mockContext.assertIsSatisfied();
     mockContext = null;
   }
-  
-  protected RegionPathConverter createMockRegionPathConverter(final String[] allRegionPaths) {
+
+  private RegionPathConverter createMockRegionPathConverter(final String[] allRegionPaths) {
     
     final RegionPathConverter mockRegionPathConverter = mockContext.mock(RegionPathConverter.class, "RPC");
     mockContext.checking(new Expectations() {{

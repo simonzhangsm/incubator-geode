@@ -27,9 +27,7 @@ import com.gemstone.gemfire.test.junit.categories.UnitTest;
 
 /**
  * The JettyHelperJUnitTest class is a test suite of test cases testing the
- * contract and functionality of the JettyHelper
- * class.
- * <p>
+ * contract and functionality of the JettyHelper class. Does not start Jetty.
  *
  * @see com.gemstone.gemfire.management.internal.JettyHelper
  * @see org.jmock.Mockery

@@ -23,6 +23,7 @@ import java.util.Iterator;
 import java.util.Random;
 import java.util.Set;
 
+import org.junit.Before;
 import org.junit.Test;
 import org.junit.experimental.categories.Category;
 
@@ -34,10 +35,15 @@ public class CompactConcurrentHashSetJUnitTest {
 
   private static final int RANGE = 100000;
 
-  private Random random = new Random();
-  
+  private Random random;
+
+  @Before
+  public void setUp() throws Exception {
+    random = new Random();
+  }
+
   @Test
-  public void testEquals() {
+  public void testEquals() { // TODO: reduce test runtime
     Set s1, s2;
     s1 = new CompactConcurrentHashSet2();
     s2 = new HashSet();

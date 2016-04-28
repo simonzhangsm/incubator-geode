@@ -23,13 +23,37 @@ import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.locks.Lock;
 
+import org.junit.After;
+import org.junit.Before;
+import org.junit.Rule;
 import org.junit.Test;
 import org.junit.experimental.categories.Category;
+import org.junit.rules.Timeout;
 
 import com.gemstone.gemfire.test.junit.categories.UnitTest;
 
 @Category(UnitTest.class)
 public class SemaphoreReadWriteLockJUnitTest {
+
+  private static final long OPERATION_TIMEOUT_MILLIS = 10 * 1000;
+
+  private CountDownLatch latch;
+  private CountDownLatch waitToLock;
+
+  @Rule
+  public Timeout timeout = new Timeout(30, TimeUnit.SECONDS);
+
+  @Before
+  public void setUp() throws Exception {
+    latch = new CountDownLatch(1);
+    waitToLock = new CountDownLatch(1);
+  }
+
+  @After
+  public void tearDown() throws Exception {
+    waitToLock.countDown();
+    latch.countDown();
+  }
 
   @Test
   public void testReaderWaitsForWriter() throws Exception {
@@ -37,8 +61,7 @@ public class SemaphoreReadWriteLockJUnitTest {
     final Lock rl = rwl.readLock();
     final Lock wl = rwl.writeLock();
     wl.lock();
-    final CountDownLatch latch = new CountDownLatch(1);
-    final CountDownLatch waitToLock = new CountDownLatch(1);
+
     Thread writer = new Thread(new Runnable() {
       @Override
       public void run() {
@@ -49,10 +72,12 @@ public class SemaphoreReadWriteLockJUnitTest {
       }
     });
     writer.start();
-    waitToLock.await();
+
+    assertTrue(waitToLock.await(OPERATION_TIMEOUT_MILLIS, TimeUnit.MILLISECONDS));
     assertEquals(1, latch.getCount());
+
     wl.unlock();
-    assertTrue(latch.await(10, TimeUnit.SECONDS));
+    assertTrue(latch.await(OPERATION_TIMEOUT_MILLIS, TimeUnit.MILLISECONDS));
   }
 
   @Test
@@ -61,8 +86,7 @@ public class SemaphoreReadWriteLockJUnitTest {
     final Lock rl = rwl.readLock();
     final Lock wl = rwl.writeLock();
     rl.lock();
-    final CountDownLatch latch = new CountDownLatch(1);
-    final CountDownLatch waitToLock = new CountDownLatch(1);
+
     Thread writer = new Thread(new Runnable() {
       @Override
       public void run() {
@@ -73,10 +97,12 @@ public class SemaphoreReadWriteLockJUnitTest {
       }
     });
     writer.start();
-    waitToLock.await();
+
+    assertTrue(waitToLock.await(OPERATION_TIMEOUT_MILLIS, TimeUnit.MILLISECONDS));
     assertEquals(1, latch.getCount());
+
     rl.unlock();
-    assertTrue(latch.await(10, TimeUnit.SECONDS));
+    assertTrue(latch.await(OPERATION_TIMEOUT_MILLIS, TimeUnit.MILLISECONDS));
   }
 
   @Test
@@ -85,8 +111,7 @@ public class SemaphoreReadWriteLockJUnitTest {
     final Lock rl = rwl.readLock();
     final Lock wl = rwl.writeLock();
     rl.lock();
-    final CountDownLatch latch = new CountDownLatch(1);
-    final CountDownLatch waitToLock = new CountDownLatch(1);
+
     Thread reader = new Thread(new Runnable() {
       @Override
       public void run() {
@@ -96,8 +121,9 @@ public class SemaphoreReadWriteLockJUnitTest {
       }
     });
     reader.start();
-    waitToLock.await();
-    assertTrue(latch.await(10, TimeUnit.SECONDS));
+
+    assertTrue(waitToLock.await(OPERATION_TIMEOUT_MILLIS, TimeUnit.MILLISECONDS));
+    assertTrue(latch.await(OPERATION_TIMEOUT_MILLIS, TimeUnit.MILLISECONDS));
   }
 
   @Test
@@ -105,9 +131,8 @@ public class SemaphoreReadWriteLockJUnitTest {
     SemaphoreReadWriteLock rwl = new SemaphoreReadWriteLock();
     final Lock rl = rwl.readLock();
     final Lock wl = rwl.writeLock();
-    final CountDownLatch latch = new CountDownLatch(1);
-    final CountDownLatch waitToLock = new CountDownLatch(1);
     wl.lock();
+
     Thread writer = new Thread(new Runnable() {
       @Override
       public void run() {
@@ -118,21 +143,23 @@ public class SemaphoreReadWriteLockJUnitTest {
       }
     });
     writer.start();
-    waitToLock.await();
+
+    assertTrue(waitToLock.await(OPERATION_TIMEOUT_MILLIS, TimeUnit.MILLISECONDS));
     assertEquals(1, latch.getCount());
+
     wl.unlock();
-    assertTrue(latch.await(10, TimeUnit.SECONDS));
+    assertTrue(latch.await(OPERATION_TIMEOUT_MILLIS, TimeUnit.MILLISECONDS));
   }
 
   @Test
-  public void testTrylock() throws Exception {
+  public void testTryLock() throws Exception {
     SemaphoreReadWriteLock rwl = new SemaphoreReadWriteLock();
     final Lock rl = rwl.readLock();
     final Lock wl = rwl.writeLock();
-    final CountDownLatch latch = new CountDownLatch(1);
-    final CountDownLatch waitToLock = new CountDownLatch(1);
     assertTrue(wl.tryLock());
+
     final AtomicBoolean failed = new AtomicBoolean(false);
+
     Thread reader = new Thread(new Runnable() {
       @Override
       public void run() {
@@ -144,27 +171,27 @@ public class SemaphoreReadWriteLockJUnitTest {
       }
     });
     reader.start();
-    waitToLock.await();
-    assertTrue(latch.await(10, TimeUnit.SECONDS));
+
+    assertTrue(waitToLock.await(OPERATION_TIMEOUT_MILLIS, TimeUnit.MILLISECONDS));
+    assertTrue(latch.await(OPERATION_TIMEOUT_MILLIS, TimeUnit.MILLISECONDS));
     assertFalse(failed.get());
   }
 
   @Test
-  public void testLockAndReleasebyDifferentThreads() throws Exception {
+  public void testLockAndReleaseByDifferentThreads() throws Exception {
     SemaphoreReadWriteLock rwl = new SemaphoreReadWriteLock();
     final Lock rl = rwl.readLock();
     final Lock wl = rwl.writeLock();
-    final CountDownLatch latch = new CountDownLatch(1);
-    final CountDownLatch waitToLock = new CountDownLatch(1);
     rl.lock();
+
     Thread writer = new Thread(new Runnable() {
       @Override
       public void run() {
         waitToLock.countDown();
         try {
-          assertTrue(wl.tryLock(10, TimeUnit.SECONDS));
+          assertTrue(wl.tryLock(OPERATION_TIMEOUT_MILLIS, TimeUnit.MILLISECONDS));
         } catch (InterruptedException e) {
-          fail(e.getMessage());
+          throw new AssertionError(e);
         }
         latch.countDown();
       }
@@ -175,14 +202,15 @@ public class SemaphoreReadWriteLockJUnitTest {
       @Override
       public void run() {
         try {
-          waitToLock.await();
+          assertTrue(waitToLock.await(OPERATION_TIMEOUT_MILLIS, TimeUnit.MILLISECONDS));
         } catch (InterruptedException e) {
-          fail(e.getMessage());
+          throw new AssertionError(e);
         }
         rl.unlock();
       }
     });
     reader2.start();
-    assertTrue(latch.await(10, TimeUnit.SECONDS));
+
+    assertTrue(latch.await(OPERATION_TIMEOUT_MILLIS, TimeUnit.MILLISECONDS));
   }
 }

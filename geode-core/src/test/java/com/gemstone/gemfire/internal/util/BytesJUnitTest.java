@@ -20,6 +20,7 @@ import static org.junit.Assert.*;
 
 import java.nio.ByteBuffer;
 
+import org.junit.Before;
 import org.junit.Test;
 import org.junit.experimental.categories.Category;
 
@@ -28,7 +29,12 @@ import com.gemstone.gemfire.test.junit.categories.UnitTest;
 @Category(UnitTest.class)
 public class BytesJUnitTest {
 
-  private ByteBuffer buf = ByteBuffer.allocate(8);
+  private ByteBuffer buf;
+
+  @Before
+  public void setUp() throws Exception {
+    buf = ByteBuffer.allocate(8);
+  }
 
   @Test
   public void testShort() {

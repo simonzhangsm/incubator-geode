@@ -114,7 +114,7 @@ public class CliArgumentJUnitTest {
   /**
    * Class used by the tests
    */
-  public static class ArgumentTestingClass {
+  private static class ArgumentTestingClass {
 
     @SuppressWarnings("unused")
     public static Object defaultArgumentTestingMethod(@CliArgument(name = ARGUMENT_NAME) String defaultArgument) {

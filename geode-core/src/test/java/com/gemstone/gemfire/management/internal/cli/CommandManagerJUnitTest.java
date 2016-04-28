@@ -16,10 +16,7 @@
  */
 package com.gemstone.gemfire.management.internal.cli;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertNotSame;
-import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.*;
 
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Method;
@@ -65,7 +62,7 @@ public class CommandManagerJUnitTest {
   private static final String ARGUMENT1_CONTEXT = "context for argument 1";
   private static final Completion[] ARGUMENT1_COMPLETIONS = {
       new Completion("arg1"), new Completion("arg1alt") };
-  private static final String ARGUEMNT2_NAME = "argument2";
+  private static final String ARGUMENT2_NAME = "argument2";
   private static final String ARGUMENT2_CONTEXT = "context for argument 2";
   private static final String ARGUMENT2_HELP = "help for argument2";
   private static final String ARGUMENT2_UNSPECIFIED_DEFAULT_VALUE = "{unspecified default value for argument2}";
@@ -96,7 +93,9 @@ public class CommandManagerJUnitTest {
     CommandManager.clearInstance();
   }
   
-  // tests loadCommands()
+  /**
+   * tests loadCommands()
+   */
   @Test
   public void testCommandManagerLoadCommands() throws Exception {
     CommandManager commandManager = CommandManager.getInstance(true);
@@ -104,14 +103,18 @@ public class CommandManagerJUnitTest {
     assertNotSame(0, commandManager.getCommands().size());
   }
 
-  // tests commandManagerInstance method
+  /**
+   * tests commandManagerInstance method
+   */
   @Test
   public void testCommandManagerInstance() throws Exception {
     CommandManager commandManager = CommandManager.getInstance(true);
     assertNotNull(commandManager);
   }
 
-  // tests createOption method for creating option
+  /**
+   * tests createOption method for creating option
+   */
   @Test
   public void testCommandManagerCreateOption() throws Exception {
     CommandManager commandManager = CommandManager.getInstance(true);
@@ -152,7 +155,9 @@ public class CommandManagerJUnitTest {
     }
   }
 
-  // tests createArgument method for creating argument
+  /**
+   * tests createArgument method for creating argument
+   */
   @Test
   public void testCommandManagerCreateArgument() throws Exception {
     CommandManager commandManager = CommandManager.getInstance(true);
@@ -165,7 +170,7 @@ public class CommandManagerJUnitTest {
     Class<?>[] parameterTypes = method.getParameterTypes();
     List<String> argumentList = new ArrayList<String>();
     argumentList.add(ARGUMENT1_NAME);
-    argumentList.add(ARGUEMNT2_NAME);
+    argumentList.add(ARGUMENT2_NAME);
 
     int parameterNo = 0;
     for (int i = 0; i < annotations.length; i++) {
@@ -186,7 +191,9 @@ public class CommandManagerJUnitTest {
     }
   }
 
-  // tests availabilityIndicator for a method
+  /**
+   * tests availabilityIndicator for a method
+   */
   @Test
   public void testCommandManagerAvailabilityIndicator() throws Exception {
     CommandManager commandManager = CommandManager.getInstance(true);
@@ -223,7 +230,9 @@ public class CommandManagerJUnitTest {
     assertTrue("Should not find unlisted plugin.", !commandManager.getCommands().containsKey("mock plugin command unlisted"));
   }
 
-  // class that represents dummy commands
+  /**
+   * class that represents dummy commands
+   */
   public static class Commands implements CommandMarker {
 
     @CliCommand(value = { COMMAND1_NAME, COMMAND1_NAME_ALIAS }, help = COMMAND1_HELP)
@@ -231,7 +240,7 @@ public class CommandManagerJUnitTest {
     public static String command1(
         @CliArgument(name = ARGUMENT1_NAME, argumentContext = ARGUMENT1_CONTEXT, help = ARGUMENT1_HELP, mandatory = true)
         String argument1,
-        @CliArgument(name = ARGUEMNT2_NAME, argumentContext = ARGUMENT2_CONTEXT, help = ARGUMENT2_HELP, mandatory = false, unspecifiedDefaultValue = ARGUMENT2_UNSPECIFIED_DEFAULT_VALUE, systemProvided = false)
+        @CliArgument(name = ARGUMENT2_NAME, argumentContext = ARGUMENT2_CONTEXT, help = ARGUMENT2_HELP, mandatory = false, unspecifiedDefaultValue = ARGUMENT2_UNSPECIFIED_DEFAULT_VALUE, systemProvided = false)
         String argument2,
         @CliOption(key = { OPTION1_NAME, OPTION1_SYNONYM }, help = OPTION1_HELP, mandatory = true, optionContext = OPTION1_CONTEXT, specifiedDefaultValue = OPTION1_SPECIFIED_DEFAULT_VALUE)
         String option1,
@@ -279,8 +288,9 @@ public class CommandManagerJUnitTest {
   /**
    * Used by testCommandManagerLoadPluginCommands
    */
-  static class SimpleConverter implements Converter<String> {
+  private static class SimpleConverter implements Converter<String> {
 
+    @Override
     public boolean supports(Class<?> type, String optionContext) {
       if (type.isAssignableFrom(String.class)) {
         return true;
@@ -288,11 +298,13 @@ public class CommandManagerJUnitTest {
       return false;
     }
 
+    @Override
     public String convertFromText(String value, Class<?> targetType,
         String optionContext) {
       return value;
     }
 
+    @Override
     public boolean getAllPossibleValues(List<Completion> completions,
         Class<?> targetType, String existingData, String context,
         MethodTarget target) {
