@@ -66,11 +66,11 @@ public class EnvironmentVariablesHandlerInterceptorJUnitTest {
     mockContext = null;
   }
 
-  protected String createEnvironmentVariable(final String name) {
+  private String createEnvironmentVariable(final String name) {
     return (EnvironmentVariablesHandlerInterceptor.ENVIRONMENT_VARIABLE_REQUEST_PARAMETER_PREFIX + name);
   }
 
-  protected <T> Enumeration<T> enumeration(final Iterator<T> iterator) {
+  private <T> Enumeration<T> enumeration(final Iterator<T> iterator) {
     return new Enumeration<T>() {
       public boolean hasMoreElements() {
         return iterator.hasNext();
@@ -126,7 +126,7 @@ public class EnvironmentVariablesHandlerInterceptorJUnitTest {
     TestFramework.runOnce(new HandlerInterceptorThreadSafetyMultiThreadedTestCase());
   }
 
-  protected final class HandlerInterceptorThreadSafetyMultiThreadedTestCase extends MultithreadedTestCase {
+  private final class HandlerInterceptorThreadSafetyMultiThreadedTestCase extends MultithreadedTestCase {
 
     private EnvironmentVariablesHandlerInterceptor handlerInterceptor;
 

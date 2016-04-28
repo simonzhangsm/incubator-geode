@@ -18,15 +18,12 @@
  */
 package com.gemstone.gemfire.cache.lucene.internal.distributed;
 
-import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.*;
 
-import org.junit.Assert;
 import org.junit.Test;
 import org.junit.experimental.categories.Category;
-import org.mockito.Mockito;
 
 import com.gemstone.gemfire.CopyHelper;
-import com.gemstone.gemfire.cache.lucene.LuceneIndex;
 import com.gemstone.gemfire.cache.lucene.LuceneQueryFactory;
 import com.gemstone.gemfire.cache.lucene.LuceneQueryProvider;
 import com.gemstone.gemfire.cache.lucene.internal.LuceneServiceImpl;
@@ -55,7 +52,7 @@ public class LuceneFunctionContextJUnitTest {
 
     LuceneFunctionContext<TopEntriesCollector> copy = CopyHelper.deepCopy(context);
     assertEquals(123, copy.getLimit());
-    Assert.assertNotNull(copy.getQueryProvider());
+    assertNotNull(copy.getQueryProvider());
     assertEquals("text", ((StringQueryProvider) copy.getQueryProvider()).getQueryString());
     assertEquals(TopEntriesCollectorManager.class, copy.getCollectorManager().getClass());
     assertEquals("test", ((TopEntriesCollectorManager) copy.getCollectorManager()).getId());

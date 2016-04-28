@@ -125,7 +125,7 @@ public class WanCommandsControllerJUnitTest {
    * performed by two different classes. Then we could mock the executor
    * class while testing just the command string definition class.
    */
-  public static class TestableWanCommandsController extends WanCommandsController {
+  private static class TestableWanCommandsController extends WanCommandsController {
 
     protected String testableCommand;
     

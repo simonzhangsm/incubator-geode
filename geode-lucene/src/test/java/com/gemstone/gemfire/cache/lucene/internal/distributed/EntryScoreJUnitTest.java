@@ -18,7 +18,8 @@
  */
 package com.gemstone.gemfire.cache.lucene.internal.distributed;
 
-import org.junit.Assert;
+import static org.junit.Assert.*;
+
 import org.junit.Test;
 import org.junit.experimental.categories.Category;
 
@@ -34,7 +35,7 @@ public class EntryScoreJUnitTest {
     LuceneServiceImpl.registerDataSerializables();
     EntryScore entry = new EntryScore("entry", .1f);
     EntryScore copy = CopyHelper.deepCopy(entry);
-    Assert.assertEquals("entry", copy.getKey());
-    Assert.assertEquals(.1f, copy.getScore(), 0f);
+    assertEquals("entry", copy.getKey());
+    assertEquals(.1f, copy.getScore(), 0f);
   }
 }

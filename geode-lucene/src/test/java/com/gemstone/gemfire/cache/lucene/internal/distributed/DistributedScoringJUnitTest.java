@@ -46,11 +46,11 @@ import com.gemstone.gemfire.test.junit.categories.UnitTest;
 @Category(UnitTest.class)
 public class DistributedScoringJUnitTest {
 
-  String[] indexedFields = new String[] { "txt" };
-  HeterogeneousLuceneSerializer mapper = new HeterogeneousLuceneSerializer(indexedFields);
+  private String[] indexedFields = new String[] { "txt" };
+  private HeterogeneousLuceneSerializer mapper = new HeterogeneousLuceneSerializer(indexedFields);
 
-  final StandardAnalyzer analyzer = new StandardAnalyzer();
-  Region<String, String> region;
+  private final StandardAnalyzer analyzer = new StandardAnalyzer();
+  private Region<String, String> region;
 
   @Before
   public void createMocks() {
@@ -58,7 +58,7 @@ public class DistributedScoringJUnitTest {
     Mockito.when(region.isDestroyed()).thenReturn(false);
   }
 
-  /*
+  /**
    * The goal of this test is to verify fair scoring if entries are uniformly distributed. It compares ordered results
    * from a single IndexRepository (IR) with merged-ordered results from multiple repositories (ir1, ir2, ir3). The
    * records inserted in IR are same as the combined records in irX. This simulates merging of results from buckets of a

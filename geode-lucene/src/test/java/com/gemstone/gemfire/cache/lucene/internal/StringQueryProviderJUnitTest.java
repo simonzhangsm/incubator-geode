@@ -36,7 +36,7 @@ import com.gemstone.gemfire.test.junit.categories.UnitTest;
 @Category(UnitTest.class)
 public class StringQueryProviderJUnitTest {
 
-  LuceneIndex mockIndex;
+  private LuceneIndex mockIndex;
 
   @Before
   public void initMocksAndCommonObjects() {

@@ -107,28 +107,28 @@ public class RestHttpOperationInvokerJUnitTest extends AbstractWebTestCase {
     operationInvoker = null;
   }
 
-  protected CommandRequest createCommandRequest(final String command, final Map<String, String> options) {
+  private CommandRequest createCommandRequest(final String command, final Map<String, String> options) {
     return new TestCommandRequest(command, options, Collections.<String, String>emptyMap(), null);
   }
 
-  protected CommandRequest createCommandRequest(final String command, final Map<String, String> options, final Map<String, String> environment) {
+  private CommandRequest createCommandRequest(final String command, final Map<String, String> options, final Map<String, String> environment) {
     return new TestCommandRequest(command, options, environment, null);
   }
 
-  protected CommandRequest createCommandRequest(final String command, final Map<String, String> options, final byte[][] fileData) {
+  private CommandRequest createCommandRequest(final String command, final Map<String, String> options, final byte[][] fileData) {
     return new TestCommandRequest(command, options, Collections.<String, String>emptyMap(), fileData);
   }
 
-  protected CommandRequest createCommandRequest(final String command, final Map<String, String> options, final Map<String, String> environment, final byte[][] fileData) {
+  private CommandRequest createCommandRequest(final String command, final Map<String, String> options, final Map<String, String> environment, final byte[][] fileData) {
     return new TestCommandRequest(command, options, environment, fileData);
   }
 
-  protected LinkIndex getLinkIndex() {
+  private LinkIndex getLinkIndex() {
     assertTrue("The LinkIndex was not property initialized!", linkIndex != null);
     return linkIndex;
   }
 
-  protected RestHttpOperationInvoker getOperationInvoker() {
+  private RestHttpOperationInvoker getOperationInvoker() {
     assertTrue("The RestHttpOperationInvoker was not properly initialized!", operationInvoker != null);
     return operationInvoker;
   }
@@ -412,7 +412,7 @@ public class RestHttpOperationInvokerJUnitTest extends AbstractWebTestCase {
     }
   }
 
-  protected static final class TestCommandRequest extends CommandRequest {
+  private static final class TestCommandRequest extends CommandRequest {
 
     private final Map<String, String> commandParameters = new TreeMap<String, String>();
 

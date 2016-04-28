@@ -73,7 +73,7 @@ public class ShellCommandsControllerJUnitTest {
     controller = null;
   }
 
-  protected List<String> getCliCommands() {
+  private List<String> getCliCommands() {
     try {
       Set<Class<?>> commandClasses = ClasspathScanLoadHelper.loadAndGet(
         "com.gemstone.gemfire.management.internal.cli.commands", CommandMarker.class, true);
@@ -100,7 +100,7 @@ public class ShellCommandsControllerJUnitTest {
     }
   }
 
-  protected List<String> getControllerWebServiceEndpoints() {
+  private List<String> getControllerWebServiceEndpoints() {
     RequestAttributes requestAttrs = RequestContextHolder.getRequestAttributes();
     HttpServletRequest servletRequest = ((ServletRequestAttributes) requestAttrs).getRequest();
     String scheme = servletRequest.getScheme();

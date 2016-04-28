@@ -26,12 +26,13 @@ import org.junit.experimental.categories.Category;
 import com.gemstone.gemfire.cache.operations.OperationContext.OperationCode;
 import com.gemstone.gemfire.management.internal.MBeanJMXAdapter;
 import com.gemstone.gemfire.management.internal.security.ResourceOperationContext.ResourceOperationCode;
+import com.gemstone.gemfire.test.junit.categories.SecurityTest;
 import com.gemstone.gemfire.test.junit.categories.UnitTest;
 
 /**
  * Tests operation codes for DistributedSystemMXBean operations.
  */
-@Category(UnitTest.class)
+@Category({ UnitTest.class, SecurityTest.class })
 public class OperationCodesForDistributedSystemMXBeanTest {
 
   private final String[] distributedSystemMXBeanOperations = {

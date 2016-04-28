@@ -494,12 +494,12 @@ public class ClientHttpRequestJUnitTest extends AbstractWebTestCase {
   }
 
   @SuppressWarnings("unused")
-  protected static interface Library {
+  private static interface Library {
     public String getName();
   }
 
   @SuppressWarnings("unused")
-  protected static interface Book {
+  private static interface Book {
     public String getAuthor();
     public String getIsbn();
     public String getTitle();

@@ -18,7 +18,7 @@
  */
 package com.gemstone.gemfire.cache.lucene.internal.repository.serializer;
 
-import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.*;
 
 import org.apache.lucene.document.Document;
 import org.junit.Test;
@@ -35,7 +35,7 @@ public class ReflectionFieldMapperJUnitTest {
 
   @Test
   public void testAllFields() {
-    
+
     String[] allFields = new String[] {"s", "i", "l", "d", "f", "s2"};
     ReflectionLuceneSerializer mapper1 = new ReflectionLuceneSerializer(Type1.class, allFields);
     ReflectionLuceneSerializer mapper2 = new ReflectionLuceneSerializer(Type2.class, allFields);
@@ -67,7 +67,7 @@ public class ReflectionFieldMapperJUnitTest {
   
   @Test
   public void testIgnoreInvalid() {
-    
+
     String[] fields = new String[] {"s", "o", "s2"};
     ReflectionLuceneSerializer mapper = new ReflectionLuceneSerializer(Type2.class, fields);
     

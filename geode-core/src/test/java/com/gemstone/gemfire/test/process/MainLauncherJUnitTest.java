@@ -43,14 +43,14 @@ public class MainLauncherJUnitTest {
 
   private static final long TIMEOUT_SECONDS = 10;
 
-  @Rule
-  public final TextFromStandardInputStream systemInMock = emptyStandardInputStream();
-  
   private static volatile boolean flag = false;
-  
+
   private final String launchedClass = getClass().getName();
   private ExecutorService futures;
 
+  @Rule
+  public final TextFromStandardInputStream systemInMock = emptyStandardInputStream();
+  
   @Before
   public void before() {
     flag = false;

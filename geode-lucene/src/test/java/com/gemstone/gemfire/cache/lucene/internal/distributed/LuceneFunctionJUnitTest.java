@@ -18,7 +18,7 @@
  */
 package com.gemstone.gemfire.cache.lucene.internal.distributed;
 
-import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.*;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -57,38 +57,37 @@ import com.gemstone.gemfire.test.junit.categories.UnitTest;
 @Category(UnitTest.class)
 public class LuceneFunctionJUnitTest {
 
-  Mockery mocker;
+  private Mockery mockery;
 
-  String regionPath = "/region";
-  String indexName = "index";
-  final EntryScore r1_1 = new EntryScore("key-1-1", .5f);
-  final EntryScore r1_2 = new EntryScore("key-1-2", .4f);
-  final EntryScore r1_3 = new EntryScore("key-1-3", .3f);
-  final EntryScore r2_1 = new EntryScore("key-2-1", .45f);
-  final EntryScore r2_2 = new EntryScore("key-2-2", .35f);
+  private String regionPath = "/region";
+  private final EntryScore r1_1 = new EntryScore("key-1-1", .5f);
+  private final EntryScore r1_2 = new EntryScore("key-1-2", .4f);
+  private final EntryScore r1_3 = new EntryScore("key-1-3", .3f);
+  private final EntryScore r2_1 = new EntryScore("key-2-1", .45f);
+  private final EntryScore r2_2 = new EntryScore("key-2-2", .35f);
 
-  InternalRegionFunctionContext mockContext;
-  ResultSender<TopEntriesCollector> mockResultSender;
-  Region<Object, Object> mockRegion;
+  private InternalRegionFunctionContext mockContext;
+  private ResultSender<TopEntriesCollector> mockResultSender;
+  private Region<Object, Object> mockRegion;
 
-  RepositoryManager mockRepoManager;
-  IndexRepository mockRepository1;
-  IndexRepository mockRepository2;
-  IndexResultCollector mockCollector;
-  InternalLuceneService mockService;
-  InternalLuceneIndex mockIndex;
+  private RepositoryManager mockRepoManager;
+  private IndexRepository mockRepository1;
+  private IndexRepository mockRepository2;
+  private IndexResultCollector mockCollector;
+  private InternalLuceneService mockService;
+  private InternalLuceneIndex mockIndex;
 
-  ArrayList<IndexRepository> repos;
-  LuceneFunctionContext<IndexResultCollector> searchArgs;
-  LuceneQueryProvider queryProvider;
-  Query query;
+  private ArrayList<IndexRepository> repos;
+  private LuceneFunctionContext<IndexResultCollector> searchArgs;
+  private LuceneQueryProvider queryProvider;
+  private Query query;
 
   private InternalCache mockCache;
 
   @Test
   public void testRepoQueryAndMerge() throws Exception {
     final AtomicReference<TopEntriesCollector> result = new AtomicReference<>();
-    mocker.checking(new Expectations() {
+    mockery.checking(new Expectations() {
       {
         oneOf(mockContext).getDataSet();
         will(returnValue(mockRegion));
@@ -149,7 +148,7 @@ public class LuceneFunctionJUnitTest {
 
     searchArgs = new LuceneFunctionContext<IndexResultCollector>(queryProvider, "indexName", null, 3);
 
-    mocker.checking(new Expectations() {
+    mockery.checking(new Expectations() {
       {
         oneOf(mockContext).getDataSet();
         will(returnValue(mockRegion));
@@ -206,9 +205,9 @@ public class LuceneFunctionJUnitTest {
 
   @Test
   public void injectCustomCollectorManager() throws Exception {
-    final CollectorManager mockManager = mocker.mock(CollectorManager.class);
+    final CollectorManager mockManager = mockery.mock(CollectorManager.class);
     searchArgs = new LuceneFunctionContext<IndexResultCollector>(queryProvider, "indexName", mockManager);
-    mocker.checking(new Expectations() {
+    mockery.checking(new Expectations() {
       {
         oneOf(mockContext).getDataSet();
         will(returnValue(mockRegion));
@@ -257,7 +256,7 @@ public class LuceneFunctionJUnitTest {
 
   @Test
   public void testIndexRepoQueryFails() throws Exception {
-    mocker.checking(new Expectations() {
+    mockery.checking(new Expectations() {
       {
         oneOf(mockContext).getDataSet();
         will(returnValue(mockRegion));
@@ -283,7 +282,7 @@ public class LuceneFunctionJUnitTest {
 
   @Test
   public void testBucketNotFound() throws Exception {
-    mocker.checking(new Expectations() {
+    mockery.checking(new Expectations() {
       {
         oneOf(mockContext).getDataSet();
         will(returnValue(mockRegion));
@@ -306,9 +305,9 @@ public class LuceneFunctionJUnitTest {
 
   @Test
   public void testReduceError() throws Exception {
-    final CollectorManager mockManager = mocker.mock(CollectorManager.class);
+    final CollectorManager mockManager = mockery.mock(CollectorManager.class);
     searchArgs = new LuceneFunctionContext<IndexResultCollector>(queryProvider, "indexName", mockManager);
-    mocker.checking(new Expectations() {
+    mockery.checking(new Expectations() {
       {
         oneOf(mockContext).getDataSet();
         will(returnValue(mockRegion));
@@ -338,9 +337,9 @@ public class LuceneFunctionJUnitTest {
 
   @Test
   public void queryProviderErrorIsHandled() throws Exception {
-    queryProvider = mocker.mock(LuceneQueryProvider.class);
+    queryProvider = mockery.mock(LuceneQueryProvider.class);
     searchArgs = new LuceneFunctionContext<IndexResultCollector>(queryProvider, "indexName");
-    mocker.checking(new Expectations() {
+    mockery.checking(new Expectations() {
       {
         oneOf(mockContext).getDataSet();
         will(returnValue(mockRegion));
@@ -369,35 +368,35 @@ public class LuceneFunctionJUnitTest {
 
   @Before
   public void createMocksAndCommonObjects() throws Exception {
-    mocker = new Mockery() {
+    mockery = new Mockery() {
       {
         setImposteriser(ClassImposteriser.INSTANCE);
         setThreadingPolicy(new Synchroniser());
       }
     };
 
-    mockContext = mocker.mock(InternalRegionFunctionContext.class);
-    mockResultSender = mocker.mock(ResultSender.class);
-    mockRegion = mocker.mock(Region.class);
+    mockContext = mockery.mock(InternalRegionFunctionContext.class);
+    mockResultSender = mockery.mock(ResultSender.class);
+    mockRegion = mockery.mock(Region.class);
 
-    mockRepoManager = mocker.mock(RepositoryManager.class);
-    mockRepository1 = mocker.mock(IndexRepository.class, "repo1");
-    mockRepository2 = mocker.mock(IndexRepository.class, "repo2");
-    mockCollector = mocker.mock(IndexResultCollector.class);
+    mockRepoManager = mockery.mock(RepositoryManager.class);
+    mockRepository1 = mockery.mock(IndexRepository.class, "repo1");
+    mockRepository2 = mockery.mock(IndexRepository.class, "repo2");
+    mockCollector = mockery.mock(IndexResultCollector.class);
 
     repos = new ArrayList<IndexRepository>();
     repos.add(mockRepository1);
     repos.add(mockRepository2);
     
-    mockIndex = mocker.mock(InternalLuceneIndex.class);
-    mockService = mocker.mock(InternalLuceneService.class);
-    mockCache = mocker.mock(InternalCache.class);
+    mockIndex = mockery.mock(InternalLuceneIndex.class);
+    mockService = mockery.mock(InternalLuceneService.class);
+    mockCache = mockery.mock(InternalCache.class);
 
     queryProvider = new StringQueryProvider("gemfire:lucene");
     
     searchArgs = new LuceneFunctionContext<IndexResultCollector>(queryProvider, "indexName");
     
-    mocker.checking(new Expectations() {{
+    mockery.checking(new Expectations() {{
       allowing(mockRegion).getCache();
       will(returnValue(mockCache));
       allowing(mockRegion).getFullPath();
@@ -417,7 +416,7 @@ public class LuceneFunctionJUnitTest {
 
   @After
   public void validateMock() {
-    mocker.assertIsSatisfied();
-    mocker = null;
+    mockery.assertIsSatisfied();
+    mockery = null;
   }
 }

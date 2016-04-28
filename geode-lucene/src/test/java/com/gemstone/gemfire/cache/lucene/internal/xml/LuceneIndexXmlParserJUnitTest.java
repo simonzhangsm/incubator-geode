@@ -24,7 +24,6 @@ import java.util.Stack;
 
 import org.junit.Test;
 import org.junit.experimental.categories.Category;
-import org.xml.sax.SAXException;
 import org.xml.sax.helpers.AttributesImpl;
 
 import com.gemstone.gemfire.internal.cache.xmlcache.CacheCreation;
@@ -36,7 +35,7 @@ import com.gemstone.gemfire.test.junit.categories.UnitTest;
 public class LuceneIndexXmlParserJUnitTest {
   
   @Test
-  public void generateWithFields() throws SAXException {
+  public void generateWithFields() throws Exception {
     LuceneXmlParser parser = new LuceneXmlParser();
     AttributesImpl attrs = new AttributesImpl();
     CacheCreation cache = new CacheCreation();
@@ -67,5 +66,4 @@ public class LuceneIndexXmlParserJUnitTest {
     assertArrayEquals(new String[] {"field1", "field2"}, index.getFieldNames());
   }
   
-
 }

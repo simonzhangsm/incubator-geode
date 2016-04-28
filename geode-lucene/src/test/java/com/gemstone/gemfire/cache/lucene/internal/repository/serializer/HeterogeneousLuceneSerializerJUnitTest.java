@@ -18,12 +18,12 @@
  */
 package com.gemstone.gemfire.cache.lucene.internal.repository.serializer;
 
-import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.*;
+import static org.mockito.Mockito.*;
 
 import org.apache.lucene.document.Document;
 import org.junit.Test;
 import org.junit.experimental.categories.Category;
-import org.mockito.Mockito;
 
 import com.gemstone.gemfire.pdx.PdxInstance;
 import com.gemstone.gemfire.test.junit.categories.UnitTest;
@@ -68,12 +68,12 @@ public class HeterogeneousLuceneSerializerJUnitTest {
     assertEquals(3.0, doc2.getField("d").numericValue());
     assertEquals(4.0f, doc2.getField("f").numericValue());
     
-    PdxInstance i = Mockito.mock(PdxInstance.class);
+    PdxInstance i = mock(PdxInstance.class);
     
-    Mockito.when(i.hasField("s")).thenReturn(true);
-    Mockito.when(i.hasField("i")).thenReturn(true);
-    Mockito.when(i.getField("s")).thenReturn("a");
-    Mockito.when(i.getField("i")).thenReturn(5);
+    when(i.hasField("s")).thenReturn(true);
+    when(i.hasField("i")).thenReturn(true);
+    when(i.getField("s")).thenReturn("a");
+    when(i.getField("i")).thenReturn(5);
     
     Document doc3 = new Document();
     mapper.toDocument(i, doc3);
