@@ -26,6 +26,10 @@ sourceSets {
 }
 
 dependencies {
+
+
+
+
   compile 'org.springframework:spring-beans:' + project.'springframework.version'
   
   compile 'commons-beanutils:commons-beanutils:' + project.'commons-beanutils.version'
@@ -67,13 +71,9 @@ dependencies {
   testCompile project(':geode-junit')
   testCompile project(':geode-core')
 
-  testCompile ('org.seleniumhq.selenium:selenium-firefox-driver:' + project.'selenium.version') {
-    exclude module: 'cglib-nodep'
-  }
+  testCompile 'org.seleniumhq.selenium:selenium-firefox-driver:' + project.'selenium.version'
   testCompile 'org.seleniumhq.selenium:selenium-api:' + project.'selenium.version'
-  testCompile ('org.seleniumhq.selenium:selenium-remote-driver:' + project.'selenium.version') {
-    exclude module: 'cglib-nodep'
-  }
+  testCompile 'org.seleniumhq.selenium:selenium-remote-driver:' + project.'selenium.version'
   testCompile 'org.seleniumhq.selenium:selenium-support:' + project.'selenium.version'
   testCompile 'org.springframework:spring-test:' + project.'springframework.version'
   testCompile 'org.powermock:powermock-core:' + project.'powermock.version'
