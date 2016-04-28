@@ -19,11 +19,9 @@ package com.gemstone.gemfire.management.internal.configuration;
 import static org.junit.Assert.*;
 
 import java.io.File;
-import java.io.FileNotFoundException;
 
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.FilenameUtils;
-import org.junit.After;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
@@ -31,14 +29,14 @@ import org.junit.experimental.categories.Category;
 import org.junit.rules.TemporaryFolder;
 
 import com.gemstone.gemfire.management.internal.configuration.utils.ZipUtils;
-import com.gemstone.gemfire.test.junit.categories.UnitTest;
+import com.gemstone.gemfire.test.junit.categories.IntegrationTest;
 
 /**
  * JUnit Test for {@link ZipUtils}
  * 
  * TODO: this is broken on Windows: see bug #52036 (GEODE-312)
  */
-@Category(UnitTest.class)
+@Category(IntegrationTest.class)
 public class ZipUtilsJUnitTest {
   
   private String destinationFolderName = "destination";
@@ -90,7 +88,6 @@ public class ZipUtilsJUnitTest {
     assertTrue(destinationFolder.isDirectory());
     
     File[] destinationSubDirs = destinationFolder.listFiles();
-    //assertTrue((destinationSubDirs != null) && (destinationSubDirs.length != 0));
     assertNotNull(destinationSubDirs);
     assertEquals(2, destinationSubDirs.length);
 
