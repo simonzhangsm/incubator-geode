@@ -70,7 +70,7 @@ import com.gemstone.gemfire.test.junit.categories.IntegrationTest;
 @PowerMockRunnerDelegate(SpringJUnit4ClassRunner.class)
 @WebAppConfiguration
 @ContextConfiguration("classpath*:mvc-dispatcher-servlet.xml")
-@PowerMockIgnore("*.UnitTest")
+@PowerMockIgnore("*.IntegrationTest")
 public class PulseControllerJUnitTest {
 
   private static final String PRINCIPAL_USER = "test-user";
@@ -92,7 +92,8 @@ public class PulseControllerJUnitTest {
     principal = () -> PRINCIPAL_USER;
   }
 
-  private final ObjectMapper mapper = new ObjectMapper();
+  @Rule
+  public TemporaryFolder tempFolder = new TemporaryFolder();
 
   @Autowired
   private WebApplicationContext wac;
@@ -101,8 +102,7 @@ public class PulseControllerJUnitTest {
 
   private Cluster cluster;
 
-  @Rule
-  public TemporaryFolder tempFolder = new TemporaryFolder();
+  private final ObjectMapper mapper = new ObjectMapper();
 
   @Before
   public void setup() throws Exception {
@@ -342,7 +342,6 @@ public class PulseControllerJUnitTest {
         .andExpect(jsonPath("$.ClusterRegion.region[0].getsRate").value(27.99D))
         .andExpect(jsonPath("$.ClusterRegion.region[0].wanEnabled").value(false))
         .andExpect(jsonPath("$.ClusterRegion.region[0].memberCount").value(1))
-        .andExpect(jsonPath("$.ClusterRegion.region[0].isHDFSWriteOnly").value("NA"))
         .andExpect(jsonPath("$.ClusterRegion.region[0].memberNames[0].name").value(MEMBER_NAME))
         .andExpect(jsonPath("$.ClusterRegion.region[0].memberNames[0].id").value(MEMBER_ID))
         .andExpect(jsonPath("$.ClusterRegion.region[0].emptyNodes").value(0))
@@ -376,7 +375,6 @@ public class PulseControllerJUnitTest {
         .andExpect(jsonPath("$.ClusterRegions.regions[0].getsRate").value(27.99D))
         .andExpect(jsonPath("$.ClusterRegions.regions[0].wanEnabled").value(false))
         .andExpect(jsonPath("$.ClusterRegions.regions[0].memberCount").value(1))
-        .andExpect(jsonPath("$.ClusterRegions.regions[0].isHDFSWriteOnly").value("NA"))
         .andExpect(jsonPath("$.ClusterRegions.regions[0].memberNames[0].name").value(MEMBER_NAME))
         .andExpect(jsonPath("$.ClusterRegions.regions[0].memberNames[0].id").value(MEMBER_ID))
         .andExpect(jsonPath("$.ClusterRegions.regions[0].emptyNodes").value(0))
@@ -427,7 +425,6 @@ public class PulseControllerJUnitTest {
         .andExpect(jsonPath("$.ClusterSelectedRegion.selectedRegion.memoryUsage").value("0.0000"))
         .andExpect(jsonPath("$.ClusterSelectedRegion.selectedRegion.wanEnabled").value(false))
         .andExpect(jsonPath("$.ClusterSelectedRegion.selectedRegion.memberCount").value(1))
-        .andExpect(jsonPath("$.ClusterSelectedRegion.selectedRegion.isHDFSWriteOnly").value("NA"))
         .andExpect(jsonPath("$.ClusterSelectedRegion.selectedRegion.putsRate").value(12.31D))
         .andExpect(jsonPath("$.ClusterSelectedRegion.selectedRegion.totalMemory").value(0))
         .andExpect(jsonPath("$.ClusterSelectedRegion.selectedRegion.entryCount").value(0))
