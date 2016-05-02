@@ -50,7 +50,7 @@ import com.gemstone.gemfire.internal.util.StopWatch;
 /**
  * @since 8.0
  */
-public abstract class AbstractLauncherJUnitTestCase {
+public abstract class AbstractLauncherIntegrationTestCase {
   protected static final Logger logger = LogService.getLogger();
   
   protected static final int WAIT_FOR_PROCESS_TO_DIE_TIMEOUT = 5 * 60 * 1000; // 5 minutes
@@ -79,13 +79,13 @@ public abstract class AbstractLauncherJUnitTestCase {
   public RestoreSystemProperties restoreSystemProperties = new RestoreSystemProperties();
   
   @Before
-  public final void setUpLauncherTest() throws Exception {
+  public final void setUpAbstractLauncherIntegrationTestCase() throws Exception {
     System.setProperty("gemfire." + DistributionConfig.MCAST_PORT_NAME, Integer.toString(0));
     logger.info(EXPECTED_EXCEPTION_ADD, EXPECTED_EXCEPTION_MBEAN_NOT_REGISTERED);
   }
 
   @After
-  public final void tearDownLauncherTest() throws Exception {    
+  public final void tearDownAbstractLauncherIntegrationTestCase() throws Exception {
     logger.info(EXPECTED_EXCEPTION_REMOVE, EXPECTED_EXCEPTION_MBEAN_NOT_REGISTERED);
     if (this.socket != null) {
       this.socket.close();

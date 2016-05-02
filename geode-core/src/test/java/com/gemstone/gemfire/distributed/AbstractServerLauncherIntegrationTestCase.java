@@ -35,7 +35,7 @@ import com.gemstone.gemfire.internal.cache.AbstractCacheServer;
 /**
  * @since 8.0
  */
-public abstract class AbstractServerLauncherJUnitTestCase extends AbstractLauncherJUnitTestCase {
+public abstract class AbstractServerLauncherIntegrationTestCase extends AbstractLauncherIntegrationTestCase {
   
   protected volatile int serverPort;
   protected volatile ServerLauncher launcher;

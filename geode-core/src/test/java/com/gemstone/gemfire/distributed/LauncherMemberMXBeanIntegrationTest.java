@@ -47,14 +47,14 @@ import com.gemstone.gemfire.test.junit.categories.IntegrationTest;
  * @since 8.0
  */
 @Category(IntegrationTest.class)
-public class LauncherMemberMXBeanJUnitTest extends AbstractLauncherJUnitTestCase {
+public class LauncherMemberMXBeanIntegrationTest extends AbstractLauncherIntegrationTestCase {
 
   @Before
-  public final void setUpLauncherMemberMXBeanTest() throws Exception {
+  public final void setUpLauncherMemberMXBeanIntegrationTest() throws Exception {
   }
 
   @After
-  public final void tearDownLauncherMemberMXBeanTest() throws Exception {
+  public final void tearDownLauncherMemberMXBeanIntegrationTest() throws Exception {
     InternalDistributedSystem ids = InternalDistributedSystem.getConnectedInstance();
     if (ids != null) {
       ids.disconnect();

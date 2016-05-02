@@ -39,7 +39,7 @@ import com.gemstone.gemfire.test.dunit.SerializableCallable;
 import com.gemstone.gemfire.test.dunit.SerializableRunnable;
 
 /**
- * Extracted from LocatorLauncherLocalJUnitTest.
+ * Extracted from LocatorLauncherLocalIntegrationTest.
  * 
  * @since 8.0
  */

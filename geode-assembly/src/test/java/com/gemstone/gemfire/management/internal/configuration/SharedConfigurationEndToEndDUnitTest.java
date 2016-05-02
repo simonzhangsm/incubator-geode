@@ -16,42 +16,16 @@
  */
 package com.gemstone.gemfire.management.internal.configuration;
 
+import static com.gemstone.gemfire.cache.RegionShortcut.*;
+import static com.gemstone.gemfire.distributed.internal.DistributionConfig.*;
+import static com.gemstone.gemfire.internal.AvailablePortHelper.*;
+import static com.gemstone.gemfire.internal.FileUtil.*;
+import static com.gemstone.gemfire.internal.lang.StringUtils.*;
+import static com.gemstone.gemfire.management.internal.cli.CliUtil.*;
 import static com.gemstone.gemfire.test.dunit.Assert.*;
+import static com.gemstone.gemfire.test.dunit.Host.*;
 import static com.gemstone.gemfire.test.dunit.LogWriterUtils.*;
 import static com.gemstone.gemfire.test.dunit.Wait.*;
-
-import com.gemstone.gemfire.cache.Cache;
-import com.gemstone.gemfire.cache.CacheFactory;
-import com.gemstone.gemfire.cache.RegionShortcut;
-
-import com.gemstone.gemfire.cache.wan.GatewaySender.OrderPolicy;
-import com.gemstone.gemfire.distributed.Locator;
-import com.gemstone.gemfire.distributed.internal.DistributionConfig;
-import com.gemstone.gemfire.distributed.internal.InternalLocator;
-import com.gemstone.gemfire.internal.AvailablePortHelper;
-import com.gemstone.gemfire.internal.ClassBuilder;
-import com.gemstone.gemfire.internal.FileUtil;
-import com.gemstone.gemfire.internal.JarDeployer;
-import com.gemstone.gemfire.internal.admin.remote.ShutdownAllRequest;
-import com.gemstone.gemfire.internal.cache.GemFireCacheImpl;
-import com.gemstone.gemfire.internal.lang.StringUtils;
-import com.gemstone.gemfire.management.cli.Result.Status;
-import com.gemstone.gemfire.management.internal.cli.CliUtil;
-import com.gemstone.gemfire.management.internal.cli.HeadlessGfsh;
-import com.gemstone.gemfire.management.internal.cli.commands.CliCommandTestBase;
-import com.gemstone.gemfire.management.internal.cli.i18n.CliStrings;
-import com.gemstone.gemfire.management.internal.cli.result.CommandResult;
-import com.gemstone.gemfire.management.internal.cli.util.CommandStringBuilder;
-import com.gemstone.gemfire.test.dunit.Host;
-import com.gemstone.gemfire.test.dunit.IgnoredException;
-import com.gemstone.gemfire.test.dunit.SerializableCallable;
-import com.gemstone.gemfire.test.dunit.VM;
-import com.gemstone.gemfire.test.dunit.WaitCriterion;
-import com.gemstone.gemfire.test.junit.categories.DistributedTest;
-
-import org.apache.commons.io.FileUtils;
-import org.junit.Test;
-import org.junit.experimental.categories.Category;
 
 import java.io.File;
 import java.io.IOException;
@@ -60,40 +34,51 @@ import java.net.UnknownHostException;
 import java.util.HashSet;
 import java.util.Properties;
 import java.util.Set;
-import java.util.concurrent.ExecutionException;
+
+import org.apache.commons.io.FileUtils;
+import org.junit.Test;
+import org.junit.experimental.categories.Category;
+
+import com.gemstone.gemfire.cache.Cache;
+import com.gemstone.gemfire.cache.CacheFactory;
+import com.gemstone.gemfire.cache.RegionShortcut;
+import com.gemstone.gemfire.cache.wan.GatewaySender.OrderPolicy;
+import com.gemstone.gemfire.distributed.Locator;
+import com.gemstone.gemfire.distributed.internal.InternalLocator;
+import com.gemstone.gemfire.internal.ClassBuilder;
+import com.gemstone.gemfire.internal.JarDeployer;
+import com.gemstone.gemfire.internal.admin.remote.ShutdownAllRequest;
+import com.gemstone.gemfire.internal.cache.GemFireCacheImpl;
+import com.gemstone.gemfire.management.cli.Result.Status;
+import com.gemstone.gemfire.management.internal.cli.HeadlessGfsh;
+import com.gemstone.gemfire.management.internal.cli.commands.CliCommandTestBase;
+import com.gemstone.gemfire.management.internal.cli.i18n.CliStrings;
+import com.gemstone.gemfire.management.internal.cli.result.CommandResult;
+import com.gemstone.gemfire.management.internal.cli.util.CommandStringBuilder;
+import com.gemstone.gemfire.test.dunit.IgnoredException;
+import com.gemstone.gemfire.test.dunit.SerializableCallable;
+import com.gemstone.gemfire.test.dunit.VM;
+import com.gemstone.gemfire.test.dunit.WaitCriterion;
+import com.gemstone.gemfire.test.junit.categories.DistributedTest;
 
 @Category(DistributedTest.class)
 public class SharedConfigurationEndToEndDUnitTest extends CliCommandTestBase {
+
   private static final int TIMEOUT = 10000;
   private static final int INTERVAL = 500;
   private static final String REGION1 = "R1";
   private static final String REGION2 = "R2";
   private static final String INDEX1 = "ID1";
+
+  private static Set<String> serverNames = new HashSet<>();
+  private static Set<String> jarFileNames = new HashSet<>();
+
   private transient ClassBuilder classBuilder = new ClassBuilder();
-  public static Set<String> serverNames = new HashSet<String>();
-  public static Set<String> jarFileNames = new HashSet<String>();
 
-  private static final long serialVersionUID = -2276690105585944041L;
-
-  public Set<String> startServers(HeadlessGfsh gfsh, String locatorString, int numServers, String serverNamePrefix, int startNum) throws ClassNotFoundException, IOException {
-    Set<String> serverNames = new HashSet<String>();
-
-    final int[] serverPorts = AvailablePortHelper.getRandomAvailableTCPPorts(numServers);
-    for (int i=0; i<numServers; i++) {
-      int port = serverPorts[i];
-      String serverName = serverNamePrefix+ Integer.toString(i+startNum) + "-" + port;
-      CommandStringBuilder csb = new CommandStringBuilder(CliStrings.START_SERVER);
-      csb.addOption(CliStrings.START_SERVER__NAME, serverName);
-      csb.addOption(CliStrings.START_SERVER__LOCATORS, locatorString);
-      csb.addOption(CliStrings.START_SERVER__SERVER_PORT, Integer.toString(port));
-      CommandResult cmdResult = executeCommand(gfsh, csb.getCommandString());
-      assertEquals(Status.OK, cmdResult.getStatus());
-    }
-    return serverNames;
-  }
+  // TODO: move setup and teardown to @Before and @After
 
   @Test
-  public void testStartServerAndExecuteCommands() throws InterruptedException, ClassNotFoundException, IOException, ExecutionException {
+  public void testStartServerAndExecuteCommands() throws Exception {
     IgnoredException.addIgnoredException("EntryDestroyedException");
     Object[] result = setup();
     final int locatorPort = (Integer) result[0];
@@ -113,8 +98,6 @@ public class SharedConfigurationEndToEndDUnitTest extends CliCommandTestBase {
     verifyRegionCreateOnAllMembers(REGION2);
     verifyIndexCreationOnAllMembers(INDEX1);
     verifyAsyncEventQueueCreation();
-   
-
 
     //shutdown everything
     getLogWriter().info("Shutting down all the members");
@@ -122,10 +105,26 @@ public class SharedConfigurationEndToEndDUnitTest extends CliCommandTestBase {
     deleteSavedJarFiles();
   }
 
+  private Set<String> startServers(final HeadlessGfsh gfsh, final String locatorString, final int numServers, final String serverNamePrefix, final int startNum) throws ClassNotFoundException, IOException {
+    Set<String> serverNames = new HashSet<>();
 
-  private void doCreateCommands() {
-    createRegion(REGION1, RegionShortcut.REPLICATE, null);
-    createRegion(REGION2, RegionShortcut.PARTITION, null);
+    final int[] serverPorts = getRandomAvailableTCPPorts(numServers);
+    for (int i=0; i<numServers; i++) {
+      int port = serverPorts[i];
+      String serverName = serverNamePrefix+ Integer.toString(i+startNum) + "-" + port;
+      CommandStringBuilder csb = new CommandStringBuilder(CliStrings.START_SERVER);
+      csb.addOption(CliStrings.START_SERVER__NAME, serverName);
+      csb.addOption(CliStrings.START_SERVER__LOCATORS, locatorString);
+      csb.addOption(CliStrings.START_SERVER__SERVER_PORT, Integer.toString(port));
+      CommandResult cmdResult = executeCommand(gfsh, csb.getCommandString());
+      assertEquals(Status.OK, cmdResult.getStatus());
+    }
+    return serverNames;
+  }
+
+  private void doCreateCommands() throws IOException {
+    createRegion(REGION1, REPLICATE, null);
+    createRegion(REGION2, PARTITION, null);
     createIndex(INDEX1 , "AAPL", REGION1, null);
     createAndDeployJar("Deploy1.jar");
     createAsyncEventQueue("q1");
@@ -144,34 +143,33 @@ public class SharedConfigurationEndToEndDUnitTest extends CliCommandTestBase {
     createDiskStore(diskStoreName, diskDirs, autoCompact, allowForceCompaction, compactionThreshold, duCritical, duWarning, maxOplogSize, queueSize, timeInterval, writeBufferSize);
   }
 
-
-  protected void executeAndVerifyCommand(String commandString) {
+  private void executeAndVerifyCommand(final String commandString) {
     CommandResult cmdResult = executeCommand(commandString);
     getLogWriter().info("Command Result : \n" + commandResultToString(cmdResult));
     assertEquals(Status.OK, cmdResult.getStatus());
     assertFalse(cmdResult.failedToPersist());
   }
 
-  private void createRegion(String regionName, RegionShortcut regionShortCut, String group) {
+  private void createRegion(final String regionName, final RegionShortcut regionShortCut, final String group) {
     CommandStringBuilder csb = new CommandStringBuilder(CliStrings.CREATE_REGION);
     csb.addOption(CliStrings.CREATE_REGION__REGION, regionName);
     csb.addOption(CliStrings.CREATE_REGION__REGIONSHORTCUT, regionShortCut.name());
     executeAndVerifyCommand(csb.getCommandString());
   }
 
-  private void destroyRegion(String regionName) {
+  private void destroyRegion(final String regionName) {
     CommandStringBuilder csb = new CommandStringBuilder(CliStrings.DESTROY_REGION);
     csb.addOption(CliStrings.DESTROY_REGION__REGION, regionName);
     executeAndVerifyCommand(csb.getCommandString());
   }
 
-  private void stopServer(String serverName) {
+  private void stopServer(final String serverName) {
     CommandStringBuilder csb = new CommandStringBuilder(CliStrings.STOP_SERVER);
     csb.addOption(CliStrings.STOP_SERVER__MEMBER, serverName);
     executeAndVerifyCommand(csb.getCommandString());
   }
 
-  public void createAsyncEventQueue(String queueName) {
+  private void createAsyncEventQueue(final String queueName) throws IOException {
     String queueCommandsJarName = "testEndToEndSC-QueueCommands.jar";
     final File jarFile = new File(queueCommandsJarName);
 
@@ -209,23 +207,22 @@ public class SharedConfigurationEndToEndDUnitTest extends CliCommandTestBase {
       
       executeAndVerifyCommand(csb.getCommandString());
 
-    } catch (IOException e) {
-      e.printStackTrace();
     } finally {
       FileUtils.deleteQuietly(jarFile);
     }
   }
-  private void createDiskStore(String diskStoreName, 
-      String diskDirs, 
-      String autoCompact, 
-      String allowForceCompaction, 
-      String compactionThreshold, 
-      String duCritical, 
-      String duWarning,
-      String maxOplogSize,
-      String queueSize,
-      String timeInterval,
-      String writeBufferSize) {
+
+  private void createDiskStore(final String diskStoreName,
+                               final String diskDirs,
+                               final String autoCompact,
+                               final String allowForceCompaction,
+                               final String compactionThreshold,
+                               final String duCritical,
+                               final String duWarning,
+                               final String maxOplogSize,
+                               final String queueSize,
+                               final String timeInterval,
+                               final String writeBufferSize) {
     CommandStringBuilder csb = new CommandStringBuilder(CliStrings.CREATE_DISK_STORE);
     csb.addOption(CliStrings.CREATE_DISK_STORE__NAME, diskStoreName);
     csb.addOption(CliStrings.CREATE_DISK_STORE__DIRECTORY_AND_SIZE, diskDirs);
@@ -241,13 +238,14 @@ public class SharedConfigurationEndToEndDUnitTest extends CliCommandTestBase {
     executeAndVerifyCommand(csb.getCommandString());
   }
   
-  private void destroyDiskStore(String diskStoreName, String group) {
+  private void destroyDiskStore(final String diskStoreName, final String group) {
     CommandStringBuilder csb = new CommandStringBuilder(CliStrings.DESTROY_DISK_STORE);
     csb.addOption(CliStrings.DESTROY_DISK_STORE__NAME, diskStoreName);
     csb.addOptionWithValueCheck(CliStrings.DESTROY_DISK_STORE__GROUP, group);
     executeAndVerifyCommand(csb.toString());
   }
-  public void createIndex(String indexName, String expression, String regionName, String group) {
+
+  private void createIndex(final String indexName, final String expression, final String regionName, final String group) {
     CommandStringBuilder csb = new CommandStringBuilder(CliStrings.CREATE_INDEX);
     csb.addOption(CliStrings.CREATE_INDEX__NAME, indexName);
     csb.addOption(CliStrings.CREATE_INDEX__EXPRESSION, expression);
@@ -255,57 +253,49 @@ public class SharedConfigurationEndToEndDUnitTest extends CliCommandTestBase {
     executeAndVerifyCommand(csb.getCommandString());
   }
 
-  public void destoyIndex(String indexName, String regionName, String group) {
-    if (StringUtils.isBlank(indexName) && StringUtils.isBlank(regionName) && StringUtils.isBlank(group)) {
+  private void destroyIndex(final String indexName, final String regionName, final String group) {
+    if (isBlank(indexName) && isBlank(regionName) && isBlank(group)) {
       return;
     }
     CommandStringBuilder csb = new CommandStringBuilder(CliStrings.DESTROY_INDEX);
-    if (!StringUtils.isBlank(indexName)) {
+    if (!isBlank(indexName)) {
       csb.addOption(CliStrings.DESTROY_INDEX__NAME, indexName);
     }
 
-    if (!StringUtils.isBlank(regionName)) {
+    if (!isBlank(regionName)) {
       csb.addOption(CliStrings.DESTROY_INDEX__REGION, regionName);
     }
 
-    if (!StringUtils.isBlank(group)) {
+    if (!isBlank(group)) {
       csb.addOption(CliStrings.DESTROY_INDEX__GROUP, group);
     }
     executeAndVerifyCommand(csb.getCommandString());
   }
 
-  public void createAndDeployJar(String jarName) {
+  private void createAndDeployJar(final String jarName) throws IOException {
     File newDeployableJarFile = new File(jarName);
-    try {
-      this.classBuilder.writeJarFromName("ShareConfigClass", newDeployableJarFile);
-      CommandStringBuilder csb = new CommandStringBuilder(CliStrings.DEPLOY);
-      csb.addOption(CliStrings.DEPLOY__JAR, jarName);
-      executeAndVerifyCommand(csb.getCommandString());
-      jarFileNames.add(jarName);
-    } catch (IOException e) {
-      e.printStackTrace();
-    }
+    this.classBuilder.writeJarFromName("ShareConfigClass", newDeployableJarFile);
+    CommandStringBuilder csb = new CommandStringBuilder(CliStrings.DEPLOY);
+    csb.addOption(CliStrings.DEPLOY__JAR, jarName);
+    executeAndVerifyCommand(csb.getCommandString());
+    jarFileNames.add(jarName);
   }
 
-  public void deleteSavedJarFiles() {
-    try {
-      FileUtil.deleteMatching(new File("."), "^" + JarDeployer.JAR_PREFIX + "Deploy1.*#\\d++$");
-      FileUtil.delete(new File("Deploy1.jar"));
-    } catch (IOException ioe) {
-      ioe.printStackTrace();
-    }
+  private void deleteSavedJarFiles() throws IOException {
+    deleteMatching(new File("."), "^" + JarDeployer.JAR_PREFIX + "Deploy1.*#\\d++$");
+    delete(new File("Deploy1.jar"));
   }
 
-  public Object[] setup() {
+  private Object[] setup() {
     disconnectAllFromDS();
-    final int [] ports = AvailablePortHelper.getRandomAvailableTCPPorts(3);
+    final int [] ports = getRandomAvailableTCPPorts(3);
     final int locator1Port = ports[0];
     final String locator1Name = "locator1-" + locator1Port;
-    VM locatorAndMgr = Host.getHost(0).getVM(3);
+    VM locatorAndMgr = getHost(0).getVM(3);
 
     Object[] result = (Object[]) locatorAndMgr.invoke(new SerializableCallable() {
       @Override
-      public Object call() {
+      public Object call() throws IOException {
         int httpPort;
         int jmxPort;
         String jmxHost;
@@ -317,7 +307,7 @@ public class SharedConfigurationEndToEndDUnitTest extends CliCommandTestBase {
           jmxHost = "localhost";
         }
 
-        final int[] ports = AvailablePortHelper.getRandomAvailableTCPPorts(2);
+        final int[] ports = getRandomAvailableTCPPorts(2);
 
         jmxPort = ports[0];
         httpPort = ports[1];
@@ -325,34 +315,29 @@ public class SharedConfigurationEndToEndDUnitTest extends CliCommandTestBase {
         final File locatorLogFile = new File("locator-" + locator1Port + ".log");
 
         final Properties locatorProps = new Properties();
-        locatorProps.setProperty(DistributionConfig.NAME_NAME, locator1Name);
-        locatorProps.setProperty(DistributionConfig.MCAST_PORT_NAME, "0");
-        locatorProps.setProperty(DistributionConfig.LOG_LEVEL_NAME, "config");
-        locatorProps.setProperty(DistributionConfig.ENABLE_CLUSTER_CONFIGURATION_NAME, "true");
-        locatorProps.setProperty(DistributionConfig.JMX_MANAGER_NAME, "true");
-        locatorProps.setProperty(DistributionConfig.JMX_MANAGER_START_NAME, "true");
-        locatorProps.setProperty(DistributionConfig.JMX_MANAGER_BIND_ADDRESS_NAME, String.valueOf(jmxHost));
-        locatorProps.setProperty(DistributionConfig.JMX_MANAGER_PORT_NAME, String.valueOf(jmxPort));
-        locatorProps.setProperty(DistributionConfig.HTTP_SERVICE_PORT_NAME, String.valueOf(httpPort));
+        locatorProps.setProperty(NAME_NAME, locator1Name);
+        locatorProps.setProperty(MCAST_PORT_NAME, "0");
+        locatorProps.setProperty(LOG_LEVEL_NAME, "config");
+        locatorProps.setProperty(ENABLE_CLUSTER_CONFIGURATION_NAME, "true");
+        locatorProps.setProperty(JMX_MANAGER_NAME, "true");
+        locatorProps.setProperty(JMX_MANAGER_START_NAME, "true");
+        locatorProps.setProperty(JMX_MANAGER_BIND_ADDRESS_NAME, String.valueOf(jmxHost));
+        locatorProps.setProperty(JMX_MANAGER_PORT_NAME, String.valueOf(jmxPort));
+        locatorProps.setProperty(HTTP_SERVICE_PORT_NAME, String.valueOf(httpPort));
 
-        try {
-          final InternalLocator locator = (InternalLocator) Locator.startLocatorAndDS(locator1Port, locatorLogFile, null,
-              locatorProps);
-          WaitCriterion wc = new WaitCriterion() {
-            @Override
-            public boolean done() {
-              return locator.isSharedConfigurationRunning();
-            }
+        final InternalLocator locator = (InternalLocator) Locator.startLocatorAndDS(locator1Port, locatorLogFile, null, locatorProps);
+        WaitCriterion wc = new WaitCriterion() {
+          @Override
+          public boolean done() {
+            return locator.isSharedConfigurationRunning();
+          }
 
-            @Override
-            public String description() {
-              return "Waiting for shared configuration to be started";
-            }
-          };
-          waitForCriterion(wc, TIMEOUT, INTERVAL, true);
-        } catch (IOException ioex) {
-          fail("Unable to create a locator with a shared configuration");
-        }
+          @Override
+          public String description() {
+            return "Waiting for shared configuration to be started";
+          }
+        };
+        waitForCriterion(wc, TIMEOUT, INTERVAL, true);
 
         final Object[] result = new Object[4];
         result[0] = locator1Port;
@@ -370,31 +355,26 @@ public class SharedConfigurationEndToEndDUnitTest extends CliCommandTestBase {
 
     shellConnect(jmxHost, jmxPort, httpPort, gfsh);
     // Create a cache in VM 1
-    VM dataMember = Host.getHost(0).getVM(1);
+    VM dataMember = getHost(0).getVM(1);
     dataMember.invoke(new SerializableCallable() {
       @Override
       public Object call() {
         Properties localProps = new Properties();
-        localProps.setProperty(DistributionConfig.MCAST_PORT_NAME, "0");
-        localProps.setProperty(DistributionConfig.LOCATORS_NAME, "localhost:" + locator1Port);
-        localProps.setProperty(DistributionConfig.NAME_NAME, "DataMember");
+        localProps.setProperty(MCAST_PORT_NAME, "0");
+        localProps.setProperty(LOCATORS_NAME, "localhost:" + locator1Port);
+        localProps.setProperty(NAME_NAME, "DataMember");
         getSystem(localProps);
         Cache cache = getCache();
         assertNotNull(cache);
-        return CliUtil.getAllNormalMembers(cache);
+        return getAllNormalMembers(cache);
       }
     });
     return result;
   }
 
   private void shutdownAll() throws IOException {
-    VM locatorAndMgr = Host.getHost(0).getVM(3);
+    VM locatorAndMgr = getHost(0).getVM(3);
     locatorAndMgr.invoke(new SerializableCallable() {
-      /**
-       * 
-       */
-      private static final long serialVersionUID = 1L;
-
       @Override
       public Object call() throws Exception {
         GemFireCacheImpl cache = (GemFireCacheImpl)CacheFactory.getAnyInstance();
@@ -403,7 +383,7 @@ public class SharedConfigurationEndToEndDUnitTest extends CliCommandTestBase {
       }
     });
 
-    locatorAndMgr.invoke(SharedConfigurationDUnitTest.locatorCleanup);
+    locatorAndMgr.invoke(SharedConfigurationTestUtils.cleanupLocator);
     //Clean up the directories
     if (!serverNames.isEmpty()) {
       for (String serverName : serverNames) {
@@ -416,7 +396,7 @@ public class SharedConfigurationEndToEndDUnitTest extends CliCommandTestBase {
     serverNames = null;
   }
 
-  private void verifyRegionCreateOnAllMembers(String regionName) {
+  private void verifyRegionCreateOnAllMembers(final String regionName) {
     CommandStringBuilder csb = new CommandStringBuilder(CliStrings.DESCRIBE_REGION);
     csb.addOption(CliStrings.DESCRIBE_REGION__NAME, regionName);
     CommandResult cmdResult = executeCommand(csb.getCommandString());
@@ -427,7 +407,7 @@ public class SharedConfigurationEndToEndDUnitTest extends CliCommandTestBase {
     }
   }     
 
-  private void verifyIndexCreationOnAllMembers(String indexName) {
+  private void verifyIndexCreationOnAllMembers(final String indexName) {
     CommandStringBuilder csb = new CommandStringBuilder(CliStrings.LIST_INDEX);
     CommandResult cmdResult = executeCommand(csb.getCommandString());
     String resultAsString = commandResultToString(cmdResult);

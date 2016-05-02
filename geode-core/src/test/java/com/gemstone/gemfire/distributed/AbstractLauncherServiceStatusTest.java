@@ -26,7 +26,7 @@ import java.net.UnknownHostException;
 import java.util.Arrays;
 import java.util.List;
 
-import com.gemstone.gemfire.distributed.AbstractLauncherServiceStatusJUnitTest.TestLauncher.TestState;
+import com.gemstone.gemfire.distributed.AbstractLauncherServiceStatusTest.TestLauncher.TestState;
 import com.gemstone.gemfire.internal.GemFireVersion;
 import com.gemstone.gemfire.internal.process.PidUnavailableException;
 import com.gemstone.gemfire.internal.process.ProcessUtils;
@@ -45,12 +45,12 @@ import org.junit.experimental.categories.Category;
  * @since 7.0
  */
 @Category(UnitTest.class)
-public class AbstractLauncherServiceStatusJUnitTest {
+public class AbstractLauncherServiceStatusTest {
 
   private static final String SERVICE_NAME = "Test";
   private static final InetAddress HOST = getLocalHost();
   private static final int PORT = 12345;
-  private static final String NAME = AbstractLauncherServiceStatusJUnitTest.class.getSimpleName();
+  private static final String NAME = AbstractLauncherServiceStatusTest.class.getSimpleName();
   private static final int PID = identifyPid();
   private static final long UPTIME = 123456789;
   private static final String WORKING_DIRECTORY = identifyWorkingDirectory();

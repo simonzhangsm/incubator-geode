@@ -74,7 +74,7 @@ import com.gemstone.gemfire.test.process.ProcessWrapper;
  * @since 8.0
  */
 @Category(IntegrationTest.class)
-public class ServerLauncherRemoteJUnitTest extends AbstractServerLauncherJUnitTestCase {
+public class ServerLauncherRemoteIntegrationTest extends AbstractServerLauncherIntegrationTestCase {
   
   protected volatile Process process;
   protected volatile ProcessStreamReader processOutReader;
@@ -1367,7 +1367,7 @@ public class ServerLauncherRemoteJUnitTest extends AbstractServerLauncherJUnitTe
   }
   
   /**
-   * Used only by {@link ServerLauncherRemoteJUnitTest#testRunningServerOutlivesForkingProcess}
+   * Used only by {@link ServerLauncherRemoteIntegrationTest#testRunningServerOutlivesForkingProcess}
    */
   public static class ServerLauncherForkingProcess {
 

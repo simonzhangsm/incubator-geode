@@ -36,7 +36,7 @@ import com.gemstone.gemfire.test.junit.categories.IntegrationTest;
  * Integration tests for AbstractLauncher class. These tests require file system I/O.
  */
 @Category(IntegrationTest.class)
-public class AbstractLauncherIntegrationJUnitTest {
+public class AbstractLauncherIntegrationTest {
 
   @Rule
   public final TemporaryFolder temporaryFolder = new TemporaryFolder();

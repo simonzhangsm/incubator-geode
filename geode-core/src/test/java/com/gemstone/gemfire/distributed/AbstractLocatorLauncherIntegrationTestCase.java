@@ -33,7 +33,7 @@ import com.gemstone.gemfire.internal.DistributionLocator;
 /**
  * @since 8.0
  */
-public abstract class AbstractLocatorLauncherJUnitTestCase extends AbstractLauncherJUnitTestCase {
+public abstract class AbstractLocatorLauncherIntegrationTestCase extends AbstractLauncherIntegrationTestCase {
 
   protected volatile int locatorPort;
   protected volatile LocatorLauncher launcher;
@@ -45,14 +45,14 @@ public abstract class AbstractLocatorLauncherJUnitTestCase extends AbstractLaunc
   public TemporaryFolder temporaryFolder = new TemporaryFolder();
 
   @Before
-  public final void setUpLocatorLauncherTest() throws Exception {
+  public final void setUpAbstractLocatorLauncherIntegrationTestCase() throws Exception {
     final int port = AvailablePortHelper.getRandomAvailableTCPPort();
     System.setProperty(DistributionLocator.TEST_OVERRIDE_DEFAULT_PORT_PROPERTY, String.valueOf(port));
     this.locatorPort = port;
   }
   
   @After
-  public final void tearDownLocatorLauncherTest() throws Exception {    
+  public final void tearDownAbstractLocatorLauncherIntegrationTestCase() throws Exception {
     this.locatorPort = 0;
     if (this.launcher != null) {
       this.launcher.stop();

@@ -40,7 +40,6 @@ import org.junit.rules.TemporaryFolder;
 import org.junit.rules.TestName;
 
 import com.gemstone.gemfire.distributed.LocatorLauncher;
-import com.gemstone.gemfire.distributed.LocatorStateJUnitTest;
 import com.gemstone.gemfire.distributed.AbstractLauncher.Status;
 import com.gemstone.gemfire.distributed.LocatorLauncher.Builder;
 import com.gemstone.gemfire.distributed.LocatorLauncher.LocatorState;

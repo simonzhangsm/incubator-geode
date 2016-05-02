@@ -83,6 +83,7 @@ import com.gemstone.gemfire.test.junit.categories.DistributedTest;
 
 @Category(DistributedTest.class)
 public class ClusterConfigurationDUnitTest extends CliCommandTestBase {
+
   private static final int TIMEOUT = 10000;
   private static final int INTERVAL = 500;
   private static final String REPLICATE_REGION = "ReplicateRegion1";
@@ -97,18 +98,16 @@ public class ClusterConfigurationDUnitTest extends CliCommandTestBase {
   private static final String JAR3 = "D3.jar";
   private static final String AsyncEventQueue1 = "Q1";
   
-  private transient ClassBuilder classBuilder = new ClassBuilder();
-  
   public static Set<String> serverNames = new HashSet<String>();
   public static Set<String> jarFileNames = new HashSet<String>();
   
   public static String dataMember = "DataMember";
   public static String newMember = "NewMember";
   
-  private static final long serialVersionUID = 1L;
+  private transient ClassBuilder classBuilder = new ClassBuilder();
 
   @Test
-  public void testConfigDistribution() throws IOException {
+  public void testConfigDistribution() throws Exception {
     IgnoredException.addIgnoredException("could not get remote locator");
     try {
       Object[] result = setup();
@@ -213,12 +212,12 @@ public class ClusterConfigurationDUnitTest extends CliCommandTestBase {
           assertTrue(aeq.getBatchSize() == 1000);
           assertTrue(aeq.getMaximumQueueMemory() == 1000);
         
-          //GatewayReviever verification
+          //GatewayReceiver verification
           Set<GatewayReceiver> gatewayReceivers = cache.getGatewayReceivers();
           assertFalse(gatewayReceivers.isEmpty());
           assertTrue(gatewayReceivers.size() == 1);
           
-          //Gateway Sender verfication
+          //Gateway Sender verification
           GatewaySender gs = cache.getGatewaySender(gsId);
           assertNotNull(gs);
           assertTrue(alertThreshold.equals(Integer.toString(gs.getAlertThreshold())));
@@ -246,14 +245,12 @@ public class ClusterConfigurationDUnitTest extends CliCommandTestBase {
   /**
    * Tests for {@link Extension}, {@link Extensible}, {@link XmlParser},
    * {@link XmlGenerator}, {@link XmlEntity} as it applies to Extensions.
-   * Asserts that Mock Entension is created and altered on region and cache.
+   * Asserts that Mock Extension is created and altered on region and cache.
    * 
-   * @throws IOException
    * @since 8.1
    */
   @Test
-  public void testCreateExtensions() throws IOException {
-    
+  public void testCreateExtensions() throws Exception {
     try {
       Object[] result = setup();
       final int locatorPort = (Integer) result[0];
@@ -322,12 +319,10 @@ public class ClusterConfigurationDUnitTest extends CliCommandTestBase {
    * {@link XmlGenerator}, {@link XmlEntity} as it applies to Extensions.
    * Asserts that Mock Entension is created and destroyed on region and cache.
    * 
-   * @throws IOException
    * @since 8.1
    */
   @Test
-  public void testDestroyExtensions() throws IOException {
-    
+  public void testDestroyExtensions() throws Exception {
     try {
       Object[] result = setup();
       final int locatorPort = (Integer) result[0];
@@ -389,7 +384,7 @@ public class ClusterConfigurationDUnitTest extends CliCommandTestBase {
 
   @Ignore("disabled for unknown reason")
   @Test
-  public void testCreateDiskStore () throws IOException {
+  public void testCreateDiskStore () throws Exception {
     try {
       Object[] result = setup();
       final int locatorPort = (Integer) result[0];
@@ -493,12 +488,11 @@ public class ClusterConfigurationDUnitTest extends CliCommandTestBase {
     } finally {
       shutdownAll();
     }
-   
   }
 
   @Ignore("disabled for unknown reason")
   @Test
-  public void testConfigurePDX() throws IOException {
+  public void testConfigurePDX() throws Exception {
     try {
       Object[] result = setup();
       final int locatorPort = (Integer) result[0];
@@ -527,35 +521,8 @@ public class ClusterConfigurationDUnitTest extends CliCommandTestBase {
     }
   }
   
-  private void shutdownAll() throws IOException {
-    VM locatorAndMgr = Host.getHost(0).getVM(3);
-    locatorAndMgr.invoke(new SerializableCallable() {
-      /**
-       * 
-       */
-      private static final long serialVersionUID = 1L;
-
-      @Override
-      public Object call() throws Exception {
-        GemFireCacheImpl cache = (GemFireCacheImpl)CacheFactory.getAnyInstance();
-        ShutdownAllRequest.send(cache.getDistributedSystem().getDistributionManager(), -1);
-        return null;
-      }
-    });
-    
-    locatorAndMgr.invoke(SharedConfigurationDUnitTest.locatorCleanup);
-    //Clean up the directories
-    if (serverNames != null && !serverNames.isEmpty()) {
-     for (String serverName : serverNames) {
-       final File serverDir = new File(serverName);
-       FileUtils.cleanDirectory(serverDir);
-       FileUtils.deleteDirectory(serverDir);
-     }
-    }
-  }
-
   @Test
-  public void testClusterConfigDir() {
+  public void testClusterConfigDir() throws Exception {
     disconnectAllFromDS();
     final int [] ports = AvailablePortHelper.getRandomAvailableTCPPorts(3);
     final int locator1Port = ports[0];
@@ -571,8 +538,7 @@ public class ClusterConfigurationDUnitTest extends CliCommandTestBase {
         
         try {
           jmxHost = InetAddress.getLocalHost().getHostName();
-        }
-        catch (UnknownHostException ignore) {
+        } catch (UnknownHostException ignore) {
           jmxHost = "localhost";
         }
 
@@ -581,7 +547,6 @@ public class ClusterConfigurationDUnitTest extends CliCommandTestBase {
         jmxPort = ports[0];
         httpPort = ports[1];
         
-       
         final File locatorLogFile = new File("locator-" + locator1Port + ".log");
 
         final Properties locatorProps = new Properties();
@@ -601,25 +566,19 @@ public class ClusterConfigurationDUnitTest extends CliCommandTestBase {
         
         locatorProps.setProperty(DistributionConfig.HTTP_SERVICE_PORT_NAME, String.valueOf(httpPort));
 
-        try {
-          final InternalLocator locator = (InternalLocator) Locator.startLocatorAndDS(locator1Port, locatorLogFile, null,
-              locatorProps);
-          WaitCriterion wc = new WaitCriterion() {
-            @Override
-            public boolean done() {
-              return locator.isSharedConfigurationRunning();
-            }
+        final InternalLocator locator = (InternalLocator) Locator.startLocatorAndDS(locator1Port, locatorLogFile, null, locatorProps);
+        WaitCriterion wc = new WaitCriterion() {
+          @Override
+          public boolean done() {
+            return locator.isSharedConfigurationRunning();
+          }
+          @Override
+          public String description() {
+            return "Waiting for shared configuration to be started";
+          }
+        };
+        waitForCriterion(wc, TIMEOUT, INTERVAL, true);
 
-            @Override
-            public String description() {
-              return "Waiting for shared configuration to be started";
-            }
-          };
-          waitForCriterion(wc, TIMEOUT, INTERVAL, true);
-        } catch (IOException ioex) {
-          fail("Unable to create a locator with a shared configuration");
-        }
-        
         assertTrue(clusterConfigDir.list().length > 0);
 
         final Object[] result = new Object[4];
@@ -632,7 +591,7 @@ public class ClusterConfigurationDUnitTest extends CliCommandTestBase {
     });
   }
   
-  public Object[] setup() {
+  private Object[] setup() {
     disconnectAllFromDS();
     final int [] ports = AvailablePortHelper.getRandomAvailableTCPPorts(3);
     final int locator1Port = ports[0];
@@ -641,15 +600,14 @@ public class ClusterConfigurationDUnitTest extends CliCommandTestBase {
     
     Object[] result = (Object[]) locatorAndMgr.invoke(new SerializableCallable() {
       @Override
-      public Object call() {
+      public Object call() throws IOException {
         int httpPort;
         int jmxPort;
         String jmxHost;
         
         try {
           jmxHost = InetAddress.getLocalHost().getHostName();
-        }
-        catch (UnknownHostException ignore) {
+        } catch (UnknownHostException ignore) {
           jmxHost = "localhost";
         }
 
@@ -658,7 +616,6 @@ public class ClusterConfigurationDUnitTest extends CliCommandTestBase {
         jmxPort = ports[0];
         httpPort = ports[1];
         
-       
         final File locatorLogFile = new File("locator-" + locator1Port + ".log");
 
         final Properties locatorProps = new Properties();
@@ -672,24 +629,18 @@ public class ClusterConfigurationDUnitTest extends CliCommandTestBase {
         locatorProps.setProperty(DistributionConfig.JMX_MANAGER_PORT_NAME, String.valueOf(jmxPort));
         locatorProps.setProperty(DistributionConfig.HTTP_SERVICE_PORT_NAME, String.valueOf(httpPort));
 
-        try {
-          final InternalLocator locator = (InternalLocator) Locator.startLocatorAndDS(locator1Port, locatorLogFile, null,
-              locatorProps);
-          WaitCriterion wc = new WaitCriterion() {
-            @Override
-            public boolean done() {
-              return locator.isSharedConfigurationRunning();
-            }
-
-            @Override
-            public String description() {
-              return "Waiting for shared configuration to be started";
-            }
-          };
-          waitForCriterion(wc, TIMEOUT, INTERVAL, true);
-        } catch (IOException ioex) {
-          fail("Unable to create a locator with a shared configuration");
-        }
+        final InternalLocator locator = (InternalLocator) Locator.startLocatorAndDS(locator1Port, locatorLogFile, null, locatorProps);
+        WaitCriterion wc = new WaitCriterion() {
+          @Override
+          public boolean done() {
+            return locator.isSharedConfigurationRunning();
+          }
+          @Override
+          public String description() {
+            return "Waiting for shared configuration to be started";
+          }
+        };
+        waitForCriterion(wc, TIMEOUT, INTERVAL, true);
 
         final Object[] result = new Object[4];
         result[0] = locator1Port;
@@ -708,6 +659,7 @@ public class ClusterConfigurationDUnitTest extends CliCommandTestBase {
     shellConnect(jmxHost, jmxPort, httpPort, gfsh);
     // Create a cache in VM 1
     VM dataMember = Host.getHost(0).getVM(1);
+
     dataMember.invoke(new SerializableCallable() {
       @Override
       public Object call() throws IOException {
@@ -728,13 +680,9 @@ public class ClusterConfigurationDUnitTest extends CliCommandTestBase {
         return CliUtil.getAllNormalMembers(cache);
       }
     });
+
     return result;
   }
-  
-  
-  /*********************************
-   * Region commands 
-   */
   
   private void createRegion(String regionName, RegionShortcut regionShortCut, String group) {
     CommandStringBuilder csb = new CommandStringBuilder(CliStrings.CREATE_REGION);
@@ -781,32 +729,6 @@ public class ClusterConfigurationDUnitTest extends CliCommandTestBase {
     executeAndVerifyCommand(csb.toString());
   }
 
-  class CommandBuilder {
-    private CommandStringBuilder csb;
-    
-    public CommandBuilder(String commandName, Map<String, String> options) {
-      csb = new CommandStringBuilder(commandName);
-      
-      Set<Entry<String, String>> entries = options.entrySet();
-      
-      Iterator<Entry<String, String>> iter = entries.iterator();
-      
-      while (iter.hasNext()) {
-        Entry<String, String> entry = iter.next();
-        String option = entry.getKey();
-        
-        if (StringUtils.isBlank(option)) {
-          csb.addOption(option, entry.getValue());
-        }
-      }
-    }
-    
-    public String getCommandString() {
-      return csb.toString();
-    }
-  }
-  
-  
   private void createPersistentRegion(String regionName, RegionShortcut regionShortCut, String group, String diskStoreName) {
     CommandStringBuilder csb = new CommandStringBuilder(CliStrings.CREATE_REGION);
     csb.addOptionWithValueCheck(CliStrings.CREATE_REGION__REGION, regionName);
@@ -823,15 +745,16 @@ public class ClusterConfigurationDUnitTest extends CliCommandTestBase {
   }
   
   private void alterRegion(String regionName,
-      String cloningEnabled, 
-      String aeqId,
-      String cacheListener, 
-      String cacheWriter, 
-      String cacheLoader, 
-      String entryExpIdleTime, 
-      String entryExpIdleTimeAction,
-      String evictionMax,
-      String gsId) {
+                           String cloningEnabled,
+                           String aeqId,
+                           String cacheListener,
+                           String cacheWriter,
+                           String cacheLoader,
+                           String entryExpIdleTime,
+                           String entryExpIdleTimeAction,
+                           String evictionMax,
+                           String gsId) {
+
     CommandStringBuilder csb = new CommandStringBuilder(CliStrings.ALTER_REGION);
     csb.addOptionWithValueCheck(CliStrings.ALTER_REGION__CLONINGENABLED, "false");
     csb.addOptionWithValueCheck(CliStrings.ALTER_REGION__ASYNCEVENTQUEUEID, aeqId);
@@ -846,7 +769,8 @@ public class ClusterConfigurationDUnitTest extends CliCommandTestBase {
 
     executeAndVerifyCommand(csb.getCommandString());
   }
-  protected void executeAndVerifyCommand(String commandString) {
+
+  private void executeAndVerifyCommand(String commandString) {
     CommandResult cmdResult = executeCommand(commandString);
     com.gemstone.gemfire.test.dunit.LogWriterUtils.getLogWriter().info("Command : " + commandString);
     com.gemstone.gemfire.test.dunit.LogWriterUtils.getLogWriter().info("Command Result : " + commandResultToString(cmdResult));
@@ -854,20 +778,15 @@ public class ClusterConfigurationDUnitTest extends CliCommandTestBase {
     assertFalse(cmdResult.failedToPersist());
   }
   
-  
-  /****************
-   * CREATE/DESTROY INDEX
-   */
-  
-  public void createIndex(String indexName, String expression, String regionName, String group) {
+  private void createIndex(String indexName, String expression, String regionName, String group) {
     CommandStringBuilder csb = new CommandStringBuilder(CliStrings.CREATE_INDEX);
     csb.addOption(CliStrings.CREATE_INDEX__NAME, indexName);
     csb.addOption(CliStrings.CREATE_INDEX__EXPRESSION, expression);
     csb.addOption(CliStrings.CREATE_INDEX__REGION, regionName);
     executeAndVerifyCommand(csb.getCommandString());
   }
-  
-  public void destroyIndex(String indexName, String regionName, String group) {
+
+  private void destroyIndex(String indexName, String regionName, String group) {
     if (StringUtils.isBlank(indexName) && StringUtils.isBlank(regionName) && StringUtils.isBlank(group)) {
       return;
     }
@@ -878,20 +797,18 @@ public class ClusterConfigurationDUnitTest extends CliCommandTestBase {
     executeAndVerifyCommand(csb.getCommandString());
   }
   
-  /*******
-   * CREATE/DESTROY DISK-STORE 
-   */
-  private void createDiskStore(String diskStoreName, 
-      String diskDirs, 
-      String autoCompact, 
-      String allowForceCompaction, 
-      String compactionThreshold, 
-      String duCritical, 
-      String duWarning,
-      String maxOplogSize,
-      String queueSize,
-      String timeInterval,
-      String writeBufferSize) {
+  private void createDiskStore(String diskStoreName,
+                               String diskDirs,
+                               String autoCompact,
+                               String allowForceCompaction,
+                               String compactionThreshold,
+                               String duCritical,
+                               String duWarning,
+                               String maxOplogSize,
+                               String queueSize,
+                               String timeInterval,
+                               String writeBufferSize) {
+
     CommandStringBuilder csb = new CommandStringBuilder(CliStrings.CREATE_DISK_STORE);
     csb.addOption(CliStrings.CREATE_DISK_STORE__NAME, diskStoreName);
     csb.addOption(CliStrings.CREATE_DISK_STORE__DIRECTORY_AND_SIZE, diskDirs);
@@ -914,14 +831,7 @@ public class ClusterConfigurationDUnitTest extends CliCommandTestBase {
     executeAndVerifyCommand(csb.toString());
   }
   
-  /*********
-   * 
-   * CREATE GATEWAY-RECEIVER
-   * 
-   */
-  
-  private void createGatewayReceiver(String manualStart, String bindAddress,
-      String startPort, String endPort, String maxTimeBetweenPings, String group) {
+  private void createGatewayReceiver(String manualStart, String bindAddress, String startPort, String endPort, String maxTimeBetweenPings, String group) {
     CommandStringBuilder csb = new CommandStringBuilder(CliStrings.CREATE_GATEWAYRECEIVER);
     csb.addOptionWithValueCheck(CliStrings.CREATE_GATEWAYRECEIVER__MANUALSTART, manualStart);
     csb.addOption(CliStrings.CREATE_GATEWAYRECEIVER__STARTPORT, startPort);
@@ -933,18 +843,18 @@ public class ClusterConfigurationDUnitTest extends CliCommandTestBase {
   }
   
   private void createGatewaySender(String id, 
-      String batchSize, 
-      String alertThreshold, 
-      String batchTimeInterval, 
-      String dispatcherThreads,
-      String enableConflation, 
-      String manualStart,
-      String maxQueueMemory, 
-      String orderPolicy, 
-      String parallel, 
-      String rmDsId, 
-      String socketBufferSize, 
-      String socketReadTimeout) {
+                                   String batchSize,
+                                   String alertThreshold,
+                                   String batchTimeInterval,
+                                   String dispatcherThreads,
+                                   String enableConflation,
+                                   String manualStart,
+                                   String maxQueueMemory,
+                                   String orderPolicy,
+                                   String parallel,
+                                   String rmDsId,
+                                   String socketBufferSize,
+                                   String socketReadTimeout) {
     
     CommandStringBuilder csb = new CommandStringBuilder(CliStrings.CREATE_GATEWAYSENDER);
     csb.addOptionWithValueCheck(CliStrings.CREATE_GATEWAYSENDER__ID, id);
@@ -964,12 +874,7 @@ public class ClusterConfigurationDUnitTest extends CliCommandTestBase {
     executeAndVerifyCommand(csb.getCommandString());
   }
   
-  
-  /*******
-   * CREATE ASYNC-EVENT-QUEUE 
-   */
-  
-  public void createAsyncEventQueue(String id, String persistent , String diskStoreName, String batchSize, String maxQueueMemory, String group) {
+  private void createAsyncEventQueue(String id, String persistent , String diskStoreName, String batchSize, String maxQueueMemory, String group) throws IOException {
     String queueCommandsJarName = "testEndToEndSC-QueueCommands.jar";
     final File jarFile = new File(queueCommandsJarName);
 
@@ -1002,14 +907,12 @@ public class ClusterConfigurationDUnitTest extends CliCommandTestBase {
       csb.addOptionWithValueCheck(CliStrings.CREATE_ASYNC_EVENT_QUEUE__MAXIMUM_QUEUE_MEMORY, maxQueueMemory);
       executeAndVerifyCommand(csb.getCommandString());
       
-    } catch (IOException e) {
-      e.printStackTrace();
     } finally {
       FileUtils.deleteQuietly(jarFile);
     }
   }
-  
-  public void configurePDX(String autoSerializerClasses, String ignoreUnreadFields, String persistent, String portableAutoSerializerClasses, String readSerialized) {
+
+  private void configurePDX(String autoSerializerClasses, String ignoreUnreadFields, String persistent, String portableAutoSerializerClasses, String readSerialized) {
     CommandStringBuilder csb = new CommandStringBuilder(CliStrings.CONFIGURE_PDX);
     csb.addOptionWithValueCheck(CliStrings.CONFIGURE_PDX__AUTO__SERIALIZER__CLASSES, autoSerializerClasses);
     csb.addOptionWithValueCheck(CliStrings.CONFIGURE_PDX__IGNORE__UNREAD_FIELDS, ignoreUnreadFields);
@@ -1018,25 +921,20 @@ public class ClusterConfigurationDUnitTest extends CliCommandTestBase {
     csb.addOptionWithValueCheck(CliStrings.CONFIGURE_PDX__READ__SERIALIZED, readSerialized);
     executeAndVerifyCommand(csb.getCommandString());
   }
-  
-  //DEPLOY AND UNDEPLOY JAR
-  public void createAndDeployJar(String jarName, String group) {
+
+  private void createAndDeployJar(String jarName, String group) throws IOException {
     File newDeployableJarFile = new File(jarName);
-    try {
-      this.classBuilder.writeJarFromName("ShareConfigClass", newDeployableJarFile);
-      CommandStringBuilder csb = new CommandStringBuilder(CliStrings.DEPLOY);
-      csb.addOption(CliStrings.DEPLOY__JAR, jarName);
-      if (!StringUtils.isBlank(group)) {
-        csb.addOption(CliStrings.DEPLOY__GROUP, group);
-      }
-      executeAndVerifyCommand(csb.getCommandString());
-      jarFileNames.add(jarName);
-    } catch (IOException e) {
-      e.printStackTrace();
+    this.classBuilder.writeJarFromName("ShareConfigClass", newDeployableJarFile);
+    CommandStringBuilder csb = new CommandStringBuilder(CliStrings.DEPLOY);
+    csb.addOption(CliStrings.DEPLOY__JAR, jarName);
+    if (!StringUtils.isBlank(group)) {
+      csb.addOption(CliStrings.DEPLOY__GROUP, group);
     }
+    executeAndVerifyCommand(csb.getCommandString());
+    jarFileNames.add(jarName);
   }
-  
-  public void undeployJar(String jarName, String group) {
+
+  private void undeployJar(String jarName, String group) {
     CommandStringBuilder csb = new CommandStringBuilder(CliStrings.UNDEPLOY);
     if (!StringUtils.isBlank(jarName)) {
       csb.addOption(CliStrings.UNDEPLOY__JAR, jarName);
@@ -1046,8 +944,8 @@ public class ClusterConfigurationDUnitTest extends CliCommandTestBase {
     }
     executeAndVerifyCommand(csb.getCommandString());
   }
-  
-  public void alterRuntime(String copyOnRead, String lockLease, String lockTimeout, String messageSyncInterval) {
+
+  private void alterRuntime(String copyOnRead, String lockLease, String lockTimeout, String messageSyncInterval) {
     CommandStringBuilder csb = new CommandStringBuilder(CliStrings.ALTER_RUNTIME_CONFIG);
     csb.addOptionWithValueCheck(CliStrings.ALTER_RUNTIME_CONFIG__COPY__ON__READ, copyOnRead);
     csb.addOptionWithValueCheck(CliStrings.ALTER_RUNTIME_CONFIG__LOCK__LEASE, lockLease);
@@ -1055,13 +953,56 @@ public class ClusterConfigurationDUnitTest extends CliCommandTestBase {
     csb.addOptionWithValueCheck(CliStrings.ALTER_RUNTIME_CONFIG__MESSAGE__SYNC__INTERVAL, messageSyncInterval);
     executeAndVerifyCommand(csb.toString());
   }
-  public void deleteSavedJarFiles() {
-    try {
-      FileUtil.deleteMatching(new File("."), "^" + JarDeployer.JAR_PREFIX + "Deploy1.*#\\d++$");
-      FileUtil.delete(new File("Deploy1.jar"));
-    } catch (IOException ioe) {
-      ioe.printStackTrace();
+
+  private void deleteSavedJarFiles() throws IOException {
+    FileUtil.deleteMatching(new File("."), "^" + JarDeployer.JAR_PREFIX + "Deploy1.*#\\d++$");
+    FileUtil.delete(new File("Deploy1.jar"));
+  }
+
+  private void shutdownAll() throws IOException {
+    VM locatorAndMgr = Host.getHost(0).getVM(3);
+    locatorAndMgr.invoke(new SerializableCallable() {
+      @Override
+      public Object call() throws Exception {
+        GemFireCacheImpl cache = (GemFireCacheImpl)CacheFactory.getAnyInstance();
+        ShutdownAllRequest.send(cache.getDistributedSystem().getDistributionManager(), -1);
+        return null;
+      }
+    });
+
+    locatorAndMgr.invoke(SharedConfigurationTestUtils.cleanupLocator);
+    //Clean up the directories
+    if (serverNames != null && !serverNames.isEmpty()) {
+      for (String serverName : serverNames) {
+        final File serverDir = new File(serverName);
+        FileUtils.cleanDirectory(serverDir);
+        FileUtils.deleteDirectory(serverDir);
+      }
     }
   }
-  
+
+  class CommandBuilder {
+    private CommandStringBuilder csb;
+
+    public CommandBuilder(String commandName, Map<String, String> options) {
+      csb = new CommandStringBuilder(commandName);
+
+      Set<Entry<String, String>> entries = options.entrySet();
+
+      Iterator<Entry<String, String>> iter = entries.iterator();
+
+      while (iter.hasNext()) {
+        Entry<String, String> entry = iter.next();
+        String option = entry.getKey();
+
+        if (StringUtils.isBlank(option)) {
+          csb.addOption(option, entry.getValue());
+        }
+      }
+    }
+
+    public String getCommandString() {
+      return csb.toString();
+    }
+  }
 }

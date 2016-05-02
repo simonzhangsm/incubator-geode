@@ -53,7 +53,7 @@ import org.junit.experimental.categories.Category;
 import org.junit.rules.TestName;
 
 /**
- * The ServerLauncherJUnitTest class is a test suite of unit tests testing the contract, functionality and invariants
+ * The ServerLauncherTest class is a test suite of unit tests testing the contract, functionality and invariants
  * of the ServerLauncher class.
  *
  * @see com.gemstone.gemfire.distributed.ServerLauncher
@@ -65,7 +65,7 @@ import org.junit.rules.TestName;
  */
 @SuppressWarnings({"deprecation", "unused"})
 @Category(UnitTest.class)
-public class ServerLauncherJUnitTest {
+public class ServerLauncherTest {
 
   private Mockery mockContext;
 
