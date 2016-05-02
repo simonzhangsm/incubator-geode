@@ -16,7 +16,7 @@
  */
 package com.gemstone.gemfire.distributed;
 
-import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.*;
 
 import java.io.BufferedReader;
 import java.io.File;
@@ -42,8 +42,8 @@ import com.gemstone.gemfire.internal.FileUtil;
 import com.gemstone.gemfire.internal.lang.StringUtils;
 import com.gemstone.gemfire.internal.logging.LogService;
 import com.gemstone.gemfire.internal.process.PidUnavailableException;
-import com.gemstone.gemfire.internal.process.ProcessUtils;
 import com.gemstone.gemfire.internal.process.ProcessStreamReader.InputListener;
+import com.gemstone.gemfire.internal.process.ProcessUtils;
 import com.gemstone.gemfire.internal.util.IOUtils;
 import com.gemstone.gemfire.internal.util.StopWatch;
 

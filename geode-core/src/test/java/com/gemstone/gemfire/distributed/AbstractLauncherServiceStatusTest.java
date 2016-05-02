@@ -26,6 +26,10 @@ import java.net.UnknownHostException;
 import java.util.Arrays;
 import java.util.List;
 
+import org.junit.Before;
+import org.junit.Test;
+import org.junit.experimental.categories.Category;
+
 import com.gemstone.gemfire.distributed.AbstractLauncherServiceStatusTest.TestLauncher.TestState;
 import com.gemstone.gemfire.internal.GemFireVersion;
 import com.gemstone.gemfire.internal.process.PidUnavailableException;
@@ -34,10 +38,6 @@ import com.gemstone.gemfire.management.internal.cli.json.GfJsonArray;
 import com.gemstone.gemfire.management.internal.cli.json.GfJsonException;
 import com.gemstone.gemfire.management.internal.cli.json.GfJsonObject;
 import com.gemstone.gemfire.test.junit.categories.UnitTest;
-
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.experimental.categories.Category;
 
 /**
  * Tests marshaling of ServiceStatus to and from JSON.

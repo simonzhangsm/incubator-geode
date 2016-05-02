@@ -23,12 +23,12 @@ import java.net.URL;
 import java.util.Properties;
 import java.util.concurrent.TimeUnit;
 
+import org.junit.Test;
+import org.junit.experimental.categories.Category;
+
 import com.gemstone.gemfire.distributed.internal.DistributionConfig;
 import com.gemstone.gemfire.internal.lang.StringUtils;
 import com.gemstone.gemfire.test.junit.categories.UnitTest;
-
-import org.junit.Test;
-import org.junit.experimental.categories.Category;
 
 /**
  * The AbstractLauncherTest class is a test suite of unit tests testing the contract and functionality

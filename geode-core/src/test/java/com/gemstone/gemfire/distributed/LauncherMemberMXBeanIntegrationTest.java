@@ -22,7 +22,6 @@ import java.lang.management.ManagementFactory;
 import java.util.Properties;
 import java.util.Set;
 import java.util.concurrent.Callable;
-
 import javax.management.MBeanServer;
 import javax.management.MBeanServerInvocationHandler;
 import javax.management.ObjectName;

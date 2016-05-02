@@ -64,7 +64,14 @@ public abstract class AbstractLocatorLauncherIntegrationTestCase extends Abstrac
       this.launcher = null;
     }
   }
-  
+
+  /**
+   * Override if needed
+   */
+  protected Status getExpectedStopStatusForNotRunning() {
+    return Status.NOT_RESPONDING;
+  }
+
   protected void waitForLocatorToStart(final LocatorLauncher launcher, int timeout, int interval, boolean throwOnTimeout) throws Exception {
     assertEventuallyTrue("waiting for process to start: " + launcher.status(), new Callable<Boolean>() {
       @Override

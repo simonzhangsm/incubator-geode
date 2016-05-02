@@ -34,7 +34,6 @@ import com.gemstone.gemfire.distributed.LocatorLauncher.Builder;
 import com.gemstone.gemfire.distributed.LocatorLauncher.LocatorState;
 import com.gemstone.gemfire.distributed.internal.DistributionConfig;
 import com.gemstone.gemfire.distributed.internal.InternalLocator;
-import com.gemstone.gemfire.distributed.internal.SharedConfiguration;
 import com.gemstone.gemfire.internal.AvailablePort;
 import com.gemstone.gemfire.internal.AvailablePortHelper;
 import com.gemstone.gemfire.internal.DistributionLocator;
@@ -62,10 +61,6 @@ public class LocatorLauncherLocalIntegrationTest extends AbstractLocatorLauncher
   @After
   public final void tearDownLocatorLauncherLocalIntegrationTest() throws Exception {
     disconnectFromDS();
-  }
-
-  protected Status getExpectedStopStatusForNotRunning() {
-    return Status.NOT_RESPONDING;
   }
 
   @Test

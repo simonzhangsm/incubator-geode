@@ -16,10 +16,9 @@
  */
 package com.gemstone.gemfire.distributed;
 
-import static com.googlecode.catchexception.apis.BDDCatchException.caughtException;
-import static com.googlecode.catchexception.apis.BDDCatchException.when;
+import static com.googlecode.catchexception.apis.BDDCatchException.*;
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.BDDAssertions.*;
+import static org.assertj.core.api.BDDAssertions.then;
 
 import java.io.File;
 import java.io.FileNotFoundException;
