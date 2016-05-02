@@ -63,7 +63,7 @@ public class DeployCommandsDUnitTest extends CliCommandTestBase {
   transient private CommandProcessor commandProcessor;
 
   @Override
-  public final void postSetUp() throws Exception {
+  public final void postSetUpCliCommandTestBase() throws Exception {
     this.commandProcessor = new CommandProcessor();
     assertFalse(this.commandProcessor.isStopped());
 

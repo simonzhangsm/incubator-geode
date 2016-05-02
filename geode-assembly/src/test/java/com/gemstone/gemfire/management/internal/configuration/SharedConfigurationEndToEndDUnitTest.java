@@ -24,6 +24,7 @@ import static com.gemstone.gemfire.internal.lang.StringUtils.*;
 import static com.gemstone.gemfire.management.internal.cli.CliUtil.*;
 import static com.gemstone.gemfire.test.dunit.Assert.*;
 import static com.gemstone.gemfire.test.dunit.Host.*;
+import static com.gemstone.gemfire.test.dunit.IgnoredException.*;
 import static com.gemstone.gemfire.test.dunit.LogWriterUtils.*;
 import static com.gemstone.gemfire.test.dunit.Wait.*;
 
@@ -55,7 +56,6 @@ import com.gemstone.gemfire.management.internal.cli.commands.CliCommandTestBase;
 import com.gemstone.gemfire.management.internal.cli.i18n.CliStrings;
 import com.gemstone.gemfire.management.internal.cli.result.CommandResult;
 import com.gemstone.gemfire.management.internal.cli.util.CommandStringBuilder;
-import com.gemstone.gemfire.test.dunit.IgnoredException;
 import com.gemstone.gemfire.test.dunit.SerializableCallable;
 import com.gemstone.gemfire.test.dunit.VM;
 import com.gemstone.gemfire.test.dunit.WaitCriterion;
@@ -75,34 +75,45 @@ public class SharedConfigurationEndToEndDUnitTest extends CliCommandTestBase {
 
   private transient ClassBuilder classBuilder = new ClassBuilder();
 
-  // TODO: move setup and teardown to @Before and @After
+  private transient String jmxHost;
+  private transient int jmxPort;
+  private transient int httpPort;
+  private transient String locatorString;
+
+  @Override
+  public final void postSetUpCliCommandTestBase() throws Exception {
+    disconnectAllFromDS();
+
+    addIgnoredException("EntryDestroyedException");
+
+    Object[] result = setup();
+    int locatorPort = (Integer) result[0];
+
+    this.jmxHost = (String) result[1];
+    this.jmxPort = (Integer) result[2];
+    this.httpPort = (Integer) result[3];
+    this.locatorString = "localHost[" + locatorPort + "]";
+  }
+
+  public final void preTearDownCliCommandTestBase() throws Exception {
+    //shutdown everything
+    shutdownAll();
+  }
 
   @Test
   public void testStartServerAndExecuteCommands() throws Exception {
-    IgnoredException.addIgnoredException("EntryDestroyedException");
-    Object[] result = setup();
-    final int locatorPort = (Integer) result[0];
-    final String jmxHost = (String) result[1];
-    final int jmxPort = (Integer) result[2];
-    final int httpPort = (Integer) result[3];
-    final String locatorString = "localHost[" + locatorPort + "]";
-
-    final HeadlessGfsh gfsh = new HeadlessGfsh("gfsh2", 300);
+    final HeadlessGfsh gfsh = new HeadlessGfsh("gfsh2", 300, this.gfshDir);
     assertNotNull(gfsh);
     shellConnect(jmxHost, jmxPort, httpPort, gfsh);
 
     serverNames.addAll(startServers(gfsh, locatorString, 2, "Server", 1));
     doCreateCommands();
     serverNames.addAll(startServers(gfsh, locatorString, 1, "NewMember", 4));
+
     verifyRegionCreateOnAllMembers(REGION1);
     verifyRegionCreateOnAllMembers(REGION2);
     verifyIndexCreationOnAllMembers(INDEX1);
     verifyAsyncEventQueueCreation();
-
-    //shutdown everything
-    getLogWriter().info("Shutting down all the members");
-    shutdownAll();
-    deleteSavedJarFiles();
   }
 
   private Set<String> startServers(final HeadlessGfsh gfsh, final String locatorString, final int numServers, final String serverNamePrefix, final int startNum) throws ClassNotFoundException, IOException {
@@ -112,11 +123,14 @@ public class SharedConfigurationEndToEndDUnitTest extends CliCommandTestBase {
     for (int i=0; i<numServers; i++) {
       int port = serverPorts[i];
       String serverName = serverNamePrefix+ Integer.toString(i+startNum) + "-" + port;
+
       CommandStringBuilder csb = new CommandStringBuilder(CliStrings.START_SERVER);
       csb.addOption(CliStrings.START_SERVER__NAME, serverName);
       csb.addOption(CliStrings.START_SERVER__LOCATORS, locatorString);
       csb.addOption(CliStrings.START_SERVER__SERVER_PORT, Integer.toString(port));
+
       CommandResult cmdResult = executeCommand(gfsh, csb.getCommandString());
+
       assertEquals(Status.OK, cmdResult.getStatus());
     }
     return serverNames;
@@ -126,7 +140,7 @@ public class SharedConfigurationEndToEndDUnitTest extends CliCommandTestBase {
     createRegion(REGION1, REPLICATE, null);
     createRegion(REGION2, PARTITION, null);
     createIndex(INDEX1 , "AAPL", REGION1, null);
-    createAndDeployJar("Deploy1.jar");
+    createAndDeployJar(this.temporaryFolder.getRoot().getCanonicalPath() + File.separator + "Deploy1.jar");
     createAsyncEventQueue("q1");
     final String autoCompact = "true";
     final String allowForceCompaction = "true";
@@ -286,13 +300,14 @@ public class SharedConfigurationEndToEndDUnitTest extends CliCommandTestBase {
     delete(new File("Deploy1.jar"));
   }
 
-  private Object[] setup() {
-    disconnectAllFromDS();
+  private Object[] setup() throws IOException {
     final int [] ports = getRandomAvailableTCPPorts(3);
     final int locator1Port = ports[0];
-    final String locator1Name = "locator1-" + locator1Port;
-    VM locatorAndMgr = getHost(0).getVM(3);
 
+    final String locator1Name = "locator1-" + locator1Port;
+    final String locatorLogPath = this.temporaryFolder.getRoot().getCanonicalPath() + File.separator + "locator-" + locator1Port + ".log";
+
+    VM locatorAndMgr = getHost(0).getVM(3);
     Object[] result = (Object[]) locatorAndMgr.invoke(new SerializableCallable() {
       @Override
       public Object call() throws IOException {
@@ -312,7 +327,7 @@ public class SharedConfigurationEndToEndDUnitTest extends CliCommandTestBase {
         jmxPort = ports[0];
         httpPort = ports[1];
 
-        final File locatorLogFile = new File("locator-" + locator1Port + ".log");
+        final File locatorLogFile = new File(locatorLogPath);
 
         final Properties locatorProps = new Properties();
         locatorProps.setProperty(NAME_NAME, locator1Name);
@@ -326,12 +341,12 @@ public class SharedConfigurationEndToEndDUnitTest extends CliCommandTestBase {
         locatorProps.setProperty(HTTP_SERVICE_PORT_NAME, String.valueOf(httpPort));
 
         final InternalLocator locator = (InternalLocator) Locator.startLocatorAndDS(locator1Port, locatorLogFile, null, locatorProps);
+
         WaitCriterion wc = new WaitCriterion() {
           @Override
           public boolean done() {
             return locator.isSharedConfigurationRunning();
           }
-
           @Override
           public String description() {
             return "Waiting for shared configuration to be started";
@@ -354,6 +369,7 @@ public class SharedConfigurationEndToEndDUnitTest extends CliCommandTestBase {
     int httpPort = (Integer)result[3];
 
     shellConnect(jmxHost, jmxPort, httpPort, gfsh);
+
     // Create a cache in VM 1
     VM dataMember = getHost(0).getVM(1);
     dataMember.invoke(new SerializableCallable() {

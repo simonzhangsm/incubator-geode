@@ -65,7 +65,7 @@ public class ListAndDescribeDiskStoreCommandsDUnitTest extends CliCommandTestBas
   }
 
   @Override
-  public final void postSetUp() throws Exception {
+  public final void postSetUpCliCommandTestBase() throws Exception {
     createDefaultSetup(null);
     setupGemFire();
   }

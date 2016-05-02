@@ -42,6 +42,9 @@ import java.util.regex.Pattern;
 import static com.gemstone.gemfire.test.dunit.Assert.*;
 import static com.gemstone.gemfire.test.dunit.LogWriterUtils.getLogWriter;
 
+import org.junit.Rule;
+import org.junit.rules.TemporaryFolder;
+
 /**
  * Base class for all the CLI/gfsh command dunit tests.
  */
@@ -57,10 +60,26 @@ public abstract class CliCommandTestBase extends JUnit4CacheTestCase {
 
   private boolean useHttpOnConnect = Boolean.getBoolean("useHTTP");
 
-  private int httpPort;
-  private int jmxPort;
+  private transient int httpPort;
+  private transient int jmxPort;
+  private transient String jmxHost;
+  protected transient String gfshDir;
 
-  private String jmxHost;
+  @Rule
+  public transient TemporaryFolder temporaryFolder = new TemporaryFolder();
+
+  @Override
+  public final void postSetUp() throws Exception {
+    setUpCliCommandTestBase();
+    postSetUpCliCommandTestBase();
+  }
+
+  private void setUpCliCommandTestBase() throws Exception {
+    this.gfshDir = this.temporaryFolder.newFolder("gfsh_files").getCanonicalPath();
+  }
+
+  protected void postSetUpCliCommandTestBase() throws Exception {
+  }
 
   @Override
   public final void preTearDownCacheTestCase() throws Exception {
@@ -250,7 +269,7 @@ public abstract class CliCommandTestBase extends JUnit4CacheTestCase {
     try {
       Gfsh.SUPPORT_MUTLIPLESHELL = true;
       String shellId = getClass().getSimpleName() + "_" + getName();
-      HeadlessGfsh shell = new HeadlessGfsh(shellId, 30);
+      HeadlessGfsh shell = new HeadlessGfsh(shellId, 30, this.gfshDir);
       //Added to avoid trimming of the columns
       info("Started testable shell: " + shell);
       return shell;
