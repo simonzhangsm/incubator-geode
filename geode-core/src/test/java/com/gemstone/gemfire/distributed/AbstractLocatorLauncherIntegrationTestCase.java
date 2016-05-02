@@ -27,6 +27,7 @@ import org.junit.rules.TemporaryFolder;
 import com.gemstone.gemfire.distributed.AbstractLauncher.Status;
 import com.gemstone.gemfire.distributed.LocatorLauncher.Builder;
 import com.gemstone.gemfire.distributed.LocatorLauncher.LocatorState;
+import com.gemstone.gemfire.distributed.internal.SharedConfiguration;
 import com.gemstone.gemfire.internal.AvailablePortHelper;
 import com.gemstone.gemfire.internal.DistributionLocator;
 
@@ -37,7 +38,9 @@ public abstract class AbstractLocatorLauncherIntegrationTestCase extends Abstrac
 
   protected volatile int locatorPort;
   protected volatile LocatorLauncher launcher;
-  
+  protected volatile String workingDirectory;
+  protected volatile String clusterConfigDirectory;
+
   @Rule
   public ErrorCollector errorCollector = new ErrorCollector();
 
@@ -49,6 +52,8 @@ public abstract class AbstractLocatorLauncherIntegrationTestCase extends Abstrac
     final int port = AvailablePortHelper.getRandomAvailableTCPPort();
     System.setProperty(DistributionLocator.TEST_OVERRIDE_DEFAULT_PORT_PROPERTY, String.valueOf(port));
     this.locatorPort = port;
+    this.workingDirectory = this.temporaryFolder.getRoot().getCanonicalPath();
+    this.clusterConfigDirectory = this.temporaryFolder.newFolder(SharedConfiguration.CLUSTER_CONFIG_DISK_DIR_PREFIX + getUniqueName()).getCanonicalPath();
   }
   
   @After

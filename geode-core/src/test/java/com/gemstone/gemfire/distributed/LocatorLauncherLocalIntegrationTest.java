@@ -34,6 +34,7 @@ import com.gemstone.gemfire.distributed.LocatorLauncher.Builder;
 import com.gemstone.gemfire.distributed.LocatorLauncher.LocatorState;
 import com.gemstone.gemfire.distributed.internal.DistributionConfig;
 import com.gemstone.gemfire.distributed.internal.InternalLocator;
+import com.gemstone.gemfire.distributed.internal.SharedConfiguration;
 import com.gemstone.gemfire.internal.AvailablePort;
 import com.gemstone.gemfire.internal.AvailablePortHelper;
 import com.gemstone.gemfire.internal.DistributionLocator;
@@ -69,13 +70,12 @@ public class LocatorLauncherLocalIntegrationTest extends AbstractLocatorLauncher
 
   @Test
   public void testBuilderSetProperties() throws Throwable {
-    String rootFolder = this.temporaryFolder.getRoot().getCanonicalPath();
-
     this.launcher = new Builder()
         .setForce(true)
         .setMemberName(getUniqueName())
         .setPort(this.locatorPort)
-        .setWorkingDirectory(rootFolder)
+        .setWorkingDirectory(this.workingDirectory)
+        .set(DistributionConfig.CLUSTER_CONFIGURATION_DIR, this.clusterConfigDirectory)
         .set(DistributionConfig.DISABLE_AUTO_RECONNECT_NAME, "true")
         .set(DistributionConfig.LOG_LEVEL_NAME, "config")
         .set(DistributionConfig.MCAST_PORT_NAME, "0")
@@ -115,13 +115,12 @@ public class LocatorLauncherLocalIntegrationTest extends AbstractLocatorLauncher
   
   @Test
   public void testStartCreatesPidFile() throws Throwable {
-    String rootFolder = this.temporaryFolder.getRoot().getCanonicalPath();
-
     this.launcher = new Builder()
         .setMemberName(getUniqueName())
         .setPort(this.locatorPort)
         .setRedirectOutput(true)
-        .setWorkingDirectory(rootFolder)
+        .setWorkingDirectory(this.workingDirectory)
+        .set(DistributionConfig.CLUSTER_CONFIGURATION_DIR, this.clusterConfigDirectory)
         .set(DistributionConfig.LOG_LEVEL_NAME, "config")
         .build();
 
@@ -154,8 +153,6 @@ public class LocatorLauncherLocalIntegrationTest extends AbstractLocatorLauncher
 
   @Test
   public void testStartDeletesStaleControlFiles() throws Throwable {
-    String rootFolder = this.temporaryFolder.getRoot().getCanonicalPath();
-
     // create existing control files
     this.stopRequestFile = new File(this.temporaryFolder.getRoot(), ProcessType.LOCATOR.getStopRequestFileName());
     this.stopRequestFile.createNewFile();
@@ -174,7 +171,8 @@ public class LocatorLauncherLocalIntegrationTest extends AbstractLocatorLauncher
         .setMemberName(getUniqueName())
         .setPort(this.locatorPort)
         .setRedirectOutput(true)
-        .setWorkingDirectory(rootFolder)
+        .setWorkingDirectory(this.workingDirectory)
+        .set(DistributionConfig.CLUSTER_CONFIGURATION_DIR, this.clusterConfigDirectory)
         .set(DistributionConfig.LOG_LEVEL_NAME, "config");
 
     assertFalse(builder.getForce());
@@ -216,8 +214,6 @@ public class LocatorLauncherLocalIntegrationTest extends AbstractLocatorLauncher
   
   @Test
   public void testStartOverwritesStalePidFile() throws Throwable {
-    String rootFolder = this.temporaryFolder.getRoot().getCanonicalPath();
-
     // create existing pid file
     this.pidFile = new File(this.temporaryFolder.getRoot(), ProcessType.LOCATOR.getPidFileName());
     assertFalse("Integer.MAX_VALUE shouldn't be the same as local pid " + Integer.MAX_VALUE, Integer.MAX_VALUE == ProcessUtils.identifyPid());
@@ -228,7 +224,8 @@ public class LocatorLauncherLocalIntegrationTest extends AbstractLocatorLauncher
         .setMemberName(getUniqueName())
         .setPort(this.locatorPort)
         .setRedirectOutput(true)
-        .setWorkingDirectory(rootFolder)
+        .setWorkingDirectory(this.workingDirectory)
+        .set(DistributionConfig.CLUSTER_CONFIGURATION_DIR, this.clusterConfigDirectory)
         .set(DistributionConfig.LOG_LEVEL_NAME, "config");
 
     assertFalse(builder.getForce());
@@ -328,8 +325,6 @@ public class LocatorLauncherLocalIntegrationTest extends AbstractLocatorLauncher
   
   @Test
   public void testStartWithDefaultPortInUseFails() throws Throwable {
-    String rootFolder = this.temporaryFolder.getRoot().getCanonicalPath();
-
     this.socket = SocketCreator.getDefaultInstance().createServerSocket(this.locatorPort, 50, null, -1);
     assertTrue(this.socket.isBound());
     assertFalse(this.socket.isClosed());
@@ -342,7 +337,8 @@ public class LocatorLauncherLocalIntegrationTest extends AbstractLocatorLauncher
     this.launcher = new Builder()
         .setMemberName(getUniqueName())
         .setRedirectOutput(true)
-        .setWorkingDirectory(rootFolder)
+        .setWorkingDirectory(this.workingDirectory)
+        .set(DistributionConfig.CLUSTER_CONFIGURATION_DIR, this.clusterConfigDirectory)
         .set(DistributionConfig.LOG_LEVEL_NAME, "config")
         .build();
     
@@ -492,8 +488,6 @@ public class LocatorLauncherLocalIntegrationTest extends AbstractLocatorLauncher
   
   @Test
   public void testStartUsingPort() throws Throwable {
-    String rootFolder = this.temporaryFolder.getRoot().getCanonicalPath();
-
     // generate one free port and then use it instead of default
     final int freeTCPPort = AvailablePortHelper.getRandomAvailableTCPPort();
     assertTrue(AvailablePort.isPortAvailable(freeTCPPort, AvailablePort.SOCKET));
@@ -502,7 +496,8 @@ public class LocatorLauncherLocalIntegrationTest extends AbstractLocatorLauncher
         .setMemberName(getUniqueName())
         .setPort(freeTCPPort)
         .setRedirectOutput(true)
-        .setWorkingDirectory(rootFolder)
+        .setWorkingDirectory(this.workingDirectory)
+        .set(DistributionConfig.CLUSTER_CONFIGURATION_DIR, this.clusterConfigDirectory)
         .set(DistributionConfig.LOG_LEVEL_NAME, "config")
         .build();
 
@@ -541,8 +536,6 @@ public class LocatorLauncherLocalIntegrationTest extends AbstractLocatorLauncher
   
   @Test
   public void testStartUsingPortInUseFails() throws Throwable {
-    String rootFolder = this.temporaryFolder.getRoot().getCanonicalPath();
-
     // generate one free port and then use it instead of default
     final int freeTCPPort = AvailablePort.getRandomAvailablePort(AvailablePort.SOCKET);
     this.socket = SocketCreator.getDefaultInstance().createServerSocket(freeTCPPort, 50, null, -1);
@@ -551,7 +544,8 @@ public class LocatorLauncherLocalIntegrationTest extends AbstractLocatorLauncher
         .setMemberName(getUniqueName())
         .setPort(freeTCPPort)
         .setRedirectOutput(true)
-        .setWorkingDirectory(rootFolder)
+        .setWorkingDirectory(this.workingDirectory)
+        .set(DistributionConfig.CLUSTER_CONFIGURATION_DIR, this.clusterConfigDirectory)
         .set(DistributionConfig.LOG_LEVEL_NAME, "config")
         .build();
     
@@ -607,14 +601,13 @@ public class LocatorLauncherLocalIntegrationTest extends AbstractLocatorLauncher
   
   @Test
   public void testStatusUsingPid() throws Throwable {
-    String rootFolder = this.temporaryFolder.getRoot().getCanonicalPath();
-    
     // build and start the locator
     final Builder builder = new Builder()
         .setMemberName(getUniqueName())
         .setPort(this.locatorPort)
         .setRedirectOutput(true)
-        .setWorkingDirectory(rootFolder)
+        .setWorkingDirectory(this.workingDirectory)
+        .set(DistributionConfig.CLUSTER_CONFIGURATION_DIR, this.clusterConfigDirectory)
         .set(DistributionConfig.LOG_LEVEL_NAME, "config");
     
     assertFalse(builder.getForce());
@@ -645,7 +638,7 @@ public class LocatorLauncherLocalIntegrationTest extends AbstractLocatorLauncher
       assertEquals(ManagementFactory.getRuntimeMXBean().getClassPath(), actualStatus.getClasspath());
       assertEquals(GemFireVersion.getGemFireVersion(), actualStatus.getGemFireVersion());
       assertEquals(System.getProperty("java.version"),  actualStatus.getJavaVersion());
-      assertEquals(rootFolder + File.separator + getUniqueName() + ".log", actualStatus.getLogFile());
+      assertEquals(this.workingDirectory + File.separator + getUniqueName() + ".log", actualStatus.getLogFile());
       assertEquals(InetAddress.getLocalHost().getCanonicalHostName(), actualStatus.getHost());
       assertEquals(getUniqueName(), actualStatus.getMemberName());
     } catch (Throwable e) {
@@ -672,13 +665,12 @@ public class LocatorLauncherLocalIntegrationTest extends AbstractLocatorLauncher
   
   @Test
   public void testStatusUsingWorkingDirectory() throws Throwable {
-    String rootFolder = this.temporaryFolder.getRoot().getCanonicalPath();
-    
     final Builder builder = new Builder()
         .setMemberName(getUniqueName())
         .setPort(this.locatorPort)
         .setRedirectOutput(true)
-        .setWorkingDirectory(rootFolder)
+        .setWorkingDirectory(this.workingDirectory)
+        .set(DistributionConfig.CLUSTER_CONFIGURATION_DIR, this.clusterConfigDirectory)
         .set(DistributionConfig.LOG_LEVEL_NAME, "config");
     
     assertFalse(builder.getForce());
@@ -696,7 +688,7 @@ public class LocatorLauncherLocalIntegrationTest extends AbstractLocatorLauncher
       assertTrue(pid > 0);
       assertEquals(ProcessUtils.identifyPid(), pid);
   
-      dirLauncher = new Builder().setWorkingDirectory(rootFolder).build();
+      dirLauncher = new Builder().setWorkingDirectory(this.workingDirectory).build();
       assertNotNull(dirLauncher);
       assertFalse(dirLauncher.isRunning());
 
@@ -709,7 +701,7 @@ public class LocatorLauncherLocalIntegrationTest extends AbstractLocatorLauncher
       assertEquals(ManagementFactory.getRuntimeMXBean().getClassPath(), actualStatus.getClasspath());
       assertEquals(GemFireVersion.getGemFireVersion(), actualStatus.getGemFireVersion());
       assertEquals(System.getProperty("java.version"),  actualStatus.getJavaVersion());
-      assertEquals(rootFolder + File.separator + getUniqueName() + ".log", actualStatus.getLogFile());
+      assertEquals(this.workingDirectory + File.separator + getUniqueName() + ".log", actualStatus.getLogFile());
       assertEquals(InetAddress.getLocalHost().getCanonicalHostName(), actualStatus.getHost());
       assertEquals(getUniqueName(), actualStatus.getMemberName());
     } catch (Throwable e) {
@@ -736,13 +728,12 @@ public class LocatorLauncherLocalIntegrationTest extends AbstractLocatorLauncher
   
   @Test
   public void testStopUsingPid() throws Throwable {
-    String rootFolder = this.temporaryFolder.getRoot().getCanonicalPath();
-
     final Builder builder = new Builder()
         .setMemberName(getUniqueName())
         .setPort(this.locatorPort)
         .setRedirectOutput(true)
-        .setWorkingDirectory(rootFolder)
+        .setWorkingDirectory(this.workingDirectory)
+        .set(DistributionConfig.CLUSTER_CONFIGURATION_DIR, this.clusterConfigDirectory)
         .set(DistributionConfig.LOG_LEVEL_NAME, "config");
 
     assertFalse(builder.getForce());
@@ -789,13 +780,12 @@ public class LocatorLauncherLocalIntegrationTest extends AbstractLocatorLauncher
   
   @Test
   public void testStopUsingWorkingDirectory() throws Throwable {
-    String rootFolder = this.temporaryFolder.getRoot().getCanonicalPath();
-    
     final Builder builder = new Builder()
         .setMemberName(getUniqueName())
         .setPort(this.locatorPort)
         .setRedirectOutput(true)
-        .setWorkingDirectory(rootFolder)
+        .setWorkingDirectory(this.workingDirectory)
+        .set(DistributionConfig.CLUSTER_CONFIGURATION_DIR, this.clusterConfigDirectory)
         .set(DistributionConfig.LOG_LEVEL_NAME, "config");
 
     assertFalse(builder.getForce());
@@ -814,7 +804,7 @@ public class LocatorLauncherLocalIntegrationTest extends AbstractLocatorLauncher
       assertTrue(pid > 0);
       assertEquals(ProcessUtils.identifyPid(), pid);
 
-      dirLauncher = new Builder().setWorkingDirectory(rootFolder).build();
+      dirLauncher = new Builder().setWorkingDirectory(this.workingDirectory).build();
       assertNotNull(dirLauncher);
       assertFalse(dirLauncher.isRunning());
       
