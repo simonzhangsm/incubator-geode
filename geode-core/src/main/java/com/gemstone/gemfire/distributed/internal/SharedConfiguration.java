@@ -112,7 +112,7 @@ public class SharedConfiguration {
    */
   private static final String CONFIG_REGION_NAME = "_ConfigurationRegion";
 
-  private final String configDirPath;//FilenameUtils.concat(System.getProperty("user.dir"), CONFIG_ARTIFACTS_DIR_NAME);
+  private final String configDirPath;
   private final String configDiskDirName;
   private final String configDiskDirPath;;
 

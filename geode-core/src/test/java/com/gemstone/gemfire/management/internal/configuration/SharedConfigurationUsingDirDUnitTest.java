@@ -19,6 +19,7 @@ package com.gemstone.gemfire.management.internal.configuration;
 import static com.gemstone.gemfire.distributed.internal.DistributionConfig.*;
 import static com.gemstone.gemfire.internal.AvailablePortHelper.*;
 import static com.gemstone.gemfire.test.dunit.Host.*;
+import static com.jayway.awaitility.Awaitility.*;
 import static java.util.stream.Collectors.*;
 import static org.junit.Assert.*;
 
@@ -32,7 +33,6 @@ import java.util.Arrays;
 import java.util.Properties;
 import java.util.concurrent.TimeUnit;
 
-import com.jayway.awaitility.Awaitility;
 import org.junit.After;
 import org.junit.Test;
 import org.junit.experimental.categories.Category;
@@ -50,8 +50,8 @@ import com.gemstone.gemfire.util.test.TestUtil;
 @Category(DistributedTest.class)
 public class SharedConfigurationUsingDirDUnitTest extends JUnit4CacheTestCase {
 
-  @After
-  public void teardown() throws Exception {
+  @Override
+  public final void preTearDownCacheTestCase() throws Exception {
     for (int i = 0; i < 2; i++) {
       VM vm = getHost(0).getVM(i);
       vm.invoke("Removing shared configuration", () -> {
@@ -85,7 +85,7 @@ public class SharedConfigurationUsingDirDUnitTest extends JUnit4CacheTestCase {
       restartCache(vm, i, ports);
 
       vm.invoke("Checking for region presence", () -> {
-        Awaitility.waitAtMost(15, TimeUnit.SECONDS).until(() -> getRootRegion("newReplicatedRegion") != null);
+        waitAtMost(15, TimeUnit.SECONDS).until(() -> getRootRegion("newReplicatedRegion") != null);
       });
     }
   }
@@ -107,7 +107,7 @@ public class SharedConfigurationUsingDirDUnitTest extends JUnit4CacheTestCase {
       restartCache(vm, i, ports);
 
       vm.invoke("Checking for region presence", () -> {
-        Awaitility.waitAtMost(15, TimeUnit.SECONDS).until(() -> getRootRegion("newReplicatedRegion") != null);
+        waitAtMost(15, TimeUnit.SECONDS).until(() -> getRootRegion("newReplicatedRegion") != null);
       });
     }
   }
@@ -160,7 +160,7 @@ public class SharedConfigurationUsingDirDUnitTest extends JUnit4CacheTestCase {
       restartCache(vm, i, ports);
 
       vm.invoke("Checking for region presence", () -> {
-        Awaitility.waitAtMost(15, TimeUnit.SECONDS).until(() -> getRootRegion("newReplicatedRegion") != null);
+        waitAtMost(15, TimeUnit.SECONDS).until(() -> getRootRegion("newReplicatedRegion") != null);
       });
     }
   }
@@ -207,7 +207,7 @@ public class SharedConfigurationUsingDirDUnitTest extends JUnit4CacheTestCase {
       restartCache(vm, i, ports);
 
       vm.invoke("Checking for region presence", () -> {
-        Awaitility.waitAtMost(15, TimeUnit.SECONDS).until(() -> getRootRegion("newReplicatedRegion") != null);
+        waitAtMost(15, TimeUnit.SECONDS).until(() -> getRootRegion("newReplicatedRegion") != null);
       });
     }
   }
@@ -249,7 +249,7 @@ public class SharedConfigurationUsingDirDUnitTest extends JUnit4CacheTestCase {
       restartCache(vm, i, ports);
 
       vm.invoke("Checking for region presence", () -> {
-        Awaitility.waitAtMost(15, TimeUnit.SECONDS).until(() -> getRootRegion("newReplicatedRegion") != null);
+        waitAtMost(15, TimeUnit.SECONDS).until(() -> getRootRegion("newReplicatedRegion") != null);
       });
     }
   }
@@ -286,7 +286,7 @@ public class SharedConfigurationUsingDirDUnitTest extends JUnit4CacheTestCase {
   private void waitForSharedConfiguration(final VM vm) {
     vm.invoke("Waiting for shared configuration", () -> {
       final InternalLocator locator = InternalLocator.getLocator();
-      Awaitility.waitAtMost(15, TimeUnit.SECONDS).until(() -> {
+      waitAtMost(15, TimeUnit.SECONDS).until(() -> {
         return locator.isSharedConfigurationRunning();
       });
     });
