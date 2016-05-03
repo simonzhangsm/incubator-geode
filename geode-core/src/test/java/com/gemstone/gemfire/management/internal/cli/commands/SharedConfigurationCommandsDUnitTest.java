@@ -33,6 +33,8 @@ import java.util.Set;
 
 import org.junit.Test;
 import org.junit.experimental.categories.Category;
+import org.junit.runner.RunWith;
+import org.junit.runners.Parameterized;
 
 import com.gemstone.gemfire.cache.Cache;
 import com.gemstone.gemfire.cache.CacheFactory;
@@ -58,6 +60,8 @@ import com.gemstone.gemfire.test.junit.categories.DistributedTest;
  * DUnit test to test export and import of shared configuration.
  */
 @Category(DistributedTest.class)
+@RunWith(Parameterized.class)
+@SuppressWarnings("unchecked")
 public class SharedConfigurationCommandsDUnitTest extends CliCommandTestBase {
 
   private static final int TIMEOUT = 10000;
@@ -89,12 +93,15 @@ public class SharedConfigurationCommandsDUnitTest extends CliCommandTestBase {
   private int locator1JmxPort;
   private String locator1JmxHost;
 
+  public SharedConfigurationCommandsDUnitTest(boolean useHttpOnConnect) {
+    super(useHttpOnConnect);
+  }
+
   @Override
   protected final void postSetUpCliCommandTestBase() throws Exception {
     disconnectAllFromDS();
 
     this.groupName = getName();
-
     this.deployedJarName = "DeployCommandsDUnit1.jar";
     this.newDeployableJarFile = new File(this.temporaryFolder.getRoot().getCanonicalPath() + File.separator + deployedJarName);
     this.classBuilder = new ClassBuilder();

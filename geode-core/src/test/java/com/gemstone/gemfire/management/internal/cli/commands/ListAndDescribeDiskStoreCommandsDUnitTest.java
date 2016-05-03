@@ -24,9 +24,6 @@ import static com.gemstone.gemfire.test.dunit.LogWriterUtils.*;
 import java.io.Serializable;
 import java.util.Properties;
 
-import org.junit.Test;
-import org.junit.experimental.categories.Category;
-
 import com.gemstone.gemfire.cache.Cache;
 import com.gemstone.gemfire.cache.DataPolicy;
 import com.gemstone.gemfire.cache.DiskStore;
@@ -39,6 +36,10 @@ import com.gemstone.gemfire.test.dunit.SerializableRunnable;
 import com.gemstone.gemfire.test.dunit.SerializableRunnableIF;
 import com.gemstone.gemfire.test.dunit.VM;
 import com.gemstone.gemfire.test.junit.categories.DistributedTest;
+import org.junit.Test;
+import org.junit.experimental.categories.Category;
+import org.junit.runner.RunWith;
+import org.junit.runners.Parameterized;
 
 /**
  * The ListAndDescribeDiskStoreCommandsDUnitTest class is a test suite of functional tests cases testing the proper
@@ -49,11 +50,16 @@ import com.gemstone.gemfire.test.junit.categories.DistributedTest;
  * @since 7.0
  */
 @Category(DistributedTest.class)
+@RunWith(Parameterized.class)
 public class ListAndDescribeDiskStoreCommandsDUnitTest extends CliCommandTestBase {
+
+  public ListAndDescribeDiskStoreCommandsDUnitTest(boolean useHttpOnConnect) {
+    super(useHttpOnConnect);
+  }
 
   @Override
   public final void postSetUpCliCommandTestBase() throws Exception {
-    createDefaultSetup(null);
+    setUpJmxManagerOnVm0ThenConnect(null);
     setupGemFire();
   }
 

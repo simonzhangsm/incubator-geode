@@ -33,6 +33,8 @@ import java.util.concurrent.atomic.AtomicLong;
 
 import org.junit.Test;
 import org.junit.experimental.categories.Category;
+import org.junit.runner.RunWith;
+import org.junit.runners.Parameterized;
 
 import com.gemstone.gemfire.cache.Cache;
 import com.gemstone.gemfire.cache.DataPolicy;
@@ -58,7 +60,7 @@ import com.gemstone.gemfire.test.junit.categories.DistributedTest;
 
 /**
  * The ListIndexCommandDUnitTest class is distributed test suite of test cases for testing the index-based GemFire shell
- * (Gfsh) commands. </p>
+ * (Gfsh) commands.
  *
  * @see com.gemstone.gemfire.management.internal.cli.commands.CliCommandTestBase
  * @see com.gemstone.gemfire.management.internal.cli.commands.IndexCommands
@@ -66,13 +68,24 @@ import com.gemstone.gemfire.test.junit.categories.DistributedTest;
  */
 @SuppressWarnings("unused")
 @Category(DistributedTest.class)
+@RunWith(Parameterized.class)
 public class ListIndexCommandDUnitTest extends CliCommandTestBase {
 
-  protected static final int DEFAULT_REGION_INITIAL_CAPACITY = 10000;
+  private static final int DEFAULT_REGION_INITIAL_CAPACITY = 10000;
 
   private final AtomicLong idGenerator = new AtomicLong(0l);
 
-  protected static String toString(final Result result) {
+  public ListIndexCommandDUnitTest(boolean useHttpOnConnect) {
+    super(useHttpOnConnect);
+  }
+
+  @Override
+  public final void postSetUpCliCommandTestBase() throws Exception {
+    setUpJmxManagerOnVm0ThenConnect(null);
+    setupGemFire();
+  }
+
+  private static String toString(final Result result) {
     assert result != null : "The Result object from the command execution cannot be null!";
 
     final StringBuilder buffer = new StringBuilder(System.getProperty("line.separator"));
@@ -85,48 +98,41 @@ public class ListIndexCommandDUnitTest extends CliCommandTestBase {
     return buffer.toString();
   }
 
-  @Override
-  public final void postSetUpCliCommandTestBase() throws Exception {
-    createDefaultSetup(null);
-    setupGemFire();
-  }
-
-  protected Index createIndex(final String name, final String indexedExpression, final String fromClause) {
+  private Index createIndex(final String name, final String indexedExpression, final String fromClause) {
     return createIndex(name, IndexType.FUNCTIONAL, indexedExpression, fromClause);
   }
 
-  protected Index createIndex(final String name, final IndexType type, final String indexedExpression,
-      final String fromClause) {
+  private Index createIndex(final String name, final IndexType type, final String indexedExpression, final String fromClause) {
     return new IndexAdapter(name, type, indexedExpression, fromClause);
   }
 
-  protected Peer createPeer(final VM vm, final Properties distributedSystemProperties,
-      final RegionDefinition... regions) {
+  private Peer createPeer(final VM vm, final Properties distributedSystemProperties, final RegionDefinition... regions) {
     final Peer peer = new Peer(vm, distributedSystemProperties);
     peer.add(regions);
     return peer;
   }
 
-  protected RegionDefinition createRegionDefinition(final String regionName, final Class<?> keyConstraint,
-      final Class<?> valueConstraint, final Index... indexes) {
+  private RegionDefinition createRegionDefinition(final String regionName, final Class<?> keyConstraint, final Class<?> valueConstraint, final Index... indexes) {
     final RegionDefinition regionDefinition = new RegionDefinition(regionName, keyConstraint, valueConstraint);
     regionDefinition.add(indexes);
     return regionDefinition;
   }
 
-  protected void setupGemFire() throws Exception {
+  private void setupGemFire() throws Exception {
     final Host host = Host.getHost(0);
 
     final VM vm1 = host.getVM(1);
     final VM vm2 = host.getVM(2);
 
-    final Peer peer1 = createPeer(vm1, createDistributedSystemProperties("consumerServer"),
-        createRegionDefinition("consumers", Long.class, Consumer.class,
-            createIndex("cidIdx", IndexType.PRIMARY_KEY, "id", "/consumers"),
-            createIndex("cnameIdx", "name", "/consumers")));
+    final Peer peer1 = createPeer(vm1,
+                                  createDistributedSystemProperties("consumerServer"),
+                                  createRegionDefinition("consumers", Long.class, Consumer.class,
+                                          createIndex("cidIdx", IndexType.PRIMARY_KEY, "id", "/consumers"),
+                                          createIndex("cnameIdx", "name", "/consumers")));
 
-    final Peer peer2 = createPeer(vm2, createDistributedSystemProperties("producerServer"),
-        createRegionDefinition("producers", Long.class, Producer.class, createIndex("pidIdx", "id", "/producers")));
+    final Peer peer2 = createPeer(vm2,
+                                  createDistributedSystemProperties("producerServer"),
+                                  createRegionDefinition("producers", Long.class, Producer.class, createIndex("pidIdx", "id", "/producers")));
 
     createRegionWithIndexes(peer1);
     createRegionWithIndexes(peer2);
@@ -135,7 +141,7 @@ public class ListIndexCommandDUnitTest extends CliCommandTestBase {
     loadProducerData(peer2, 10000);
   }
 
-  protected Properties createDistributedSystemProperties(final String gemfireName) {
+  private Properties createDistributedSystemProperties(final String gemfireName) {
     final Properties distributedSystemProperties = new Properties();
 
     distributedSystemProperties.setProperty(DistributionConfig.LOG_LEVEL_NAME, getDUnitLogLevel());
@@ -144,9 +150,8 @@ public class ListIndexCommandDUnitTest extends CliCommandTestBase {
     return distributedSystemProperties;
   }
 
-  protected void createRegionWithIndexes(final Peer peer) throws Exception {
-    peer.run(new SerializableRunnable(
-        String.format("Creating Regions with Indexes on GemFire peer (%1$s).", peer.getName())) {
+  private void createRegionWithIndexes(final Peer peer) throws Exception {
+    peer.run(new SerializableRunnable(String.format("Creating Regions with Indexes on GemFire peer (%1$s).", peer.getName())) {
       public void run() {
         // create the GemFire distributed system with custom configuration properties...
         getSystem(peer.getConfiguration());
@@ -176,16 +181,14 @@ public class ListIndexCommandDUnitTest extends CliCommandTestBase {
               }
             }
           } catch (Exception e) {
-            getLogWriter().error(
-                String.format("Error occurred creating Index (%1$s) on Region (%2$s) - (%3$s)", indexName,
-                    region.getFullPath(), e.getMessage()));
+            getLogWriter().error(String.format("Error occurred creating Index (%1$s) on Region (%2$s) - (%3$s)", indexName, region.getFullPath(), e.getMessage()));
           }
         }
       }
     });
   }
 
-  protected void loadConsumerData(final Peer peer, final int operationsTotal) throws Exception {
+  private void loadConsumerData(final Peer peer, final int operationsTotal) throws Exception {
     peer.run(new SerializableRunnable("Load /consumers Region with data") {
       public void run() {
         final Cache cache = getCache();
@@ -231,7 +234,7 @@ public class ListIndexCommandDUnitTest extends CliCommandTestBase {
     });
   }
 
-  protected void loadProducerData(final Peer peer, final int operationsTotal) throws Exception {
+  private void loadProducerData(final Peer peer, final int operationsTotal) throws Exception {
     peer.run(new SerializableRunnable("Load /producers Region with data") {
       public void run() {
         final Cache cache = getCache();
@@ -276,14 +279,13 @@ public class ListIndexCommandDUnitTest extends CliCommandTestBase {
   }
 
   @SuppressWarnings("unchecked")
-  protected <T extends Comparable<T>, B extends AbstractBean<T>> B query(final Cache cache, final String queryString) {
+  private <T extends Comparable<T>, B extends AbstractBean<T>> B query(final Cache cache, final String queryString) {
     try {
       getLogWriter().info(String.format("Running Query (%1$s) in GemFire...", queryString));
 
       final SelectResults<B> results = (SelectResults<B>) cache.getQueryService().newQuery(queryString).execute();
 
-      getLogWriter().info(
-          String.format("Running Query (%1$s) in GemFire returned (%2$d) result(s).", queryString, results.size()));
+      getLogWriter().info(String.format("Running Query (%1$s) in GemFire returned (%2$d) result(s).", queryString, results.size()));
 
       return (results.iterator().hasNext() ? results.iterator().next() : null);
     } catch (Exception e) {
@@ -291,23 +293,17 @@ public class ListIndexCommandDUnitTest extends CliCommandTestBase {
     }
   }
 
-  protected <T extends Comparable<T>, B extends AbstractBean<T>> B query(final Region<T, B> region,
-      final String queryPredicate) {
+  private <T extends Comparable<T>, B extends AbstractBean<T>> B query(final Region<T, B> region, final String queryPredicate) {
     try {
-      getLogWriter().info(
-          String.format("Running Query (%1$s) on Region (%2$s)...", queryPredicate, region.getFullPath()));
+      getLogWriter().info(String.format("Running Query (%1$s) on Region (%2$s)...", queryPredicate, region.getFullPath()));
 
       final SelectResults<B> results = region.query(queryPredicate);
 
-      getLogWriter().info(
-          String.format("Running Query (%1$s) on Region (%2$s) returned (%3$d) result(s).", queryPredicate,
-              region.getFullPath(), results.size()));
+      getLogWriter().info(String.format("Running Query (%1$s) on Region (%2$s) returned (%3$d) result(s).", queryPredicate, region.getFullPath(), results.size()));
 
       return (results.iterator().hasNext() ? results.iterator().next() : null);
     } catch (Exception e) {
-      throw new RuntimeException(
-          String.format("An error occurred running Query (%1$s) on Region (%2$s)!", queryPredicate,
-              region.getFullPath()), e);
+      throw new RuntimeException(String.format("An error occurred running Query (%1$s) on Region (%2$s)!", queryPredicate, region.getFullPath()), e);
     }
   }
 
@@ -320,7 +316,7 @@ public class ListIndexCommandDUnitTest extends CliCommandTestBase {
     assertEquals(Result.Status.OK, result.getStatus());
   }
 
-  protected static class Peer implements Iterable<RegionDefinition>, Serializable {
+  private static class Peer implements Iterable<RegionDefinition>, Serializable {
 
     private final Properties distributedSystemProperties;
 
@@ -350,6 +346,7 @@ public class ListIndexCommandDUnitTest extends CliCommandTestBase {
       return (regionDefinitions != null && regions.addAll(Arrays.asList(regionDefinitions)));
     }
 
+    @Override
     public Iterator<RegionDefinition> iterator() {
       return Collections.unmodifiableSet(regions).iterator();
     }
@@ -377,7 +374,7 @@ public class ListIndexCommandDUnitTest extends CliCommandTestBase {
     }
   }
 
-  protected static class IndexAdapter implements Index, Serializable {
+  private static class IndexAdapter implements Index, Serializable {
 
     private final IndexDetails.IndexType type;
 
@@ -389,11 +386,9 @@ public class ListIndexCommandDUnitTest extends CliCommandTestBase {
       this(name, IndexType.FUNCTIONAL, indexedExpression, fromClause);
     }
 
-    protected IndexAdapter(final String name, final IndexType type, final String indexedExpression,
-        final String fromClause) {
+    protected IndexAdapter(final String name, final IndexType type, final String indexedExpression, final String fromClause) {
       assert name != null : "The name of the Index cannot be null!";
-      assert indexedExpression != null : String.format("The expression to index for Index (%1$s) cannot be null!",
-          name);
+      assert indexedExpression != null : String.format("The expression to index for Index (%1$s) cannot be null!", name);
       assert fromClause != null : String.format("The from clause for Index (%1$s) cannot be null!", name);
 
       this.type = ObjectUtils.defaultIfNull(IndexDetails.IndexType.valueOf(type), IndexDetails.IndexType.FUNCTIONAL);
@@ -402,42 +397,52 @@ public class ListIndexCommandDUnitTest extends CliCommandTestBase {
       this.fromClause = fromClause;
     }
 
+    @Override
     public String getName() {
       return this.name;
     }
 
+    @Override
     public String getFromClause() {
       return this.fromClause;
     }
 
+    @Override
     public String getCanonicalizedFromClause() {
       return this.fromClause;
     }
 
+    @Override
     public String getIndexedExpression() {
       return this.indexedExpression;
     }
 
+    @Override
     public String getCanonicalizedIndexedExpression() {
       return this.indexedExpression;
     }
 
+    @Override
     public String getProjectionAttributes() {
       throw new UnsupportedOperationException("Not Implemented!");
     }
 
+    @Override
     public String getCanonicalizedProjectionAttributes() {
       throw new UnsupportedOperationException("Not Implemented!");
     }
 
+    @Override
     public Region<?, ?> getRegion() {
       throw new UnsupportedOperationException("Not Implemented!");
     }
 
+    @Override
     public IndexStatistics getStatistics() {
       throw new UnsupportedOperationException("Not Implemented!");
     }
 
+    @Override
     public IndexType getType() {
       return type.getType();
     }
@@ -454,7 +459,7 @@ public class ListIndexCommandDUnitTest extends CliCommandTestBase {
     }
   }
 
-  protected static class RegionDefinition implements Iterable<Index>, Serializable {
+  private static class RegionDefinition implements Iterable<Index>, Serializable {
 
     private final Class<?> keyConstraint;
     private final Class<?> valueConstraint;
@@ -487,6 +492,7 @@ public class ListIndexCommandDUnitTest extends CliCommandTestBase {
       return (indexes != null && this.indexes.addAll(Arrays.asList(indexes)));
     }
 
+    @Override
     public Iterator<Index> iterator() {
       return Collections.unmodifiableSet(indexes).iterator();
     }
@@ -528,7 +534,7 @@ public class ListIndexCommandDUnitTest extends CliCommandTestBase {
     }
   }
 
-  protected static abstract class AbstractBean<T extends Comparable<T>> implements MutableIdentifiable<T>, Serializable {
+  private static abstract class AbstractBean<T extends Comparable<T>> implements MutableIdentifiable<T>, Serializable {
 
     private T id;
     private String name;
@@ -540,10 +546,12 @@ public class ListIndexCommandDUnitTest extends CliCommandTestBase {
       this.id = id;
     }
 
+    @Override
     public T getId() {
       return id;
     }
 
+    @Override
     public void setId(final T id) {
       this.id = id;
     }
@@ -588,7 +596,7 @@ public class ListIndexCommandDUnitTest extends CliCommandTestBase {
     }
   }
 
-  public static class Consumer extends AbstractBean<Long> {
+  private static class Consumer extends AbstractBean<Long> {
 
     private volatile int units;
 
@@ -608,7 +616,7 @@ public class ListIndexCommandDUnitTest extends CliCommandTestBase {
     }
   }
 
-  public static class Producer extends AbstractBean<Long> {
+  private static class Producer extends AbstractBean<Long> {
 
     private volatile int units;
 
@@ -628,7 +636,7 @@ public class ListIndexCommandDUnitTest extends CliCommandTestBase {
     }
   }
 
-  public static class Proxy extends AbstractBean<Long> {
+  private static class Proxy extends AbstractBean<Long> {
 
     private final AbstractBean<Long> bean;
     private int unitsSnapshot;
@@ -661,7 +669,7 @@ public class ListIndexCommandDUnitTest extends CliCommandTestBase {
     }
   }
 
-  protected static enum CrudOperation {
+  private static enum CrudOperation {
     CREATE,
     RETRIEVE,
     UPDATE,

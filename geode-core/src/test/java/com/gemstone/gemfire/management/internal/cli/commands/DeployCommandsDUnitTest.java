@@ -24,9 +24,6 @@ import java.io.IOException;
 import java.util.Properties;
 import java.util.regex.Pattern;
 
-import org.junit.Test;
-import org.junit.experimental.categories.Category;
-
 import com.gemstone.gemfire.distributed.Locator;
 import com.gemstone.gemfire.distributed.internal.DistributionConfig;
 import com.gemstone.gemfire.distributed.internal.DistributionManager;
@@ -47,6 +44,10 @@ import com.gemstone.gemfire.test.dunit.VM;
 import com.gemstone.gemfire.test.dunit.Wait;
 import com.gemstone.gemfire.test.dunit.WaitCriterion;
 import com.gemstone.gemfire.test.junit.categories.DistributedTest;
+import org.junit.Test;
+import org.junit.experimental.categories.Category;
+import org.junit.runner.RunWith;
+import org.junit.runners.Parameterized;
 
 /**
  * Unit tests for the DeployCommands class
@@ -55,12 +56,17 @@ import com.gemstone.gemfire.test.junit.categories.DistributedTest;
  */
 @Category(DistributedTest.class)
 @SuppressWarnings("serial")
+@RunWith(Parameterized.class)
 public class DeployCommandsDUnitTest extends CliCommandTestBase {
 
   private final Pattern pattern = Pattern.compile("^" + JarDeployer.JAR_PREFIX + "DeployCommandsDUnit.*#\\d++$");
   private File newDeployableJarFile;
   private transient ClassBuilder classBuilder;
   private transient CommandProcessor commandProcessor;
+
+  public DeployCommandsDUnitTest(boolean useHttpOnConnect){
+    super(useHttpOnConnect);
+  }
 
   @Override
   public final void postSetUpCliCommandTestBase() throws Exception {
@@ -373,7 +379,7 @@ public class DeployCommandsDUnitTest extends CliCommandTestBase {
     managerProps.setProperty(DistributionConfig.MCAST_PORT_NAME, "0");
     managerProps.setProperty(DistributionConfig.GROUPS_NAME, groupName);
     managerProps.setProperty(DistributionConfig.LOCATORS_NAME, "localhost:" + locatorPort);
-    createDefaultSetup(managerProps);
+    setUpJmxManagerOnVm0ThenConnect(managerProps);
 
     // Create a JAR file
     this.classBuilder.writeJarFromName("DeployCommandsDUnitA", this.newDeployableJarFile);
