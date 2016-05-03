@@ -16,13 +16,11 @@
  */
 package com.gemstone.gemfire.internal.logging.log4j.custom;
 
+import static com.gemstone.gemfire.internal.logging.log4j.custom.CustomConfiguration.*;
 import static org.assertj.core.api.Assertions.*;
 
 import java.io.File;
-import java.io.FileOutputStream;
-import java.net.URL;
 
-import org.apache.commons.io.IOUtils;
 import org.apache.logging.log4j.Level;
 import org.apache.logging.log4j.Logger;
 import org.apache.logging.log4j.core.LogEvent;
@@ -32,14 +30,11 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
-import org.junit.contrib.java.lang.system.RestoreSystemProperties;
 import org.junit.contrib.java.lang.system.SystemErrRule;
 import org.junit.contrib.java.lang.system.SystemOutRule;
 import org.junit.experimental.categories.Category;
-import org.junit.rules.ExternalResource;
 import org.junit.rules.TemporaryFolder;
 
-import com.gemstone.gemfire.distributed.ServerLauncher;
 import com.gemstone.gemfire.internal.logging.LogService;
 import com.gemstone.gemfire.internal.logging.log4j.Configurator;
 import com.gemstone.gemfire.test.junit.categories.IntegrationTest;
@@ -48,10 +43,12 @@ import com.gemstone.gemfire.test.junit.categories.IntegrationTest;
  * Integration tests with custom log4j2 configuration.
  */
 @Category(IntegrationTest.class)
-public class Custom_log4j2_xml_MinimalistIntegrationTest {
+public class CustomConfigWithLogServiceIntegrationTest {
 
+  private String beforeConfigFileProp;
+  private Level beforeLevel;
 
-  private static final String CUSTOM_CONFIG_FILE_NAME = "log4j2.xml";
+  private File customConfigFile;
 
   @Rule
   public SystemErrRule systemErrRule = new SystemErrRule().enableLog();
@@ -62,66 +59,61 @@ public class Custom_log4j2_xml_MinimalistIntegrationTest {
   @Rule
   public TemporaryFolder temporaryFolder = new TemporaryFolder();
 
-  private String beforeConfigFileProp;
-  private Level beforeLevel;
-
-  private File customConfigFile;
-
   @Before
   public void setUp() throws Exception {
-    URL customConfigResource = getClass().getResource(CUSTOM_CONFIG_FILE_NAME);
-    File temporaryFile = this.temporaryFolder.newFile(CUSTOM_CONFIG_FILE_NAME);
+    Configurator.shutdown();
+    BasicAppender.clearInstance();
 
-    IOUtils.copy(customConfigResource.openStream(), new FileOutputStream(temporaryFile));
-    assertThat(temporaryFile).hasSameContentAs(new File(customConfigResource.toURI()));
+    this.beforeConfigFileProp = System.getProperty(ConfigurationFactory.CONFIGURATION_FILE_PROPERTY);
+    this.beforeLevel = StatusLogger.getLogger().getLevel();
 
-    System.setProperty(ConfigurationFactory.CONFIGURATION_FILE_PROPERTY, temporaryFile.getAbsolutePath());
+    this.customConfigFile = createConfigFileIn(this.temporaryFolder.getRoot());
 
-    //assertThat(LogService.isUsingGemFireDefaultConfig()).as(LogService.getConfigInformation()).isFalse();
-
-    this.customConfigFile = temporaryFile;
+    System.setProperty(ConfigurationFactory.CONFIGURATION_FILE_PROPERTY, this.customConfigFile.getAbsolutePath());
+    LogService.reconfigure();
+    assertThat(LogService.isUsingGemFireDefaultConfig()).as(LogService.getConfigInformation()).isFalse();
   }
 
   @After
   public void tearDown() throws Exception {
+    Configurator.shutdown();
+
+    System.clearProperty(ConfigurationFactory.CONFIGURATION_FILE_PROPERTY);
+    if (this.beforeConfigFileProp != null) {
+      System.setProperty(ConfigurationFactory.CONFIGURATION_FILE_PROPERTY, this.beforeConfigFileProp);
+    }
+    StatusLogger.getLogger().setLevel(this.beforeLevel);
+
+    LogService.reconfigure();
+    assertThat(LogService.isUsingGemFireDefaultConfig()).as(LogService.getConfigInformation()).isTrue();
+
     BasicAppender.clearInstance();
+
+    assertThat(this.systemErrRule.getLog()).isEmpty();
   }
 
   @Test
-  public void foo() throws Exception {
+  public void logEventShouldMatchCustomConfig() throws Exception {
     String logLogger = getClass().getName();
     Level logLevel = Level.DEBUG;
     String logMessage = "this is a log statement";
 
     Logger logger = LogService.getLogger();
-    assertThat(LogService.isUsingGemFireDefaultConfig()).as(LogService.getConfigInformation()).isFalse();
-
     logger.debug(logMessage);
-
-    String systemOut = systemOutRule.getLog();
-    String systemErr = systemErrRule.getLog();
-
-    System.out.println("this.customConfigFile=" + this.customConfigFile);
-    System.out.println("BasicAppender=" + BasicAppender.getInstance());
-    System.out.println("CONFIGURATION_FILE_PROPERTY=" + System.getProperty(ConfigurationFactory.CONFIGURATION_FILE_PROPERTY));
-    System.out.println("out=" + systemOut.trim());
 
     BasicAppender appender = BasicAppender.getInstance();
     assertThat(appender).isNotNull();
     assertThat(appender.events()).hasSize(1);
 
     LogEvent event = appender.events().get(0);
-    System.out.println("event=" + event);
-
     assertThat(event.getLoggerName()).isEqualTo(logLogger);
     assertThat(event.getLevel()).isEqualTo(logLevel);
     assertThat(event.getMessage().getFormattedMessage()).isEqualTo(logMessage);
 
-    assertThat(systemOut).contains(logLevel.name());
-    assertThat(systemOut).contains(logMessage);
+    assertThat(systemOutRule.getLog()).contains(logLevel.name());
+    assertThat(systemOutRule.getLog()).contains(logMessage);
+    assertThat(systemOutRule.getLog()).contains(CONFIG_LAYOUT_PREFIX);
+    assertThat(systemOutRule.getLog()).matches(defineLogStatementRegex(logLevel, logMessage));
   }
 
-  public void bar() {
-    new ServerLauncher.Builder().setMemberName("Kirk").set("locators", "").build().start();
-  }
 }

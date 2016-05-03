@@ -16,8 +16,8 @@
  */
 package com.gemstone.gemfire.distributed;
 
-import static com.gemstone.gemfire.internal.logging.log4j.custom.CustomConfiguration.CONFIG_LAYOUT_PREFIX;
-import static org.assertj.core.api.Assertions.assertThat;
+import static com.gemstone.gemfire.internal.logging.log4j.custom.CustomConfiguration.*;
+import static org.assertj.core.api.Assertions.*;
 import static org.junit.Assert.*;
 
 import java.io.File;
@@ -31,17 +31,16 @@ import org.junit.Test;
 import org.junit.contrib.java.lang.system.SystemOutRule;
 import org.junit.experimental.categories.Category;
 
-import com.gemstone.gemfire.internal.logging.log4j.custom.CustomConfiguration;
 import com.gemstone.gemfire.internal.process.ProcessStreamReader;
 import com.gemstone.gemfire.internal.process.ProcessType;
 import com.gemstone.gemfire.internal.process.ProcessUtils;
 import com.gemstone.gemfire.test.junit.categories.IntegrationTest;
 
 /**
- * Integration tests for launching a Locator in a forked process with custom logging configuration
+ * Integration tests for launching a Server in a forked process with custom logging configuration
  */
 @Category(IntegrationTest.class)
-public class LocatorLauncherRemoteWithCustomLoggingIntegrationTest extends AbstractLocatorLauncherRemoteIntegrationTestCase {
+public class ServerLauncherRemoteWithCustomLoggingIntegrationTest extends AbstractServerLauncherRemoteIntegrationTestCase {
 
   private File customConfigFile;
 
@@ -50,12 +49,12 @@ public class LocatorLauncherRemoteWithCustomLoggingIntegrationTest extends Abstr
 
   @Before
   public void setUpLocatorLauncherRemoteWithCustomLoggingIntegrationTest() throws Exception {
-    this.customConfigFile = CustomConfiguration.createConfigFileIn(this.temporaryFolder.getRoot());
+    this.customConfigFile = createConfigFileIn(this.temporaryFolder.getRoot());
   }
 
   @Test
   public void testStartUsesCustomLoggingConfiguration() throws Throwable {
-    // build and start the locator
+    // build and start the server
     final List<String> jvmArguments = getJvmArguments();
 
     final List<String> command = new ArrayList<String>();
@@ -66,10 +65,10 @@ public class LocatorLauncherRemoteWithCustomLoggingIntegrationTest extends Abstr
     command.add("-D" + ConfigurationFactory.CONFIGURATION_FILE_PROPERTY + "=" + this.customConfigFile.getCanonicalPath());
     command.add("-cp");
     command.add(System.getProperty("java.class.path"));
-    command.add(LocatorLauncher.class.getName());
-    command.add(LocatorLauncher.Command.START.getName());
+    command.add(ServerLauncher.class.getName());
+    command.add(ServerLauncher.Command.START.getName());
     command.add(getUniqueName());
-    command.add("--port=" + this.locatorPort);
+    command.add("--disable-default-server");
     command.add("--redirect-output");
 
     this.process = new ProcessBuilder(command).directory(new File(this.workingDirectory)).start();
@@ -77,14 +76,14 @@ public class LocatorLauncherRemoteWithCustomLoggingIntegrationTest extends Abstr
     this.processErrReader = new ProcessStreamReader.Builder(this.process).inputStream(this.process.getErrorStream()).inputListener(new ToSystemOut()).build().start();
 
     int pid = 0;
-    this.launcher = new LocatorLauncher.Builder()
-            .setWorkingDirectory(workingDirectory)
+    this.launcher = new ServerLauncher.Builder()
+            .setWorkingDirectory(this.temporaryFolder.getRoot().getCanonicalPath())
             .build();
     try {
-      waitForLocatorToStart(this.launcher);
+      waitForServerToStart();
 
       // validate the pid file and its contents
-      this.pidFile = new File(this.temporaryFolder.getRoot(), ProcessType.LOCATOR.getPidFileName());
+      this.pidFile = new File(this.temporaryFolder.getRoot(), ProcessType.SERVER.getPidFileName());
       assertTrue(this.pidFile.exists());
       pid = readPid(this.pidFile);
       assertTrue(pid > 0);
@@ -94,9 +93,9 @@ public class LocatorLauncherRemoteWithCustomLoggingIntegrationTest extends Abstr
       assertTrue("Log file should exist: " + logFileName, new File(this.temporaryFolder.getRoot(), logFileName).exists());
 
       // check the status
-      final LocatorLauncher.LocatorState locatorState = this.launcher.status();
-      assertNotNull(locatorState);
-      assertEquals(AbstractLauncher.Status.ONLINE, locatorState.getStatus());
+      final ServerLauncher.ServerState serverState = this.launcher.status();
+      assertNotNull(serverState);
+      assertEquals(AbstractLauncher.Status.ONLINE, serverState.getStatus());
 
       assertThat(systemOutRule.getLog()).contains("log4j.configurationFile = " + this.customConfigFile.getCanonicalPath());
       assertThat(systemOutRule.getLog()).contains(CONFIG_LAYOUT_PREFIX);
@@ -105,7 +104,7 @@ public class LocatorLauncherRemoteWithCustomLoggingIntegrationTest extends Abstr
       this.errorCollector.addError(e);
     }
 
-    // stop the locator
+    // stop the server
     try {
       assertEquals(AbstractLauncher.Status.STOPPED, this.launcher.stop().getStatus());
       waitForPidToStop(pid);
@@ -120,5 +119,4 @@ public class LocatorLauncherRemoteWithCustomLoggingIntegrationTest extends Abstr
       System.out.println(line);
     }
   }
-
 }

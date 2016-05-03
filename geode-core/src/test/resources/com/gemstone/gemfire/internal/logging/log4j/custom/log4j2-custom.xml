@@ -1,14 +1,14 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <Configuration status="FATAL" shutdownHook="disable" packages="com.gemstone.gemfire.internal.logging.log4j.custom">
+    <Properties>
+        <Property name="custom-pattern">CUSTOM: level=%level time=%date{yyyy/MM/dd HH:mm:ss.SSS z} message=%message%nthrowable=%throwable%n</Property>
+    </Properties>
     <Appenders>
         <Console name="STDOUT" target="SYSTEM_OUT">
-            <PatternLayout pattern="%level %date{yyyy/MM/dd HH:mm:ss.SSS z} %message%n %throwable%n"/>
+            <PatternLayout pattern="${custom-pattern}"/>
         </Console>
-        <!--Appender type="Basic" name="CUSTOM">
-            <PatternLayout pattern="level=%level time=%date{yyyy/MM/dd HH:mm:ss.SSS z} message=%message%n throwable=%throwable%n"/>
-        </Appender-->
         <Basic name="CUSTOM">
-            <PatternLayout pattern="level=%level time=%date{yyyy/MM/dd HH:mm:ss.SSS z} message=%message%n throwable=%throwable%n"/>
+            <PatternLayout pattern="${custom-pattern}"/>
         </Basic>
     </Appenders>
     <Loggers>

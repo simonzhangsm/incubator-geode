@@ -61,6 +61,10 @@ public class BasicAppender extends AbstractAppender {
     instance = null;
   }
 
+  public static void clearEvents() {
+    instance.events.clear();
+  }
+
   @Override
   public void append(final LogEvent event) {
     this.events.add(event);
