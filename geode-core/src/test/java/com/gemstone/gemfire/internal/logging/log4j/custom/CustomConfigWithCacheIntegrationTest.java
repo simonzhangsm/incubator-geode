@@ -20,13 +20,9 @@ import static com.gemstone.gemfire.internal.logging.log4j.custom.CustomConfigura
 import static org.assertj.core.api.Assertions.*;
 
 import java.io.File;
-import java.io.FileOutputStream;
-import java.net.URL;
 import java.util.Properties;
 
-import org.apache.commons.io.IOUtils;
 import org.apache.logging.log4j.Level;
-import org.apache.logging.log4j.Logger;
 import org.apache.logging.log4j.core.LogEvent;
 import org.apache.logging.log4j.core.config.ConfigurationFactory;
 import org.apache.logging.log4j.status.StatusLogger;
@@ -34,11 +30,9 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
-import org.junit.contrib.java.lang.system.RestoreSystemProperties;
 import org.junit.contrib.java.lang.system.SystemErrRule;
 import org.junit.contrib.java.lang.system.SystemOutRule;
 import org.junit.experimental.categories.Category;
-import org.junit.rules.ExternalResource;
 import org.junit.rules.TemporaryFolder;
 import org.junit.rules.TestName;
 
