@@ -85,6 +85,7 @@ public class ClusterConfigurationDUnitTest extends CliCommandTestBase {
 
   private static final int TIMEOUT = 10000;
   private static final int INTERVAL = 500;
+
   private static final String REPLICATE_REGION = "ReplicateRegion1";
   private static final String PARTITION_REGION = "PartitionRegion1";
   private static final String DISK_REGION1 = "DR1";
@@ -96,13 +97,13 @@ public class ClusterConfigurationDUnitTest extends CliCommandTestBase {
   private static final String JAR2 = "D2.jar";
   private static final String JAR3 = "D3.jar";
   private static final String AsyncEventQueue1 = "Q1";
-  
-  public static Set<String> serverNames = new HashSet<String>();
-  public static Set<String> jarFileNames = new HashSet<String>();
-  
-  public static String dataMember = "DataMember";
-  public static String newMember = "NewMember";
-  
+
+  private static final String dataMember = "DataMember";
+  private static final String newMember = "NewMember";
+
+  private static Set<String> serverNames = new HashSet<>();
+  private static Set<String> jarFileNames = new HashSet<>();
+
   private transient ClassBuilder classBuilder = new ClassBuilder();
 
   @Override
@@ -113,6 +114,9 @@ public class ClusterConfigurationDUnitTest extends CliCommandTestBase {
   @Override
   public final void preTearDownCliCommandTestBase() throws Exception {
     shutdownAll();
+
+    serverNames.clear();
+    jarFileNames.clear();
   }
 
   @Test
@@ -927,7 +931,7 @@ public class ClusterConfigurationDUnitTest extends CliCommandTestBase {
   }
 
   private void createAndDeployJar(String jarName, String group) throws IOException {
-    File newDeployableJarFile = new File(jarName); // TODO: this creates files in geode-wan root
+    File newDeployableJarFile = new File(jarName);
     this.classBuilder.writeJarFromName("ShareConfigClass", newDeployableJarFile);
     CommandStringBuilder csb = new CommandStringBuilder(CliStrings.DEPLOY);
     csb.addOption(CliStrings.DEPLOY__JAR, jarName);
@@ -985,7 +989,8 @@ public class ClusterConfigurationDUnitTest extends CliCommandTestBase {
     }
   }
 
-  class CommandBuilder {
+  private static class CommandBuilder {
+
     private CommandStringBuilder csb;
 
     public CommandBuilder(String commandName, Map<String, String> options) {
