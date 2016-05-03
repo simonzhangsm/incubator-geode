@@ -55,8 +55,8 @@ import org.junit.runners.Parameterized;
  * @since 7.0
  */
 @Category(DistributedTest.class)
-@SuppressWarnings("serial")
 @RunWith(Parameterized.class)
+@SuppressWarnings("serial")
 public class DeployCommandsDUnitTest extends CliCommandTestBase {
 
   private final Pattern pattern = Pattern.compile("^" + JarDeployer.JAR_PREFIX + "DeployCommandsDUnit.*#\\d++$");
