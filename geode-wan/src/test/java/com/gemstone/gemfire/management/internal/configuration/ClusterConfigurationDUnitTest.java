@@ -120,6 +120,8 @@ public class ClusterConfigurationDUnitTest extends CliCommandTestBase {
     addIgnoredException("could not get remote locator");
     addIgnoredException("EntryDestroyedException");
 
+    String workingDir = this.temporaryFolder.getRoot().getCanonicalPath() + File.separator;
+
     Object[] result = setup();
     final int locatorPort = (Integer) result[0];
     final String jmxHost = (String) result[1];
@@ -150,13 +152,17 @@ public class ClusterConfigurationDUnitTest extends CliCommandTestBase {
     createRegion(DESTROY_REGION, RegionShortcut.REPLICATE, null);
     createIndex(INDEX1, "AAPL", REPLICATE_REGION, null);
     createIndex(INDEX2, "VMW", PARTITION_REGION, null);
-    createAndDeployJar(JAR1, null);
-    createAndDeployJar(JAR2, null);
-    createAndDeployJar(JAR3, null);
+
+    createAndDeployJar(workingDir + JAR1, null);
+    createAndDeployJar(workingDir + JAR2, null);
+    createAndDeployJar(workingDir + JAR3, null);
+
     createAsyncEventQueue(AsyncEventQueue1, "false", null, "1000", "1000",  null);
     destroyRegion(DESTROY_REGION);
     destroyIndex(INDEX2, PARTITION_REGION, null);
+
     undeployJar(JAR3, null);
+
     alterRuntime("true", "", "", "");
     createGatewayReceiver(receiverManualStart, "", gatewayReceiverStartPort, gatewayReceiverEndPort, "20", "");
     createGatewaySender(gsId, batchSize, alertThreshold, batchTimeInterval, dispatcherThreads, enableConflation, manualStart, maxQueueMemory, orderPolicy, parallel, rmDsId, socketBufferSize, socketReadTimeout);
@@ -921,7 +927,7 @@ public class ClusterConfigurationDUnitTest extends CliCommandTestBase {
   }
 
   private void createAndDeployJar(String jarName, String group) throws IOException {
-    File newDeployableJarFile = new File(jarName);
+    File newDeployableJarFile = new File(jarName); // TODO: this creates files in geode-wan root
     this.classBuilder.writeJarFromName("ShareConfigClass", newDeployableJarFile);
     CommandStringBuilder csb = new CommandStringBuilder(CliStrings.DEPLOY);
     csb.addOption(CliStrings.DEPLOY__JAR, jarName);
