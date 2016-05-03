@@ -66,6 +66,7 @@ public class SharedConfigurationEndToEndDUnitTest extends CliCommandTestBase {
 
   private static final int TIMEOUT = 10000;
   private static final int INTERVAL = 500;
+
   private static final String REGION1 = "R1";
   private static final String REGION2 = "R2";
   private static final String INDEX1 = "ID1";
@@ -73,8 +74,7 @@ public class SharedConfigurationEndToEndDUnitTest extends CliCommandTestBase {
   private static Set<String> serverNames = new HashSet<>();
   private static Set<String> jarFileNames = new HashSet<>();
 
-  private transient ClassBuilder classBuilder = new ClassBuilder();
-
+  private transient ClassBuilder classBuilder;
   private transient String jmxHost;
   private transient int jmxPort;
   private transient int httpPort;
@@ -86,6 +86,8 @@ public class SharedConfigurationEndToEndDUnitTest extends CliCommandTestBase {
 
     addIgnoredException("EntryDestroyedException");
 
+    this.classBuilder = new ClassBuilder();
+
     Object[] result = setup();
     int locatorPort = (Integer) result[0];
 
@@ -95,9 +97,13 @@ public class SharedConfigurationEndToEndDUnitTest extends CliCommandTestBase {
     this.locatorString = "localHost[" + locatorPort + "]";
   }
 
+  @Override
   public final void preTearDownCliCommandTestBase() throws Exception {
     //shutdown everything
     shutdownAll();
+
+    serverNames.clear();
+    jarFileNames.clear();
   }
 
   @Test

@@ -16,6 +16,8 @@
  */
 package com.gemstone.gemfire.management.internal.cli;
 
+import static com.gemstone.gemfire.distributed.internal.DistributionConfig.*;
+import static com.gemstone.gemfire.internal.AvailablePort.*;
 import static org.junit.Assert.*;
 
 import java.io.IOException;
@@ -29,8 +31,6 @@ import org.junit.rules.TestName;
 
 import com.gemstone.gemfire.cache.CacheFactory;
 import com.gemstone.gemfire.distributed.DistributedSystem;
-import com.gemstone.gemfire.distributed.internal.DistributionConfig;
-import com.gemstone.gemfire.internal.AvailablePort;
 import com.gemstone.gemfire.internal.cache.GemFireCacheImpl;
 import com.gemstone.gemfire.test.junit.categories.IntegrationTest;
 
@@ -49,15 +49,15 @@ public class HeadlessGfshIntegrationTest {
   @SuppressWarnings({"deprecation"})
   @Test
   public void testHeadlessGfshTest() throws ClassNotFoundException, IOException, InterruptedException {
-    int port = AvailablePort.getRandomAvailablePort(AvailablePort.SOCKET);
+    int port = getRandomAvailablePort(SOCKET);
 
     Properties properties = new Properties();
-    properties.put(DistributionConfig.NAME_NAME, this.testName.getMethodName());
-    properties.put(DistributionConfig.JMX_MANAGER_NAME, "true");
-    properties.put(DistributionConfig.JMX_MANAGER_START_NAME, "true");
-    properties.put(DistributionConfig.JMX_MANAGER_PORT_NAME, String.valueOf(port));
-    properties.put(DistributionConfig.HTTP_SERVICE_PORT_NAME, "0");
-    properties.put(DistributionConfig.MCAST_PORT_NAME, "0");
+    properties.put(NAME_NAME, this.testName.getMethodName());
+    properties.put(JMX_MANAGER_NAME, "true");
+    properties.put(JMX_MANAGER_START_NAME, "true");
+    properties.put(JMX_MANAGER_PORT_NAME, String.valueOf(port));
+    properties.put(HTTP_SERVICE_PORT_NAME, "0");
+    properties.put(MCAST_PORT_NAME, "0");
 
     DistributedSystem ds = DistributedSystem.connect(properties);
     GemFireCacheImpl cache = (GemFireCacheImpl) CacheFactory.create(ds);
