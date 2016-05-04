@@ -152,6 +152,7 @@ def cp = {
       it.contains('log4j-jcl') ||
       it.contains('log4j-jul') ||
       it.contains('log4j-slf4j-impl') ||
+      it.contains('shiro') ||
       it.contains('slf4j-api') ||
       it.contains('spring-core') ||
       it.contains('spring-shell') ||
@@ -231,8 +232,8 @@ gradle.taskGraph.whenReady( { graph ->
     it.name.toLowerCase().contains("dist")
   }.each { archive ->
     archive.doLast {
-      ant.checksum file:"${archive.archivePath}", algorithm:"md5"
-      ant.checksum file:"${archive.archivePath}", algorithm:"sha-256"
+      ant.checksum file:"${archive.archivePath}", algorithm:"md5", format: 'MD5SUM'
+      ant.checksum file:"${archive.archivePath}", algorithm:"sha-256", format: 'MD5SUM', fileext: '.sha256'
     }
   }
 })

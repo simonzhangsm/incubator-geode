@@ -16,11 +16,13 @@
  * specific language governing permissions and limitations
  * under the License.
  */
+
 package com.gemstone.gemfire.cache.lucene.internal.distributed;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
 import static org.mockito.Matchers.any;
-import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
 import java.io.IOException;
 import java.util.Collection;
@@ -28,10 +30,12 @@ import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicReference;
 
+import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.experimental.categories.Category;
 import org.mockito.ArgumentMatcher;
+import org.mockito.Mockito;
 
 import com.gemstone.gemfire.CancelCriterion;
 import com.gemstone.gemfire.cache.execute.FunctionException;
@@ -40,9 +44,8 @@ import com.gemstone.gemfire.test.junit.categories.UnitTest;
 
 @Category(UnitTest.class)
 public class TopEntriesFunctionCollectorJUnitTest {
-
-  private EntryScore r1_1, r1_2, r2_1, r2_2;
-  private TopEntriesCollector result1, result2;
+  EntryScore r1_1, r1_2, r2_1, r2_2;
+  TopEntriesCollector result1, result2;
 
   @Before
   public void initializeCommonObjects() {
@@ -208,7 +211,7 @@ public class TopEntriesFunctionCollectorJUnitTest {
     collector.endResults();
 
     TopEntries merged = collector.getResult();
-    assertNotNull(merged);
+    Assert.assertNotNull(merged);
     assertEquals(3, merged.size());
     TopEntriesJUnitTest.verifyResultOrder(merged.getHits(), r1_1, r2_1, r1_2);
   }
@@ -221,7 +224,7 @@ public class TopEntriesFunctionCollectorJUnitTest {
     collector.endResults();
 
     TopEntries merged = collector.getResult();
-    assertNotNull(merged);
+    Assert.assertNotNull(merged);
     assertEquals(4, merged.size());
     TopEntriesJUnitTest.verifyResultOrder(merged.getHits(), r1_1, r2_1, r1_2, r2_2);
   }
@@ -234,12 +237,12 @@ public class TopEntriesFunctionCollectorJUnitTest {
     collector.endResults();
     
     TopEntries merged = collector.getResult();
-    assertNotNull(merged);
+    Assert.assertNotNull(merged);
     assertEquals(4, merged.size());
     TopEntriesJUnitTest.verifyResultOrder(merged.getHits(), r1_1, r2_1, r1_2, r2_2);
     
     merged = collector.getResult();
-    assertNotNull(merged);
+    Assert.assertNotNull(merged);
     assertEquals(4, merged.size());
     TopEntriesJUnitTest.verifyResultOrder(merged.getHits(), r1_1, r2_1, r1_2, r2_2);
   }
@@ -248,11 +251,11 @@ public class TopEntriesFunctionCollectorJUnitTest {
   public void mergeResultsCustomCollectorManager() throws Exception {
     TopEntries resultEntries = new TopEntries();
     TopEntriesCollector mockCollector = mock(TopEntriesCollector.class);
-    doReturn(resultEntries).when(mockCollector).getEntries();
+    Mockito.doReturn(resultEntries).when(mockCollector).getEntries();
 
     CollectorManager<TopEntriesCollector> mockManager = mock(CollectorManager.class);
-    doReturn(mockCollector).when(mockManager)
-        .reduce(argThat(new ArgumentMatcher<Collection<TopEntriesCollector>>() {
+    Mockito.doReturn(mockCollector).when(mockManager)
+        .reduce(Mockito.argThat(new ArgumentMatcher<Collection<TopEntriesCollector>>() {
           @Override
           public boolean matches(Object argument) {
             Collection<TopEntriesCollector> collectors = (Collection<TopEntriesCollector>) argument;
@@ -279,15 +282,15 @@ public class TopEntriesFunctionCollectorJUnitTest {
     collector.endResults();
 
     TopEntries merged = collector.getResult();
-    assertNotNull(merged);
+    Assert.assertNotNull(merged);
     assertEquals(2, merged.size());
     TopEntriesJUnitTest.verifyResultOrder(merged.getHits(), r2_1, r2_2);
   }
 
-  @Test(expected = FunctionException.class)
+  @Test(expected = RuntimeException.class)
   public void testExceptionDuringMerge() throws Exception {
     TopEntriesCollectorManager mockManager = mock(TopEntriesCollectorManager.class);
-    doThrow(new IOException()).when(mockManager).reduce(any(Collection.class));
+    Mockito.doThrow(new RuntimeException()).when(mockManager).reduce(any(Collection.class));
 
     LuceneFunctionContext<TopEntriesCollector> context = new LuceneFunctionContext<>(null, null, mockManager);
     TopEntriesFunctionCollector collector = new TopEntriesFunctionCollector(context);
@@ -312,7 +315,7 @@ public class TopEntriesFunctionCollectorJUnitTest {
   @Test
   public void testCollectorName() {
     GemFireCacheImpl mockCache = mock(GemFireCacheImpl.class);
-    doReturn("server").when(mockCache).getName();
+    Mockito.doReturn("server").when(mockCache).getName();
 
     TopEntriesFunctionCollector function = new TopEntriesFunctionCollector(null, mockCache);
     assertEquals("server", function.id);

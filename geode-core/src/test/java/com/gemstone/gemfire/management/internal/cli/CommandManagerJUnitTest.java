@@ -16,6 +16,7 @@
  */
 package com.gemstone.gemfire.management.internal.cli;
 
+import static com.gemstone.gemfire.cache.operations.OperationContext.*;
 import static org.junit.Assert.*;
 
 import java.lang.annotation.Annotation;
@@ -43,6 +44,7 @@ import com.gemstone.gemfire.management.internal.cli.parser.Argument;
 import com.gemstone.gemfire.management.internal.cli.parser.AvailabilityTarget;
 import com.gemstone.gemfire.management.internal.cli.parser.CommandTarget;
 import com.gemstone.gemfire.management.internal.cli.parser.Option;
+import com.gemstone.gemfire.management.internal.security.ResourceOperation;
 import com.gemstone.gemfire.test.junit.categories.UnitTest;
 
 /**
@@ -237,6 +239,7 @@ public class CommandManagerJUnitTest {
 
     @CliCommand(value = { COMMAND1_NAME, COMMAND1_NAME_ALIAS }, help = COMMAND1_HELP)
     @CliMetaData(shellOnly = true, relatedTopic = { "relatedTopicOfCommand1" })
+    @ResourceOperation(resource = Resource.CLUSTER, operation = OperationCode.READ)
     public static String command1(
         @CliArgument(name = ARGUMENT1_NAME, argumentContext = ARGUMENT1_CONTEXT, help = ARGUMENT1_HELP, mandatory = true)
         String argument1,
@@ -252,11 +255,13 @@ public class CommandManagerJUnitTest {
     }
 
     @CliCommand(value = { COMMAND2_NAME })
+    @ResourceOperation(resource = Resource.CLUSTER, operation = OperationCode.READ)
     public static String command2() {
       return null;
     }
 
     @CliCommand(value = { "testParamConcat" })
+    @ResourceOperation(resource = Resource.CLUSTER, operation = OperationCode.READ)
     public static Result testParamConcat(
         @CliOption(key = { "string" })
         String string,
@@ -273,6 +278,7 @@ public class CommandManagerJUnitTest {
     }
 
     @CliCommand(value = { "testMultiWordArg" })
+    @ResourceOperation(resource = Resource.CLUSTER, operation = OperationCode.READ)
     public static Result testMultiWordArg(@CliArgument(name = "arg1")
     String arg1, @CliArgument(name = "arg2")
     String arg2) {
@@ -327,6 +333,7 @@ public class CommandManagerJUnitTest {
 
   public static class MockPluginCommand implements CommandMarker {
     @CliCommand(value = "mock plugin command")
+    @ResourceOperation(resource = Resource.CLUSTER, operation = OperationCode.READ)
     public Result mockPluginCommand() {
       return null;
     }
@@ -334,6 +341,7 @@ public class CommandManagerJUnitTest {
 
   public static class MockPluginCommandUnlisted implements CommandMarker {
     @CliCommand(value = "mock plugin command unlisted")
+    @ResourceOperation(resource = Resource.CLUSTER, operation = OperationCode.READ)
     public Result mockPluginCommandUnlisted() {
       return null;
     }

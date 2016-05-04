@@ -36,10 +36,14 @@ import javax.servlet.ServletContextListener;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.vmware.gemfire.tools.pulse.internal.PulseAppListener;
+
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.gemstone.gemfire.test.junit.categories.UnitTest;
 import com.vmware.gemfire.tools.pulse.internal.controllers.PulseController;
 import com.vmware.gemfire.tools.pulse.internal.data.Cluster;
 import com.vmware.gemfire.tools.pulse.internal.data.PulseConfig;
 import com.vmware.gemfire.tools.pulse.internal.data.Repository;
+
 import org.apache.commons.collections.buffer.CircularFifoBuffer;
 import org.junit.Before;
 import org.junit.Rule;
@@ -54,7 +58,6 @@ import org.powermock.modules.junit4.PowerMockRunner;
 import org.powermock.modules.junit4.PowerMockRunnerDelegate;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
-import org.springframework.mock.web.MockHttpSession;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.springframework.test.context.web.WebAppConfiguration;
@@ -107,6 +110,7 @@ public class PulseControllerJUnitTest {
   @Before
   public void setup() throws Exception {
     this.mockMvc = MockMvcBuilders.webAppContextSetup(this.wac).build();
+
 
     cluster = Mockito.spy(Cluster.class);
 
@@ -698,24 +702,7 @@ public class PulseControllerJUnitTest {
   }
 
   @Test
-  public void clusterLogout() throws Exception {
-    MockHttpSession mockSession = new MockHttpSession(wac.getServletContext(), UUID.randomUUID().toString());
-    assertFalse(mockSession.isInvalid());
-
-    this.mockMvc.perform(get("/clusterLogout").principal(principal)
-        .session(mockSession)
-        .accept(MediaType.parseMediaType(MediaType.APPLICATION_JSON_UTF8_VALUE)))
-        .andExpect(status().is3xxRedirection())
-        .andExpect(redirectedUrl("../Login.html"));
-
-    assertTrue(mockSession.isInvalid());
-  }
-
-  @Test
   public void pulseVersion() throws Exception {
-    ServletContextListener listener = new PulseAppListener();
-    listener.contextInitialized(null);
-
     this.mockMvc.perform(get("/pulseVersion")
         .accept(MediaType.parseMediaType(MediaType.APPLICATION_JSON_UTF8_VALUE)))
         .andExpect(status().isOk())
