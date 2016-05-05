@@ -71,8 +71,8 @@ public class SharedConfigurationEndToEndDUnitTest extends CliCommandTestBase {
   private static final String REGION2 = "R2";
   private static final String INDEX1 = "ID1";
 
-  private static Set<String> serverNames = new HashSet<>();
-  private static Set<String> jarFileNames = new HashSet<>();
+  private static Set<String> serverNames;
+  private static Set<String> jarFileNames;
 
   private transient ClassBuilder classBuilder;
   private transient String jmxHost;
@@ -85,6 +85,9 @@ public class SharedConfigurationEndToEndDUnitTest extends CliCommandTestBase {
     disconnectAllFromDS();
 
     addIgnoredException("EntryDestroyedException");
+
+    serverNames = new HashSet<>();
+    jarFileNames = new HashSet<>();
 
     this.classBuilder = new ClassBuilder();
 
@@ -104,6 +107,9 @@ public class SharedConfigurationEndToEndDUnitTest extends CliCommandTestBase {
 
     serverNames.clear();
     jarFileNames.clear();
+
+    serverNames = null;
+    jarFileNames = null;
   }
 
   @Test
@@ -406,6 +412,7 @@ public class SharedConfigurationEndToEndDUnitTest extends CliCommandTestBase {
     });
 
     locatorAndMgr.invoke(SharedConfigurationTestUtils.cleanupLocator);
+
     //Clean up the directories
     if (!serverNames.isEmpty()) {
       for (String serverName : serverNames) {
@@ -415,7 +422,6 @@ public class SharedConfigurationEndToEndDUnitTest extends CliCommandTestBase {
       }
     }
     serverNames.clear();
-    serverNames = null;
   }
 
   private void verifyRegionCreateOnAllMembers(final String regionName) {
