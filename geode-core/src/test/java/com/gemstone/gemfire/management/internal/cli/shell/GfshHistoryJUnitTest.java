@@ -83,4 +83,17 @@ public class GfshHistoryJUnitTest {
     List<String> lines = Files.readAllLines(gfshHistoryFile.toPath());
     assertEquals("// [failed] connect --password=***** --password = ***** --password= ***** --password =***** --password-param=***** --other-password-param= *****", lines.get(1));
   }
+
+  @Test
+  public void testClearHistory() throws Exception{
+    Gfsh gfsh = Gfsh.getInstance(false, new String[] {}, gfshConfig);
+    gfsh.executeScriptLine("connect --fake-param=foo");
+    List<String> lines = Files.readAllLines(gfshHistoryFile.toPath());
+    assertEquals(2, lines.size());
+
+    // clear the history
+    gfsh.clearHistory();
+    assertEquals(gfsh.getGfshHistory().size(), 0);
+    assertFalse(gfshHistoryFile.exists());
+  }
 }
