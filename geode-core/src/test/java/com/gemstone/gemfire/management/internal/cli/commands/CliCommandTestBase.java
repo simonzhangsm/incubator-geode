@@ -23,8 +23,6 @@ import java.io.IOException;
 import java.io.PrintStream;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
-import java.util.Arrays;
-import java.util.Collection;
 import java.util.Map;
 import java.util.Properties;
 import java.util.regex.Matcher;
@@ -47,6 +45,9 @@ import com.gemstone.gemfire.test.dunit.cache.internal.JUnit4CacheTestCase;
 
 import org.junit.runners.Parameterized;
 
+import org.junit.Rule;
+import org.junit.rules.TemporaryFolder;
+
 /**
  * Base class for all the CLI/gfsh command dunit tests.
  */
@@ -64,26 +65,25 @@ public abstract class CliCommandTestBase extends JUnit4CacheTestCase {
   protected String username = "super-user";
   protected String password = "1234567";
 
-  protected int httpPort;
-  protected int jmxPort;
+  private transient int httpPort;
+  private transient int jmxPort;
+  private transient String jmxHost;
+  protected transient String gfshDir;
 
-  protected String jmxHost;
+  @Rule
+  public transient TemporaryFolder temporaryFolder = new TemporaryFolder();
 
-  public CliCommandTestBase(){
-    this(false);
+  @Override
+  public final void postSetUp() throws Exception {
+    setUpCliCommandTestBase();
+    postSetUpCliCommandTestBase();
   }
 
-  // Junit will use the parameters to initialize the test class and run the tests with different parameters
-  public CliCommandTestBase(boolean useHttpOnConnect){
-    this.useHttpOnConnect = useHttpOnConnect;
+  private void setUpCliCommandTestBase() throws Exception {
+    this.gfshDir = this.temporaryFolder.newFolder("gfsh_files").getCanonicalPath();
   }
 
-  @Parameterized.Parameters
-  public static Collection parameters() {
-    return Arrays.asList(new Object[][] {
-        { false},  // useHttpOnConnect=false,
-        { true } // useHttpOnConnect=true,
-    });
+  protected void postSetUpCliCommandTestBase() throws Exception {
   }
 
   @Override
@@ -166,7 +166,7 @@ public abstract class CliCommandTestBase extends JUnit4CacheTestCase {
   /**
    * Destroy all of the components created for the default setup.
    */
-    protected final void destroyDefaultSetup() {
+  protected final void destroyDefaultSetup() {
     if (this.shell != null) {
       executeCommand(shell, "exit");
       this.shell.terminate();
@@ -288,7 +288,7 @@ public abstract class CliCommandTestBase extends JUnit4CacheTestCase {
     try {
       Gfsh.SUPPORT_MUTLIPLESHELL = true;
       String shellId = getClass().getSimpleName() + "_" + getName();
-      HeadlessGfsh shell = new HeadlessGfsh(shellId, 30);
+      HeadlessGfsh shell = new HeadlessGfsh(shellId, 30, this.gfshDir);
       //Added to avoid trimming of the columns
       info("Started testable shell: " + shell);
       return shell;

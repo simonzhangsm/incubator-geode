@@ -36,23 +36,17 @@ import com.gemstone.gemfire.management.internal.cli.shell.Gfsh;
 import com.gemstone.gemfire.management.internal.cli.util.CommandStringBuilder;
 import com.gemstone.gemfire.test.junit.categories.DistributedTest;
 import com.gemstone.gemfire.test.junit.categories.FlakyTest;
+
 import org.junit.Test;
 import org.junit.experimental.categories.Category;
-import org.junit.runner.RunWith;
-import org.junit.runners.Parameterized;
 
 @Category(DistributedTest.class)
-@RunWith(Parameterized.class)
 public class ShellCommandsDUnitTest extends CliCommandTestBase {
 
   private static final long serialVersionUID = 1L;
 
-  public ShellCommandsDUnitTest(boolean useHttpOnConnect) {
-    super(useHttpOnConnect);
-  }
-
   @Override
-  public final void postSetUp() throws Exception {
+  public final void postSetUpCliCommandTestBase() throws Exception {
     getDefaultShell();
   }
 
