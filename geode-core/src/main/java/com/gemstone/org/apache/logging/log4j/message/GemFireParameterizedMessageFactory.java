@@ -23,12 +23,14 @@ import org.apache.logging.log4j.message.ParameterizedMessage;
 
 /**
  * Enables use of <code>{}</code> parameter markers in message strings.
- * <p>
+ * <p/>
  * Creates {@link ParameterizedMessage} instances for {@link #newMessage(String, Object...)}.
- * </p>
- * <p>
+ * <p/>
  * This class is immutable.
- * </p>
+ * <p/>
+ * Copied into Geode from org.apache.logging.log4j.message.ParameterizedMessageFactory (http://logging.apache.org/log4j/2.x/license.html)
+ * <p/>
+ * Geode changes include changing class name and package. Additional changes are commented with "// GEODE: note"
  */
 public final class GemFireParameterizedMessageFactory extends AbstractMessageFactory {
 
@@ -49,6 +51,6 @@ public final class GemFireParameterizedMessageFactory extends AbstractMessageFac
      */
     @Override
     public Message newMessage(final String message, final Object... params) {
-        return new GemFireParameterizedMessage(message, params);
+        return new GemFireParameterizedMessage(message, params); // GEODE: change to construct GemFireParameterizedMessage
     }
 }
