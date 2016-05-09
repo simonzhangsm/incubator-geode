@@ -32,6 +32,10 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Properties;
 
+import org.apache.commons.io.FileUtils;
+import org.junit.Test;
+import org.junit.experimental.categories.Category;
+
 import com.gemstone.gemfire.cache.Cache;
 import com.gemstone.gemfire.cache.server.CacheServer;
 import com.gemstone.gemfire.distributed.Locator;
@@ -58,10 +62,6 @@ import com.gemstone.gemfire.test.dunit.VM;
 import com.gemstone.gemfire.test.dunit.WaitCriterion;
 import com.gemstone.gemfire.test.junit.categories.DistributedTest;
 
-import org.apache.commons.io.FileUtils;
-import org.junit.Test;
-import org.junit.experimental.categories.Category;
-
 /**
  * Dunit class for testing GemFire config commands : export config
  *
@@ -71,31 +71,45 @@ import org.junit.experimental.categories.Category;
 @SuppressWarnings("serial")
 public class ConfigCommandsDUnitTest extends CliCommandTestBase {
 
-  File managerConfigFile = new File("Manager-cache.xml");
-  File managerPropsFile = new File("Manager-gf.properties");
-  File vm1ConfigFile = new File("VM1-cache.xml");
-  File vm1PropsFile = new File("VM1-gf.properties");
-  File vm2ConfigFile = new File("VM2-cache.xml");
-  File vm2PropsFile = new File("VM2-gf.properties");
-  File shellConfigFile = new File("Shell-cache.xml");
-  File shellPropsFile = new File("Shell-gf.properties");
-  File subDir = new File("ConfigCommandsDUnitTestSubDir");
-  File subManagerConfigFile = new File(subDir, managerConfigFile.getName());
+  private File managerConfigFile;
+  private File managerPropsFile;
+  private File vm1ConfigFile;
+  private File vm1PropsFile;
+  private File vm2ConfigFile;
+  private File vm2PropsFile;
+  private File shellConfigFile;
+  private File shellPropsFile;
+  private File subDir;
+  private File subManagerConfigFile;
 
   @Override
-  protected void preTearDownCliCommandTestBase() throws Exception {
-    deleteTestFiles();
-    invokeInEveryVM(new SerializableRunnable() {
+  protected final void postSetUpCliCommandTestBase() throws Exception {
+    this.managerConfigFile = this.temporaryFolder.newFile("Manager-cache.xml");
+    this.managerPropsFile = this.temporaryFolder.newFile("Manager-gf.properties");
+    this.vm1ConfigFile = this.temporaryFolder.newFile("VM1-cache.xml");
+    this.vm1PropsFile = this.temporaryFolder.newFile("VM1-gf.properties");
+    this.vm2ConfigFile = this.temporaryFolder.newFile("VM2-cache.xml");
+    this.vm2PropsFile = this.temporaryFolder.newFile("VM2-gf.properties");
+    this.shellConfigFile = this.temporaryFolder.newFile("Shell-cache.xml");
+    this.shellPropsFile = this.temporaryFolder.newFile("Shell-gf.properties");
+    this.subDir = this.temporaryFolder.newFolder(getName());
+    this.subManagerConfigFile = new File(subDir, managerConfigFile.getName());
+  }
 
-      @Override
-      public void run() {
-        try {
-          deleteTestFiles();
-        } catch (IOException e) {
-          fail("error", e);
-        }
-      }
-    });
+  @Override
+  protected final void preTearDownCliCommandTestBase() throws Exception {
+//    deleteTestFiles();
+//    invokeInEveryVM(new SerializableRunnable() {
+//
+//      @Override
+//      public void run() {
+//        try {
+//          deleteTestFiles();
+//        } catch (IOException e) {
+//          fail("error", e);
+//        }
+//      }
+//    });
   }
 
   @Test
@@ -202,34 +216,34 @@ public class ConfigCommandsDUnitTest extends CliCommandTestBase {
     CommandResult cmdResult = executeCommand("export config");
     assertEquals(Result.Status.OK, cmdResult.getStatus());
 
-    assertTrue(this.managerConfigFile.exists());
-    assertTrue(this.managerPropsFile.exists());
-    assertTrue(this.vm1ConfigFile.exists());
-    assertTrue(this.vm1PropsFile.exists());
-    assertTrue(this.vm2ConfigFile.exists());
-    assertTrue(this.vm2PropsFile.exists());
-    assertTrue(this.shellConfigFile.exists());
-    assertTrue(this.shellPropsFile.exists());
+    assertTrue(this.managerConfigFile + " should exist", this.managerConfigFile.exists());
+    assertTrue(this.managerPropsFile + " should exist", this.managerPropsFile.exists());
+    assertTrue(this.vm1ConfigFile + " should exist", this.vm1ConfigFile.exists());
+    assertTrue(this.vm1PropsFile + " should exist", this.vm1PropsFile.exists());
+    assertTrue(this.vm2ConfigFile + " should exist", this.vm2ConfigFile.exists());
+    assertTrue(this.vm2PropsFile + " should exist", this.vm2PropsFile.exists());
+    assertTrue(this.shellConfigFile + " should exist", this.shellConfigFile.exists());
+    assertTrue(this.shellPropsFile + " should exist", this.shellPropsFile.exists());
 
     // Test exporting member
     deleteTestFiles();
     cmdResult = executeCommand("export config --member=Manager");
     assertEquals(Result.Status.OK, cmdResult.getStatus());
 
-    assertTrue(this.managerConfigFile.exists());
-    assertFalse(this.vm1ConfigFile.exists());
-    assertFalse(this.vm2ConfigFile.exists());
-    assertFalse(this.shellConfigFile.exists());
+    assertTrue(this.managerConfigFile + " should exist", this.managerConfigFile.exists());
+    assertFalse(this.vm1ConfigFile + " should not exist", this.vm1ConfigFile.exists());
+    assertFalse(this.vm2ConfigFile + " should not exist", this.vm2ConfigFile.exists());
+    assertFalse(this.shellConfigFile + " should not exist", this.shellConfigFile.exists());
 
     // Test exporting group
     deleteTestFiles();
     cmdResult = executeCommand("export config --group=Group2");
     assertEquals(Result.Status.OK, cmdResult.getStatus());
 
-    assertFalse(this.managerConfigFile.exists());
-    assertTrue(this.vm1ConfigFile.exists());
-    assertTrue(this.vm2ConfigFile.exists());
-    assertFalse(this.shellConfigFile.exists());
+    assertFalse(this.managerConfigFile + " should not exist", this.managerConfigFile.exists());
+    assertTrue(this.vm1ConfigFile + " should exist", this.vm1ConfigFile.exists());
+    assertTrue(this.vm2ConfigFile + " should exist", this.vm2ConfigFile.exists());
+    assertFalse(this.shellConfigFile + " should not exist", this.shellConfigFile.exists());
 
     // Test export to directory
     deleteTestFiles();
@@ -250,12 +264,8 @@ public class ConfigCommandsDUnitTest extends CliCommandTestBase {
     assertEquals(Result.Status.OK, cmdResult.getStatus());
 
     char[] fileContents = new char[configToMatch.length()];
-    try {
-      FileReader reader = new FileReader(shellConfigFile);
-      reader.read(fileContents);
-    } catch (Exception ex) {
-      fail("Unable to read file contents for comparison", ex);
-    }
+    FileReader reader = new FileReader(shellConfigFile);
+    reader.read(fileContents);
 
     assertEquals(configToMatch, new String(fileContents));
   }
