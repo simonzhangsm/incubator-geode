@@ -75,7 +75,6 @@ public class DUnitLauncher {
 
   /** change this to use a different log level in unit tests */
   public static final String LOG_LEVEL = System.getProperty("logLevel", "info");
-  public static final String LOG4J = System.getProperty("log4j.configurationFile");
   
   static int locatorPort;
 
@@ -92,7 +91,7 @@ public class DUnitLauncher {
   public static final boolean LOCATOR_LOG_TO_DISK = Boolean.getBoolean("locatorLogToDisk");
 
   static final String MASTER_PARAM = "DUNIT_MASTER";
-  static final String RMI_PORT_PARAM = "gemfire.DUnitLauncher.RMI_PORT";
+  public static final String RMI_PORT_PARAM = "gemfire.DUnitLauncher.RMI_PORT";
   static final String VM_NUM_PARAM = "gemfire.DUnitLauncher.VM_NUM";
 
   private static final String LAUNCHED_PROPERTY = "gemfire.DUnitLauncher.LAUNCHED";
@@ -158,6 +157,7 @@ public class DUnitLauncher {
     //create an RMI registry and add an object to share our tests config
     int namingPort = AvailablePortHelper.getRandomAvailableTCPPort();
     Registry registry = LocateRegistry.createRegistry(namingPort);
+    System.setProperty(RMI_PORT_PARAM, ""+namingPort);
 
     final ProcessManager processManager = new ProcessManager(namingPort, registry);
     master = new Master(registry, processManager);
