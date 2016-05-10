@@ -40,7 +40,6 @@ import java.util.Properties;
 
 import batterytest.greplogs.ExpectedStrings;
 import batterytest.greplogs.LogConsumer;
-import hydra.Log;
 import hydra.MethExecutorResult;
 import org.apache.logging.log4j.Level;
 import org.apache.logging.log4j.LogManager;
@@ -145,9 +144,6 @@ public class DUnitLauncher {
 
   
   private static void launch() throws URISyntaxException, AlreadyBoundException, IOException, InterruptedException, NotBoundException  {
-//  initialize the log writer that hydra uses
-    Log.createLogWriter( "dunit-master", LOG_LEVEL );
-
     DUNIT_SUSPECT_FILE = new File(SUSPECT_FILENAME);
     DUNIT_SUSPECT_FILE.delete();
     DUNIT_SUSPECT_FILE.deleteOnExit();
