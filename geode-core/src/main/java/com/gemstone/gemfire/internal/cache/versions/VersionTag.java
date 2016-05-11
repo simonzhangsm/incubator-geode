@@ -334,21 +334,6 @@ public abstract class VersionTag<T extends VersionSource> implements DataSeriali
     return !(this.entryVersion == 0 && this.regionVersionHighBytes == 0 && this.regionVersionLowBytes == 0);
   }
 
-  public VersionTag() {
-  }
-
-  /**
-   * creates a version tag for a WAN gateway event
-   *
-   * @param timestamp
-   * @param dsid
-   */
-  public VersionTag(long timestamp, int dsid) {
-    this.timeStamp = timestamp;
-    this.distributedSystemId = (byte) (dsid & 0xFF);
-    bitsUpdater.set(this, BITS_GATEWAY_TAG + BITS_IS_REMOTE_TAG);
-  }
-
   public void toData(DataOutput out) throws IOException {
     toData(out, true);
   }
