@@ -21,13 +21,18 @@ package com.gemstone.gemfire.cache.lucene.internal;
 
 import com.gemstone.gemfire.cache.Cache;
 import com.gemstone.gemfire.cache.CacheFactory;
+import com.gemstone.gemfire.cache.lucene.LuceneService;
+import com.gemstone.gemfire.cache.lucene.LuceneServiceProvider;
+
 import org.junit.After;
+import org.junit.Before;
 import org.junit.Rule;
 import org.junit.rules.TestName;
 
 public class LuceneIntegrationTest {
 
   protected Cache cache;
+  protected LuceneService luceneService;
 
   @Rule
   public TestName name = new TestName();
@@ -39,9 +44,12 @@ public class LuceneIntegrationTest {
     }
   }
 
-  protected void createCache() {
+  @Before
+  public void createCache() {
     CacheFactory cf = new CacheFactory();
     cf.set("mcast-port", "0");
+    cf.set("locators", "");
     this.cache = cf.create();
+    luceneService = LuceneServiceProvider.get(this.cache);
   }
 }
