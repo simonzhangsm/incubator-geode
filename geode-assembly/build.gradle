@@ -52,8 +52,7 @@ dependencies {
 
   archives project(':geode-common')  
   archives project(':geode-json')  
-  archives project(':geode-joptsimple')  
-  archives project(':geode-core')  
+  archives project(':geode-core')
   archives project(':geode-lucene')
   archives project(':geode-web')
   archives project(':geode-web-api')
@@ -308,9 +307,6 @@ distributions {
 
         from project(":geode-json").configurations.runtime
         from project(":geode-json").configurations.archives.allArtifacts.files
-
-        from project(":geode-joptsimple").configurations.runtime
-        from project(":geode-joptsimple").configurations.archives.allArtifacts.files
 
         from project(":geode-wan").configurations.runtime
         from project(":geode-wan").configurations.archives.allArtifacts.files
